@@ -2,31 +2,33 @@
    问问大师 · AI 提供方门面
    ------------------------------------------------------------
    统一导出，调用方无需感知底层是哪家服务。
-   默认提供方：workbuddy（应用内置模型，免密钥），可在设置中切换。
+   默认提供方：cloudbase（自有云开发环境 AI，免密钥），可在设置中切换。
    切换状态存于 localStorage['tj_ai_provider']。
    ============================================================ */
 
 import * as openrouter from './openrouter.js';
 import * as deepseek from './deepseek.js';
 import * as workbuddy from './workbuddy-cloud.js';
+import * as cloudbaseAi from './cloudbase-ai.js';
 
 const LS_PROVIDER = 'tj_ai_provider';
-const PROVIDERS = ['workbuddy', 'deepseek', 'openrouter'];
+const PROVIDERS = ['cloudbase', 'workbuddy', 'deepseek', 'openrouter'];
 
 export function getProvider() {
-  try { return localStorage.getItem(LS_PROVIDER) || 'workbuddy'; } catch (_) { return 'workbuddy'; }
+  try { return localStorage.getItem(LS_PROVIDER) || 'cloudbase'; } catch (_) { return 'cloudbase'; }
 }
 export function setProvider(p) {
   if (!PROVIDERS.includes(p)) return;
   try { localStorage.setItem(LS_PROVIDER, p); } catch (_) {}
 }
-/** 内置模型提供方不需要用户填写 API Key。 */
-export function providerNeedsKey() { return getProvider() !== 'workbuddy'; }
+/** 云端提供方（cloudbase / workbuddy）不需要用户填写 API Key。 */
+export function providerNeedsKey() { const p = getProvider(); return p !== 'workbuddy' && p !== 'cloudbase'; }
 function active() {
   const p = getProvider();
   if (p === 'openrouter') return openrouter;
   if (p === 'deepseek') return deepseek;
-  return workbuddy;
+  if (p === 'workbuddy') return workbuddy;
+  return cloudbaseAi;
 }
 
 /* —— 自动路由到当前提供方（签名一致）—— */
@@ -41,10 +43,12 @@ export function onConnChange(fn) {
   const offOpenrouter = openrouter.onConnChange(fn);
   const offDeepseek = deepseek.onConnChange(fn);
   const offWorkbuddy = workbuddy.onConnChange(fn);
+  const offCloudbase = cloudbaseAi.onConnChange(fn);
   return () => {
     offOpenrouter && offOpenrouter();
     offDeepseek && offDeepseek();
     offWorkbuddy && offWorkbuddy();
+    offCloudbase && offCloudbase();
   };
 }
 

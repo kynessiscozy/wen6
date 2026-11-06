@@ -18,7 +18,7 @@ const apiKeyStorage = () => 'tj_ai_apikey_' + getProvider();
 export function getApiKey() {
   // 内置模型免密钥。返回非空标识只是为了让既有 UI 的「AI 是否可用」
   // 判断通过，该值不会作为密钥发送给任何服务。
-  if (!providerNeedsKey()) return 'workbuddy-cloud';
+  if (!providerNeedsKey()) return 'keyless-cloud';
   try {
     const custom = localStorage.getItem(apiKeyStorage());
     if (custom && custom.trim()) return custom.trim();
@@ -103,6 +103,9 @@ if (typeof window !== 'undefined') {
 
 /* 提供方对应密钥说明 */
 function _providerInfo(p) {
+  if (p === 'cloudbase') {
+    return '由自有云开发环境（CloudBase AI · 混元模型）提供回复，<b>无需填写 API Key</b>。提问与相关命盘上下文会发送给该模型服务用于生成回复，请避免输入敏感信息；离线或额度不足时，AI 问答会自动回退到本地知识库回答。';
+  }
   if (p === 'workbuddy') {
     return '由应用内置的模型能力提供回复，<b>无需填写 API Key</b>。提问与相关命盘上下文会发送给该模型服务用于生成回复，请避免输入敏感信息；离线或额度不足时，AI 问答会自动回退到本地知识库回答。';
   }
@@ -128,17 +131,18 @@ function _buildPanel(container) {
   const maskedKey = savedKey ? _maskKey(savedKey) : '';
   const hasCustom = !!savedKey;
   const p = getProvider();
-  const cloudMode = p === 'workbuddy';
+  const cloudMode = !providerNeedsKey();
 
   container.innerHTML = `
     <div class="ai-setting-section">
       <div class="ai-setting-section-title">服务提供商</div>
       <select id="aiProviderSelect" class="ai-provider-select" aria-label="服务提供商">
-        <option value="workbuddy"${cloudMode ? ' selected' : ''}>内置模型（免密钥・默认）</option>
+        <option value="cloudbase"${p === 'cloudbase' ? ' selected' : ''}>CloudBase AI（免密钥・默认）</option>
+        <option value="workbuddy"${p === 'workbuddy' ? ' selected' : ''}>内置模型（免密钥）</option>
         <option value="deepseek"${p === 'deepseek' ? ' selected' : ''}>DeepSeek</option>
         <option value="openrouter"${p === 'openrouter' ? ' selected' : ''}>OpenRouter</option>
       </select>
-      <div class="ai-setting-hint">内置模型免密钥即可使用；切换到其他服务商需填写对应 API Key。</div>
+      <div class="ai-setting-hint">云端服务免密钥即可使用；切换到 DeepSeek / OpenRouter 需填写对应 API Key。</div>
     </div>
 
     <div class="ai-setting-section" id="aiKeySection" style="display:${cloudMode ? 'none' : ''}">
@@ -164,9 +168,9 @@ function _buildPanel(container) {
     </div>
 
     <div class="ai-setting-section" id="aiCloudSection" style="display:${cloudMode ? '' : 'none'}">
-      <div class="ai-setting-section-title">内置模型状态</div>
+      <div class="ai-setting-section-title" id="aiCloudTitle">${p === 'cloudbase' ? 'CloudBase AI 状态' : '内置模型状态'}</div>
       <div class="ai-setting-hint" id="aiCloudStatus">已开启 · 免密钥，正在检测模型…</div>
-      <div class="ai-key-note" id="aiCloudNote">${_providerInfo('workbuddy')}</div>
+      <div class="ai-key-note" id="aiCloudNote">${_providerInfo(p)}</div>
     </div>
 
     <div class="ai-setting-section">
@@ -233,10 +237,14 @@ function _buildPanel(container) {
   provSel.addEventListener('change', async () => {
     const np = provSel.value;
     setProvider(np);
-    const isCloud = np === 'workbuddy';
+    const isCloud = np === 'workbuddy' || np === 'cloudbase';
     container.querySelector('#aiKeySection').style.display = isCloud ? 'none' : '';
     container.querySelector('#aiCloudSection').style.display = isCloud ? '' : 'none';
     container.querySelector('#aiKeyNote').innerHTML = _providerInfo(np);
+    const cloudNote = container.querySelector('#aiCloudNote');
+    if (cloudNote) cloudNote.innerHTML = _providerInfo(np);
+    const cloudTitle = container.querySelector('#aiCloudTitle');
+    if (cloudTitle) cloudTitle.textContent = np === 'cloudbase' ? 'CloudBase AI 状态' : '内置模型状态';
     _refreshKeyStatus(container);
     container.querySelector('#aiKeyInput').value = '';
     container.querySelector('#aiKeyInputRow').style.display = 'none';

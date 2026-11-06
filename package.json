@@ -57,6 +57,7 @@
     "vite": "^8.3.5"
   },
   "dependencies": {
+    "@cloudbase/js-sdk": "^3.11.0",
     "@tencent-ai/workbuddy-cloud-sdk": "^0.1.4-dev.ca27990.202610161713",
     "three": "^0.185.1"
   }
