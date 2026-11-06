@@ -1,0 +1,247 @@
+/* ============================================================
+   西方星相专属视觉组件（直观图形化体系 · 纯 SVG 矢量架构）
+   ============================================================ */
+.w-svg-ic {
+  display: inline-block;
+  vertical-align: -0.16em;
+  stroke: currentColor;
+  fill: none;
+  flex-shrink: 0;
+}
+.card-ic .w-svg-ic {
+  width: 22px;
+  height: 22px;
+  vertical-align: middle;
+}
+.w-elem-ic {
+  margin-right: 4px;
+}
+.kicker .w-svg-ic {
+  margin-right: 3px;
+}
+.chip .w-svg-ic {
+  margin-right: 3px;
+}
+.hd span .w-svg-ic {
+  margin-right: 4px;
+}
+.w-trio-card .symbol svg {
+  display: inline-block;
+  margin: 4px auto;
+}
+.w-planet-tile .top .sym svg {
+  vertical-align: -2px;
+}
+.w-sign-tile .sym svg {
+  display: inline-block;
+  margin: 2px auto;
+}
+
+.w-visual-banner {
+  padding: 16px 18px; border-radius: 18px;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--ac) 14%, var(--c-surface-2)), var(--c-surface-2));
+  border: 1px solid color-mix(in srgb, var(--ac) 28%, transparent);
+  margin-bottom: 14px;
+}
+.w-visual-banner .wb-top { display: flex; align-items: center; gap: 14px; }
+.w-visual-banner .wb-sign-badge {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  width: 54px; height: 54px; border-radius: 14px; border: 1.5px solid currentColor; flex-shrink: 0;
+}
+.w-visual-banner .wb-sign-badge .sym { font-size: 24px; line-height: 1; }
+.w-visual-banner .wb-sign-badge b { font-size: 11px; margin-top: 2px; }
+.w-visual-banner .wb-meta { flex: 1; }
+.w-visual-banner .wb-title { font-size: 1.08em; font-weight: 800; font-family: var(--serif); color: var(--c-text-hi); }
+.w-visual-banner .wb-sub { font-size: .78em; color: var(--ac-text); margin-top: 3px; font-weight: 600; }
+.w-visual-banner .wb-takeaway {
+  margin-top: 10px; padding-top: 8px; border-top: 1px dashed var(--c-border);
+  font-size: .82em; line-height: 1.6; color: var(--c-text);
+}
+.w-visual-banner .wb-takeaway b { color: var(--c-text-hi); }
+
+/* 三核星盘卡 */
+.w-trio-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 10px;
+}
+@media (max-width: 560px) { .w-trio-grid { grid-template-columns: 1fr; } }
+.w-trio-card {
+  padding: 14px 12px; border-radius: 14px; background: var(--c-surface-2);
+  border: 1px solid var(--c-border); text-align: center;
+}
+.w-trio-card.sun { border-top: 3px solid #d97757; }
+.w-trio-card.moon { border-top: 3px solid #6b8ba4; }
+.w-trio-card.asc { border-top: 3px solid #b5838d; }
+.w-trio-card .kicker { font-size: .72em; font-weight: 700; color: var(--ac-text); margin-bottom: 4px; }
+.w-trio-card .symbol { font-size: 2.2em; line-height: 1; margin: 4px 0; color: var(--c-text-hi); }
+.w-trio-card .name { font-size: 1.1em; font-weight: 800; font-family: var(--serif); color: var(--c-text-hi); }
+.w-trio-card .tag { font-size: .72em; color: var(--c-text-2); margin: 4px 0 6px; }
+.w-trio-card p { font-size: .76em; line-height: 1.6; color: var(--c-text-2); margin: 0; text-align: left; }
+
+/* 四象与六维雷达并列排版 */
+.w-elem-radar-layout {
+  display: grid; grid-template-columns: 1.1fr 1fr; gap: 16px; margin-top: 10px; align-items: center;
+}
+@media (max-width: 600px) { .w-elem-radar-layout { grid-template-columns: 1fr; } }
+.w-elem-title { font-size: .82em; font-weight: 700; color: var(--c-text-hi); margin-bottom: 10px; }
+.w-elem-bar-row { margin-bottom: 8px; }
+.w-elem-bar-row .lab { display: flex; justify-content: space-between; font-size: .78em; color: var(--c-text); margin-bottom: 3px; font-weight: 600; }
+.w-elem-bar-row .track { height: 7px; border-radius: 99px; background: var(--c-surface-3); overflow: hidden; }
+.w-elem-bar-row .fill { height: 100%; border-radius: 99px; }
+.w-elem-bar-row .meta { font-size: .68em; color: var(--c-text-3); margin-top: 2px; }
+
+.w-radar-box { width: 100%; max-width: 220px; margin: 0 auto; }
+.w-radar-svg { width: 100%; height: auto; display: block; }
+
+/* 十大星体网格卡 */
+.w-planet-cards-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px;
+}
+@media (max-width: 600px) { .w-planet-cards-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 380px) { .w-planet-cards-grid { grid-template-columns: 1fr; } }
+.w-planet-tile {
+  padding: 10px 12px; border-radius: 12px; background: var(--c-surface-2); border: 1px solid var(--c-border);
+}
+.w-planet-tile .top { display: flex; align-items: baseline; justify-content: space-between; gap: 4px; font-size: .8em; font-weight: 700; }
+.w-planet-tile .sym { color: var(--ac-text); font-size: 1.1em; }
+.w-planet-tile .pname { color: var(--c-text-hi); flex: 1; margin-left: 4px; }
+.w-planet-tile .pdeg { color: var(--c-text-3); font-size: .85em; }
+.w-planet-tile .mid { font-size: .82em; font-weight: 800; margin: 3px 0 2px; }
+.w-planet-tile .house { font-size: .7em; color: var(--ac-text); background: var(--ac1); padding: 1px 6px; border-radius: 4px; display: inline-block; }
+.w-planet-tile .desc { font-size: .72em; color: var(--c-text-2); margin-top: 4px; line-height: 1.4; }
+
+/* 运势 Hero 卡片 */
+.w-horo-hero {
+  display: flex; align-items: center; gap: 16px; padding: 14px; border-radius: 14px;
+  background: var(--c-surface-2); border: 1px solid var(--c-border); margin-top: 10px;
+}
+@media (max-width: 500px) { .w-horo-hero { flex-direction: column; text-align: center; } }
+.score-ring-box { position: relative; width: 88px; height: 88px; flex-shrink: 0; }
+.score-ring-box .ring-svg { width: 100%; height: 100%; }
+.score-ring-box .score-txt {
+  position: absolute; inset: 0; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; font-size: 1.5em; font-weight: 900;
+  font-family: var(--serif); color: var(--c-text-hi); line-height: 1;
+}
+.score-ring-box .score-txt small { font-size: .45em; font-weight: normal; color: var(--c-text-3); margin-top: 2px; }
+
+.hero-details .mood-tag {
+  display: inline-block; font-size: .86em; font-weight: 800; color: var(--ac-text);
+  padding: 3px 10px; border-radius: 99px; background: var(--ac1); border: 1px solid var(--ac4); margin-bottom: 6px;
+}
+.guide-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+.guide-chips .chip {
+  font-size: .75em; padding: 3px 8px; border-radius: 8px; background: var(--c-surface-3); color: var(--c-text);
+}
+
+/* 运势四项分栏 */
+.w-aspect-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px;
+}
+@media (max-width: 520px) { .w-aspect-grid { grid-template-columns: 1fr; } }
+.w-aspect-card {
+  padding: 11px 13px; border-radius: 12px; background: var(--c-surface-2); border: 1px solid var(--c-border);
+}
+.w-aspect-card .hd { display: flex; justify-content: space-between; font-size: .82em; font-weight: 700; color: var(--c-text-hi); margin-bottom: 4px; }
+.w-aspect-card .hd b { color: var(--ac-text); }
+.w-aspect-card p { margin: 0; font-size: .76em; line-height: 1.6; color: var(--c-text-2); }
+
+.w-yiji-banner {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; padding: 10px 12px;
+  border-radius: 12px; background: var(--c-surface-2); border: 1px solid var(--c-border); font-size: .78em;
+}
+@media (max-width: 480px) { .w-yiji-banner { grid-template-columns: 1fr; } }
+.w-yiji-banner .col.yi b { color: var(--c-green, #7ab648); }
+.w-yiji-banner .col.ji b { color: var(--c-red, #d4654a); }
+
+/* 12星座黄道网格 */
+.w-all-signs-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 8px;
+}
+@media (max-width: 560px) { .w-all-signs-grid { grid-template-columns: repeat(3, 1fr); } }
+.w-sign-tile {
+  padding: 9px 6px; border-radius: 10px; background: var(--c-surface-2); border: 1px solid var(--c-border); text-align: center; font-size: .74em;
+}
+.w-sign-tile.is-me { border-color: var(--ac); background: var(--ac1); }
+.w-sign-tile .sym { font-size: 1.5em; line-height: 1; margin-bottom: 2px; }
+.w-sign-tile .name { font-weight: 700; color: var(--c-text-hi); }
+.w-sign-tile .me-tag { font-size: .75em; padding: 1px 4px; border-radius: 4px; background: var(--ac); color: #000; margin-left: 2px; }
+.w-sign-tile .score { color: var(--ac-text); font-weight: 700; margin-top: 2px; }
+.w-sign-tile .mood { color: var(--c-text-3); font-size: .85em; }
+
+/* 生命灵数图腾大卡 */
+.w-num-trio-box {
+  display: grid; grid-template-columns: 1.2fr 1fr; gap: 12px; margin-top: 10px;
+}
+@media (max-width: 560px) { .w-num-trio-box { grid-template-columns: 1fr; } }
+.main-archetype-card {
+  padding: 16px; border-radius: 14px; background: var(--c-surface-2); border: 1px solid var(--c-border); text-align: center;
+}
+.main-archetype-card .kicker { font-size: .72em; font-weight: 700; color: var(--ac-text); margin-bottom: 4px; letter-spacing: 1px; }
+.main-archetype-card .big-num { font-size: 3.6em; font-weight: 900; font-family: var(--serif); color: var(--c-text-hi); line-height: 1; }
+.main-archetype-card .arch-name { font-size: 1.2em; font-weight: 800; font-family: var(--serif); color: var(--c-text-hi); margin: 6px 0 2px; }
+.main-archetype-card .arch-tag { font-size: .75em; color: var(--c-text-2); margin-bottom: 8px; }
+.main-archetype-card .arch-desc { font-size: .78em; line-height: 1.65; color: var(--c-text-2); margin: 0; text-align: left; }
+
+.sub-numbers-col { display: flex; flex-direction: column; gap: 8px; }
+.sub-num-card {
+  padding: 12px 14px; border-radius: 12px; background: var(--c-surface-2); border: 1px solid var(--c-border);
+}
+.sub-num-card .kicker { font-size: .7em; font-weight: 700; color: var(--ac-text); margin-bottom: 2px; }
+.sub-num-card .mid-num { font-size: 1.4em; font-weight: 800; font-family: var(--serif); color: var(--c-text-hi); margin-bottom: 2px; }
+.sub-num-card p { font-size: .72em; line-height: 1.5; color: var(--c-text-3); margin: 0; }
+
+/* 九宫图阵与连线 */
+.w-num-grid-layout {
+  display: grid; grid-template-columns: 140px 1fr; gap: 14px; align-items: start; margin-top: 10px;
+}
+@media (max-width: 500px) { .w-num-grid-layout { grid-template-columns: 1fr; } }
+.num-3x3-matrix {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; width: 140px; margin: 0 auto;
+}
+.matrix-cell {
+  aspect-ratio: 1; border-radius: 10px; background: var(--c-surface-3); border: 1px solid var(--c-border);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; transition: all .2s;
+}
+.matrix-cell.is-active { background: var(--ac1); border-color: var(--ac4); box-shadow: 0 0 10px var(--ac2); }
+.matrix-cell .num-val { font-size: 1.25em; font-weight: 900; color: var(--c-text-hi); line-height: 1; }
+.matrix-cell .num-cnt { font-size: .62em; color: var(--c-text-3); margin-top: 1px; }
+.matrix-cell.is-active .num-cnt { color: var(--ac-text); font-weight: 700; }
+
+.lines-analysis-box { font-size: .78em; line-height: 1.6; color: var(--c-text-2); }
+.lines-analysis-box .lines-title { font-weight: 700; color: var(--ac-text); margin-bottom: 6px; font-size: .88em; }
+.lines-analysis-box .line-item { margin-bottom: 6px; }
+.lines-analysis-box .line-item b { color: var(--c-text-hi); }
+.missing-box {
+  margin-top: 8px; padding-top: 6px; border-top: 1px dashed var(--c-border); font-size: .92em; color: var(--c-text-2);
+}
+
+/* 流年卡片 */
+.w-py-box {
+  padding: 14px 16px; border-radius: 12px; background: var(--c-surface-2); border: 1px solid var(--c-border); margin-top: 8px;
+}
+.w-py-box .py-badge { font-size: .9em; font-weight: 800; color: var(--ac-text); margin-bottom: 4px; }
+.w-py-box .py-text { margin: 0; font-size: .8em; line-height: 1.65; color: var(--c-text); }
+
+
+/* 问问大师依据流派切换（东方命理 vs 西方星相） */
+.ai-basis-row {
+  display: flex; align-items: center; gap: 8px; margin: 0 0 8px; font-size: .75em;
+}
+.ai-basis-label {
+  color: var(--c-text-3); font-weight: 600; flex-shrink: 0;
+}
+.ai-basis-pills {
+  display: flex; gap: 6px; flex: 1;
+}
+.ai-basis-pill {
+  flex: 1; padding: 5px 10px; font-size: .88em; font-weight: 700; border-radius: 999px;
+  border: 1px solid var(--c-border-2); background: var(--c-surface-3); color: var(--c-text-2);
+  cursor: pointer; transition: all .18s ease; text-align: center; white-space: nowrap;
+}
+.ai-basis-pill:hover {
+  background: var(--c-surface-4); color: var(--c-text-hi);
+}
+.ai-basis-pill.active {
+  background: var(--ac); color: #000; border-color: var(--ac); font-weight: 800;
+  box-shadow: 0 2px 8px var(--ac3);
+}

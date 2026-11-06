@@ -1,5 +1,6 @@
 import assert from 'node:assert';
 import { readFileSync } from 'node:fs';
+import { readAllStylesSync } from './read-styles.mjs';
 
 console.log('═══════════════════════════════════════════════');
 console.log('  工具中心 3D 卡片轮播 (3D Card Carousel) 单元测试');
@@ -77,7 +78,7 @@ async function runTests() {
   assert.doesNotMatch(catalogHtml, /tools?-search|toolsToolbar|<input\b/i, '工具页不得残留搜索栏结构或输入框');
   assert.strictEqual((catalogHtml.match(/class="tc-p-icon"/g) || []).length, 0, '工具卡片不得再渲染图标');
   assert.strictEqual((catalogHtml.match(/class="tc-p-title"/g) || []).length, 13, '13 款工具都必须保留主标题');
-  const styles = readFileSync(new URL('../src/styles.css', import.meta.url), 'utf8');
+  const styles = readAllStylesSync();
   assert.match(styles, /grid-template-columns:\s*repeat\(auto-fill,\s*minmax\(190px,\s*1fr\)\)/, '桌面网格必须使用紧凑三列尺寸');
   assert.match(styles, /\.view-mode-grid \.tool-card-portrait\s*\{[\s\S]*?height:\s*320px\s*!important;[\s\S]*?min-height:\s*320px\s*!important;/, '桌面网格卡片高度必须保持紧凑');
   assert.match(styles, /grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\)/, '移动端网格必须使用紧凑双列布局');

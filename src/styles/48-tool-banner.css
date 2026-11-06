@@ -1,0 +1,113 @@
+/* ============================================================
+   工具页 · 配图横幅 Banner
+   ============================================================ */
+
+/* —— 通用横幅 —— */
+.tool-banner {
+  position: relative;
+  height: 160px;
+  margin: -26px -22px 18px;  /* 出血到 tool-sheet padding 外 */
+  border-radius: 24px 24px 0 0;
+  overflow: hidden;
+  background-size: cover;
+  background-position: center 35%;
+  display: flex;
+  align-items: flex-end;
+}
+.tool-banner-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, var(--c-surface) 0%, var(--c-surface) 45%, var(--c-surface-3) 100%);
+}
+.tool-banner-text {
+  position: relative;
+  z-index: 2;
+  padding: 16px 22px 14px;
+  width: 100%;
+}
+.tool-banner-kicker {
+  font-size: .58em;
+  letter-spacing: 1.6px;
+  color: var(--ac-text);
+  margin-bottom: 3px;
+  text-transform: uppercase;
+}
+.tool-banner-title {
+  font-size: 1.15em;
+  font-weight: 700;
+  color: var(--c-text-hi);
+  text-shadow: 0 1px 6px rgba(0,0,0,.4);
+}
+
+/* —— 结果页小横幅 —— */
+.tool-banner-sm {
+  height: 120px;
+  margin: -26px -22px 14px;
+}
+.tool-banner-sm .tool-banner-text {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 22px 10px;
+}
+.tool-back-on-banner {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--c-border-3);
+  background: var(--c-surface-3);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: var(--c-text-hi);
+  font-size: 1em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all .2s;
+}
+.tool-back-on-banner:hover {
+  background: var(--c-surface-4);
+  border-color: var(--c-border-3);
+}
+
+/* 输入页正文区 */
+.tool-page-body {
+  padding: 0 2px;
+}
+
+/* 结果页内容区 */
+.tool-result-content {
+  padding: 0 2px;
+}
+
+/* —— 移动端适配 —— */
+@media (max-width: 560px) {
+  .tool-banner {
+    height: 135px;
+    margin: -26px -14px 14px;
+    border-radius: 24px 24px 0 0;
+  }
+  .tool-banner-sm {
+    height: 105px;
+    margin: -26px -14px 10px;
+  }
+  .tool-banner-text {
+    padding: 12px 14px 10px;
+  }
+  .tool-banner-title {
+    font-size: 1.02em;
+  }
+}
+
+/* —— 有横幅时关闭按钮提升可见度 —— */
+.tool-result-page .tool-sheet-close,
+.tool-banner ~ .tool-sheet-close {
+  z-index: 60;
+}
+
+/* 文字大小调节：仅作用于问问大师聊天界面。
+   .ai-sheet 基准字号 = 15px × --font-scale；聊天正文/气泡均为 em 体系，根一缩放即整体联动。
+   --font-scale 由 src/font-size.js 仅写入 .ai-sheet，故全站其余页面不受影响。 */
+.ai-sheet{font-size:calc(15px * var(--font-scale, 1))}

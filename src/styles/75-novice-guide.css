@@ -1,0 +1,361 @@
+/* ============================================================
+   全局性新手指引弹窗样式 (Global Novice Guide Modal)
+   ============================================================ */
+.ng-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 9995;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+  box-sizing: border-box;
+}
+.ng-modal.open {
+  display: flex;
+}
+.ng-backdrop {
+  position: absolute;
+  inset: 0;
+  background: var(--c-overlay, rgba(0, 0, 0, 0.65));
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  animation: frFadeIn 0.25s ease-out;
+}
+.ng-sheet {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 680px;
+  max-height: min(90vh, 840px);
+  display: flex;
+  flex-direction: column;
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: 24px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+  animation: frDrawerUp 0.32s cubic-bezier(0.2, 0.9, 0.2, 1);
+}
+.ng-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 24px 14px;
+  border-bottom: 1px solid var(--c-border);
+  flex-shrink: 0;
+}
+.ng-header-title {
+  font-size: 1.18em;
+  font-weight: 800;
+  font-family: var(--serif);
+  color: var(--c-text-hi);
+  margin: 0;
+}
+.ng-header-sub {
+  font-size: 0.74em;
+  color: var(--c-text-3);
+  margin: 4px 0 0;
+}
+.ng-close-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid var(--c-border);
+  background: var(--c-surface-2);
+  color: var(--c-text-2);
+  font-size: 1.2em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.ng-close-btn:hover {
+  background: var(--c-surface-3);
+  color: var(--c-text-hi);
+}
+
+/* 导航 Tabs */
+.ng-tabs-bar {
+  display: flex;
+  gap: 6px;
+  padding: 10px 20px;
+  background: var(--c-surface-2);
+  border-bottom: 1px solid var(--c-border);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  flex-shrink: 0;
+}
+.ng-tabs-bar::-webkit-scrollbar { display: none; }
+.ng-tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--c-border);
+  background: var(--c-surface);
+  color: var(--c-text-2);
+  font-size: 0.78em;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+.ng-tab-btn:hover {
+  background: var(--c-surface-3);
+  color: var(--c-text-hi);
+}
+.ng-tab-btn.active {
+  background: var(--c-accent);
+  color: #fff;
+  border-color: var(--c-accent);
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--c-accent) 35%, transparent);
+}
+
+/* 页面内容区 */
+.ng-body {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 22px 24px;
+}
+.ng-section-hero {
+  margin-bottom: 18px;
+  padding-bottom: 14px;
+  border-bottom: 1px dashed var(--c-border);
+}
+.ng-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.72em;
+  font-weight: 700;
+  color: var(--ac-text);
+  margin-bottom: 4px;
+}
+.ng-title {
+  font-size: 1.12em;
+  font-weight: 800;
+  font-family: var(--serif);
+  color: var(--c-text-hi);
+  margin: 0 0 6px;
+}
+.ng-desc {
+  font-size: 0.78em;
+  line-height: 1.6;
+  color: var(--c-text-2);
+  margin: 0;
+}
+
+/* Tab 1 导览卡片网格 */
+.ng-cards-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+@media (max-width: 520px) {
+  .ng-cards-grid { grid-template-columns: 1fr; }
+}
+.ng-card {
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: var(--c-surface-2);
+  border: 1px solid var(--c-border);
+}
+.ng-card-hd {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  color: var(--c-text-hi);
+  font-size: 0.86em;
+  font-weight: 700;
+}
+.ng-card-icon {
+  color: var(--ac-text);
+  display: flex;
+  align-items: center;
+}
+.ng-card p {
+  font-size: 0.76em;
+  line-height: 1.6;
+  color: var(--c-text-2);
+  margin: 0;
+}
+
+/* Tab 2 & 3 步骤卡片流 */
+.ng-steps-flow {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.ng-step-card {
+  display: flex;
+  gap: 14px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: var(--c-surface-2);
+  border: 1px solid var(--c-border);
+}
+.step-num {
+  font-size: 1.25em;
+  font-weight: 900;
+  font-family: var(--serif);
+  color: var(--ac-text);
+  opacity: 0.85;
+  line-height: 1;
+}
+.step-content h4 {
+  font-size: 0.86em;
+  font-weight: 700;
+  color: var(--c-text-hi);
+  margin: 0 0 6px;
+}
+.step-content p {
+  font-size: 0.76em;
+  line-height: 1.6;
+  color: var(--c-text-2);
+  margin: 0;
+}
+.step-content b {
+  color: var(--c-text-hi);
+}
+
+/* Tab 4 术语词典 */
+.ng-glossary-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+@media (max-width: 520px) {
+  .ng-glossary-grid { grid-template-columns: 1fr; }
+}
+.ng-glossary-item {
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--c-surface-2);
+  border: 1px solid var(--c-border);
+}
+.term-hd {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+.term-name {
+  font-size: 0.84em;
+  font-weight: 700;
+  color: var(--c-text-hi);
+}
+.term-tag {
+  font-size: 0.65em;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+.term-tag.east { background: rgba(217, 119, 87, 0.15); color: var(--ac-text); }
+.term-tag.west { background: rgba(100, 160, 220, 0.15); color: #5a9ad6; }
+.term-tag.common { background: rgba(120, 180, 80, 0.15); color: #6ca648; }
+.term-desc {
+  font-size: 0.74em;
+  line-height: 1.5;
+  color: var(--c-text-2);
+  margin: 0;
+}
+
+/* Tab 5 FAQ 列表 */
+.ng-faq-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.ng-faq-item {
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: var(--c-surface-2);
+  border: 1px solid var(--c-border);
+}
+.faq-q {
+  font-size: 0.86em;
+  font-weight: 700;
+  color: var(--c-text-hi);
+  margin: 0 0 6px;
+}
+.faq-a {
+  font-size: 0.76em;
+  line-height: 1.6;
+  color: var(--c-text-2);
+  margin: 0;
+}
+
+/* 底部操作条 */
+.ng-footer {
+  display: flex;
+  gap: 10px;
+  padding: 14px 24px calc(14px + env(safe-area-inset-bottom));
+  background: var(--c-surface);
+  border-top: 1px solid var(--c-border);
+  flex-shrink: 0;
+}
+.ng-act-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 16px;
+  border-radius: 999px;
+  font-size: 0.84em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 1px solid transparent;
+}
+.ng-act-btn.primary {
+  flex: 1.5;
+  background: var(--c-accent);
+  color: #fff;
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--c-accent) 30%, transparent);
+}
+.ng-act-btn.primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px color-mix(in srgb, var(--c-accent) 40%, transparent);
+}
+.ng-act-btn.secondary {
+  flex: 1.1;
+  background: var(--c-surface-3);
+  color: var(--c-text-hi);
+  border-color: var(--c-border);
+}
+.ng-act-btn.secondary:hover {
+  background: var(--c-surface-4);
+}
+.ng-act-btn.ghost {
+  flex: 0.7;
+  background: transparent;
+  color: var(--c-text-2);
+  border-color: var(--c-border);
+}
+.ng-act-btn.ghost:hover {
+  background: var(--c-surface-2);
+  color: var(--c-text-hi);
+}
+
+@media (max-width: 560px) {
+  .ng-modal {
+    padding: 0;
+    align-items: flex-end;
+  }
+  .ng-sheet {
+    max-width: none;
+    border-radius: 24px 24px 0 0;
+    max-height: 88vh;
+  }
+  .ng-footer {
+    flex-wrap: wrap;
+  }
+  .ng-act-btn {
+    flex: 1 1 calc(50% - 6px) !important;
+  }
+}

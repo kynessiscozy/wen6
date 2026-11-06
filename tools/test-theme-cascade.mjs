@@ -3,10 +3,11 @@ import { readFile } from 'node:fs/promises';
 import puppeteer from 'puppeteer';
 import { spinFor } from './trait-picker-helper.mjs';
 import { HOME_THEMES } from '../src/ui/home-theme.js';
+import { readAllStyles } from './read-styles.mjs';
 
 const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
 const tokens = await readFile(new URL('../src/theme-claude.css', import.meta.url), 'utf8');
-const base = await readFile(new URL('../src/styles.css', import.meta.url), 'utf8');
+const base = await readAllStyles();
 const ui = await readFile(new URL('../src/claude-ui.css', import.meta.url), 'utf8');
 const character = await readFile(new URL('../src/character-theme.css', import.meta.url), 'utf8');
 assert.ok(html.indexOf('/src/styles.css') < html.indexOf('/src/theme-claude.css'), '令牌必须在基础样式之后加载');

@@ -1,0 +1,64 @@
+/* ============================================================
+   问问大师 · 连接状态栏 + 模型来源标签
+   ============================================================ */
+
+/* —— 连接状态栏（嵌入 ai-head 底部）—— */
+.ai-conn-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  padding: 5px 10px;
+  border-radius: 8px;
+  background: var(--c-surface-2);
+  font-size: .62em;
+  color: var(--c-text-2);
+  transition: all .3s;
+  user-select: none;
+}
+.ai-conn-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  transition: background .3s, box-shadow .3s;
+}
+.ai-conn-text {
+  flex: 0 0 auto;
+}
+.ai-conn-model {
+  margin-left: auto;
+  color: var(--ac-dim);
+  font-weight: 500;
+  letter-spacing: .2px;
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 状态颜色 */
+.conn-unknown .ai-conn-dot  { background: var(--c-surface-4); }
+.conn-checking .ai-conn-dot { background: #d4b85a; box-shadow: 0 0 6px #d4b85a; animation: connPulse 1.2s ease-in-out infinite; }
+.conn-online .ai-conn-dot   { background: #7ab648; box-shadow: 0 0 8px #7ab648; }
+.conn-offline .ai-conn-dot  { background: #d4654a; box-shadow: 0 0 6px #d4654a; }
+
+.conn-online  { color: rgba(122,182,72,.85); }
+.conn-offline { color: rgba(212,101,74,.85); }
+
+@keyframes connPulse {
+  0%, 100% { opacity: .5; transform: scale(.85); }
+  50%      { opacity: 1;  transform: scale(1.1); }
+}
+
+
+
+/* —— Typing hint 文字 —— */
+.typing-hint {
+  font-size: .65em;
+  color: var(--c-text-3);
+  margin-top: 3px;
+  letter-spacing: .2px;
+  min-height: 1em;
+  transition: opacity .2s;
+}

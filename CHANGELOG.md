@@ -6,6 +6,15 @@
 
 ## [wenV6] - 2026-11-06（正式版）
 
+### 重构（清理 + 拆分成多个模块）
+
+- **素材清理**：`public/art` 中 31 个无引用旧素材（`diyan-entry-live.mp4`、`*-blink.webp`、`*-avatar.webp` 等，共 7.1MB）移出仓库；浏览器实测首页与预告页零 404，角色立绘、头像、视频全部正常。素材总量 235 → 204 个，84.6MB → 77.5MB。
+- **调试输出**：`main.js` 6 处 `console.log` 改为带模块前缀的 `console.warn`（`[profile]` / `[archive]`），保留 IndexedDB 失败诊断能力。
+- **样式拆分**：`src/styles.css`（3342 行 / 232KB）按原有章节拆成 `src/styles/` 下 14 个文件（base、chat、连接状态、AI 设置、工具结果页、弹窗、横幅、体系模式、西方、工具卡片、长报告、新手引导、轮播），入口只保留 `@import` 顺序表。拆分前后样式内容逐行一致，构建产物 CSS 哈希不变（`index-vSg5eMxk.css` / 520.93KB）。
+- **脚本拆分**：`main.js` 1937 → 1408 行。抽出 `src/app/glossary.js`（GLOSSARY 词表 + 右键/长按菜单 + 选区胶囊 + Dock 操作条）与 `src/app/profiles.js`（IndexedDB 档案库 + 存档读档 + 导入导出），排盘动作通过 `initProfiles(calc)` 注入，避免双向依赖。
+- **测试适配**：新增 `tools/read-styles.mjs`，`test-tools-ring` 与 `test-theme-cascade` 改为按顺序拼读 `src/styles/`；新增 `tools/smoke-assets.mjs` 检查页面资源 404。
+- 验证：`build` / `check:copy` / `test:unit` 全通过；`test-persist` 存档 → 刷新 → 读档全流程通过，`test-firstscreen` 通过；`test-theme-cascade` 的「选择之前不显示说明」断言在拆分前后同样失败，属既有环境问题，非本次改动引入。
+
 ### 变更（全局文案去除第三方平台品牌）
 
 - 用户可见文案里不再出现「WorkBuddy 云服务」字样，默认 AI 提供方统一称为**内置模型**：AI 设置面板的下拉选项改为「内置模型（免密钥・默认）」，说明段改为「由应用内置的模型能力提供回复」，分节标题改为「内置模型状态」，可用状态徽标改为「内置」。

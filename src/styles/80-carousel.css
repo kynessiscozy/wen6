@@ -1,0 +1,559 @@
+/* ============================================================
+   竖向卡片 3D 环形轮播样式 (Portrait Cards 3D Ring Carousel)
+   ============================================================ */
+.tool-hub {
+  position: relative;
+  overflow: hidden;
+  padding: 24px 20px 20px;
+}
+
+/* 固定直接子区块顺序，避免旧 DOM、热更新或重挂载让筛选栏回到卡片上方 */
+#toolHubRoot {
+  display: flex;
+  flex-direction: column;
+}
+#toolHubRoot > .card-hd { order: 0; }
+#toolHubRoot.view-mode-ring > .tool-ring-stage { order: 1; }
+#toolHubRoot.view-mode-ring > .tool-ring-bottom-bar { order: 2; }
+#toolHubRoot.view-mode-ring > .tool-catalog-toolbar { order: 1; }
+.tool-row-stage { order: 2; }
+.tool-ring-bottom-bar { order: 3; }
+#toolHubRoot.view-mode-grid > .tool-catalog-toolbar { order: 1; }
+#toolHubRoot.view-mode-grid > .tool-ring-stage { order: 2; }
+#toolHubRoot.view-mode-grid > .tool-ring-bottom-bar { order: 3; }
+
+/* 轮播下方分类标签筛选与视图切换 */
+.tool-catalog-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  margin: 4px 0 0;
+  padding: 2px 0 8px;
+}
+#toolHubRoot.view-mode-ring > .tool-catalog-toolbar {
+  /* 分类筛选栏上移：收掉与顶部的间距 */
+  margin-top: 0;
+}
+#toolHubRoot.view-mode-grid > .tool-catalog-toolbar {
+  margin-top: 4px;
+}
+.tool-category-filter {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  scroll-snap-type: x proximity;
+  scroll-padding-inline: 2px;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.tool-category-filter::-webkit-scrollbar {
+  display: none;
+}
+.tool-category-chip {
+  flex: 0 0 auto;
+  min-height: 32px;
+  padding: 0 10px;
+  border: 1px solid var(--c-border-2);
+  border-radius: 999px;
+  background: var(--c-surface-2);
+  color: var(--c-text-2);
+  font-family: var(--sf);
+  font-size: 0.7em;
+  font-weight: 650;
+  white-space: nowrap;
+  cursor: pointer;
+  scroll-snap-align: start;
+  transition: color .2s ease, background .2s ease, border-color .2s ease, transform .2s ease;
+}
+.tool-category-chip:hover {
+  color: var(--c-text-hi);
+  background: var(--c-surface-3);
+  border-color: var(--c-border-3);
+  transform: translateY(-1px);
+}
+.tool-category-chip.is-active {
+  color: #fff;
+  background: var(--c-accent);
+  border-color: var(--c-accent);
+}
+
+/* 顶部操作与视图控制按钮 */
+.tool-hub-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.tool-ctrl-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid var(--c-border);
+  background: var(--c-surface-2);
+  color: var(--c-text-2);
+  font-size: 0.76em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.tool-ctrl-btn:hover {
+  background: var(--c-surface-3);
+  color: var(--c-text-hi);
+  border-color: var(--c-border-2);
+}
+.tool-ctrl-btn.active {
+  background: var(--c-accent);
+  color: #fff;
+  border-color: var(--c-accent);
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--c-accent) 30%, transparent);
+}
+.tool-ctrl-nav {
+  width: 32px;
+  padding: 0;
+  font-size: 1.1em;
+}
+
+/* 3D 环形舞台容器 */
+.tool-row-stage,
+.tool-ring-stage {
+  position: relative;
+  width: 100%;
+  height: 480px;
+  margin: 16px 0 10px;
+  perspective: 1100px;
+  perspective-origin: 50% 50%;
+  transform-style: preserve-3d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: grab;
+  overflow: hidden;
+}
+.tool-row-stage:active,
+.tool-ring-stage:active {
+  cursor: grabbing;
+}
+
+/* 3D 旋转轨 */
+.tool-row-track,
+.tool-ring-carousel {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* 关键修复：卡片在 3D 空间中被推到轨道平面（z=0）后方，
+     若轨道拦截指针事件，真实点击会命中轨道而非卡片。设为
+     none 让点击穿透到卡片；卡片自身再开启 auto。拖拽的
+     pointerdown 经冒泡仍由 stage 接收，不受影响。 */
+  pointer-events: none;
+}
+
+/* 竖向高挑卡片 (宽度增加 15% 达 254px，带玻璃磨砂质感与 10% 琉璃通透感) */
+.tool-card-portrait {
+  position: absolute !important;
+  width: 280px !important;
+  min-width: 280px !important;
+  max-width: 280px !important;
+  height: 435px;
+  padding: 22px 20px 18px !important;
+  border-radius: 22px !important;
+  /* 磨砂玻璃通透底色 */
+  background-color: color-mix(in srgb, var(--c-surface-2) 84%, transparent) !important;
+  background-image: linear-gradient(145deg, rgba(255, 255, 255, 0.28) 0%, rgba(255, 255, 255, 0.04) 50%, rgba(0, 0, 0, 0.03) 100%) !important;
+  opacity: 0.90;
+  backdrop-filter: blur(20px) saturate(160%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(160%) !important;
+  border: 1.5px solid color-mix(in srgb, var(--c-border-2) 70%, rgba(255, 255, 255, 0.5)) !important;
+  box-shadow: 0 16px 36px -4px rgba(0, 0, 0, 0.12), inset 0 1px 1.5px rgba(255, 255, 255, 0.65), inset 0 -1px 1px rgba(0, 0, 0, 0.05) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+  text-align: left;
+  cursor: pointer;
+  transform-style: preserve-3d;
+  will-change: transform, opacity;
+  /* 轨道设为 none 后，卡片需显式开启 auto 才能接收点击 */
+  pointer-events: auto;
+  /* 3D 轮播由 JS 60fps 驱动，杜绝 CSS transform 过渡导致的拖拽延迟与撕裂 */
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, opacity 0.3s ease !important;
+}
+.tool-card-portrait.is-category-hidden {
+  display: none !important;
+}
+
+.tool-card-portrait .tc-p-header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-bottom: 12px;
+}
+.tool-card-portrait .tc-p-badge {
+  font-size: 0.66em;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 999px;
+  border: 1px solid currentColor;
+}
+.tool-card-portrait .tc-p-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.tool-card-portrait .tc-p-title {
+  font-size: 1.4em;
+  line-height: 1.2;
+  font-weight: 900 !important;
+  letter-spacing: 0.02em;
+  font-family: var(--serif);
+  color: var(--c-text-hi);
+  margin: 0 0 3px;
+}
+.tool-card-portrait .tc-p-group {
+  font-size: 0.70em;
+  color: var(--ac-text);
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+.tool-card-portrait .tc-p-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-bottom: 10px;
+}
+.tool-card-portrait .tc-p-pills span {
+  font-size: 0.68em;
+  font-weight: 600;
+  padding: 3px 7px;
+  border-radius: 6px;
+  background: var(--c-surface-3);
+  color: var(--c-text-2);
+  border: 1px solid var(--c-border);
+}
+.tool-card-portrait .tc-p-desc {
+  font-size: 0.75em;
+  line-height: 1.55;
+  color: var(--c-text-2);
+  margin: 0;
+  flex: 1;
+}
+.tool-card-portrait .tc-p-footer {
+  margin-top: 14px;
+}
+.tool-card-portrait .tc-p-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 9px 13px;
+  border-radius: 12px;
+  border: 1px solid var(--c-border);
+  background: var(--c-surface-3);
+  color: var(--c-text-hi);
+  font-size: 0.82em;
+  font-weight: 700;
+  transition: all 0.2s;
+}
+.tool-card-portrait:hover .tc-p-btn,
+.tool-card-portrait.is-active-center .tc-p-btn {
+  background: var(--tool-color);
+  color: #fff;
+  border-color: var(--tool-color);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--tool-color) 30%, transparent);
+}
+
+/* 中心聚焦卡片：底部向上主题色渐变高亮（无外框） */
+.tool-card-portrait.is-active-center {
+  /* 兜底裁剪液态层，避免流光溢出圆角边界 */
+  overflow: hidden !important;
+  /* 去掉 accent 外框，保留原本磨砂玻璃细边框 */
+  border-color: color-mix(in srgb, var(--c-border-2) 82%, rgba(255, 255, 255, 0.6)) !important;
+  /* 主题色从卡片底部向上渐隐，叠在玻璃反光之上 */
+  background-image:
+    linear-gradient(to top,
+      color-mix(in srgb, var(--tool-color) 52%, transparent) 0%,
+      color-mix(in srgb, var(--tool-color) 24%, transparent) 30%,
+      transparent 62%),
+    linear-gradient(145deg, rgba(255, 255, 255, 0.28) 0%, rgba(255, 255, 255, 0.04) 50%, rgba(0, 0, 0, 0.03) 100%) !important;
+  /* 移除 0 0 0 描边，仅保留柔和投影与顶部高光 */
+  box-shadow: 0 22px 50px -6px color-mix(in srgb, var(--tool-color) 26%, transparent), inset 0 1px 2px rgba(255, 255, 255, 0.85) !important;
+  opacity: 0.98 !important;
+}
+
+/* 选中卡片：液态流动主题色光斑（叠在静态渐变之上，不溢出圆角） */
+.tool-card-portrait.is-active-center::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(44% 38% at 22% 78%, color-mix(in srgb, var(--tool-color) 78%, transparent) 0%, transparent 70%),
+    radial-gradient(48% 44% at 82% 84%, color-mix(in srgb, var(--tool-color) 60%, transparent) 0%, transparent 70%),
+    radial-gradient(60% 56% at 50% 100%, color-mix(in srgb, var(--tool-color) 88%, transparent) 0%, transparent 76%);
+  background-size: 240% 240%, 240% 240%, 240% 240%;
+  background-repeat: no-repeat;
+  opacity: 0.85;
+  animation: toolLiquidFlow 10s ease-in-out infinite;
+  transform-origin: 50% 100%;
+}
+/* 卡片内容置于液态层之上，避免文字被流光覆盖 */
+.tool-card-portrait.is-active-center > * {
+  position: relative;
+  z-index: 1;
+}
+@keyframes toolLiquidFlow {
+  0%   { background-position: 0% 100%, 100% 100%, 50% 100%; }
+  25%  { background-position: 30% 55%, 85% 75%, 10% 70%; }
+  50%  { background-position: 65% 35%, 25% 55%, 80% 45%; }
+  75%  { background-position: 90% 20%, 5% 40%, 45% 85%; }
+  100% { background-position: 100% 0%, 0% 30%, 50% 100%; }
+}
+
+/* 一键切换模式胶囊按钮 */
+.tool-view-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 34px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--c-accent) 40%, var(--c-border));
+  background: color-mix(in srgb, var(--c-surface-3) 85%, transparent);
+  color: var(--c-accent);
+  font-size: 0.78em;
+  font-weight: 700;
+  cursor: pointer;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: all 0.22s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.tool-view-toggle-btn:hover {
+  background: var(--c-accent);
+  color: #fff;
+  border-color: var(--c-accent);
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--c-accent) 35%, transparent);
+  transform: translateY(-1px);
+}
+.tool-view-toggle-btn:active {
+  transform: translateY(0) scale(0.97);
+}
+.tool-catalog-toolbar .tool-view-toggle-btn {
+  flex: 0 0 auto;
+  justify-content: center;
+  height: 40px;
+  min-width: 128px;
+  padding: 0 13px;
+  white-space: nowrap;
+}
+.tool-catalog-toolbar .tool-view-toggle-btn.is-grid {
+  background: color-mix(in srgb, var(--c-accent) 14%, var(--c-surface-3));
+  border-color: var(--c-accent);
+}
+
+/* 底部操作提示与指示圆点 */
+.tool-ring-bottom-bar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-top: 14px;
+}
+.tool-ring-hint {
+  font-size: 0.74em;
+  color: var(--c-text-3);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.tool-ring-dots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  max-width: 320px;
+}
+.ring-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--c-border-2);
+  cursor: pointer;
+  transition: all 0.25s;
+}
+.ring-dot:hover {
+  background: var(--c-text-3);
+  transform: scale(1.3);
+}
+.ring-dot.active {
+  width: 20px;
+  border-radius: 999px;
+  background: var(--c-accent);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--c-accent) 50%, transparent);
+}
+
+/* 3D 卡片左右切换箭头（悬浮于舞台两侧，筛选后切换更直观） */
+.tool-ring-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 20;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid color-mix(in srgb, var(--c-accent) 42%, var(--c-border));
+  background: color-mix(in srgb, var(--c-surface-3) 88%, transparent);
+  color: var(--c-accent);
+  font-size: 24px;
+  line-height: 1;
+  font-family: var(--serif);
+  cursor: pointer;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+  transition: background 0.2s, color 0.2s, transform 0.2s, box-shadow 0.2s;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.tool-ring-arrow:hover {
+  background: var(--c-accent);
+  color: #fff;
+  border-color: var(--c-accent);
+  box-shadow: 0 6px 18px color-mix(in srgb, var(--c-accent) 40%, transparent);
+  transform: translateY(-50%) scale(1.08);
+}
+.tool-ring-arrow:active {
+  transform: translateY(-50%) scale(0.92);
+}
+.tool-ring-arrow--prev { left: 10px; }
+.tool-ring-arrow--next { right: 10px; }
+/* 仅一张可见时隐藏（无切换意义） */
+.tool-ring-arrow[hidden] { display: none; }
+/* 网格平铺模式不需要左右箭头 */
+.view-mode-grid .tool-ring-arrow { display: none; }
+@media (max-width: 560px) {
+  .tool-ring-arrow { width: 38px; height: 38px; font-size: 22px; }
+  .tool-ring-arrow--prev { left: 6px; }
+  .tool-ring-arrow--next { right: 6px; }
+}
+
+/* 2D 平铺网格模式支持 (Flat Tiling Grid Mode) */
+.view-mode-grid .tool-row-stage,
+.view-mode-grid .tool-ring-stage {
+  height: auto !important;
+  overflow: visible !important;
+  perspective: none !important;
+  cursor: default !important;
+  margin-top: 18px !important;
+}
+.view-mode-grid .tool-row-track,
+.view-mode-grid .tool-ring-carousel {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)) !important;
+  gap: 12px !important;
+  width: 100% !important;
+  height: auto !important;
+  padding: 4px !important;
+  transform: none !important;
+}
+.view-mode-grid .tool-card-portrait {
+  position: relative !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  height: 320px !important;
+  min-height: 320px !important;
+  padding: 15px 13px 12px !important;
+  transform: none !important;
+  opacity: 0.92 !important;
+  transition: transform 0.25s ease, box-shadow 0.25s ease !important;
+}
+.view-mode-grid .tool-card-portrait .tc-p-header {
+  margin-bottom: 6px;
+}
+.view-mode-grid .tool-card-portrait .tc-p-group,
+.view-mode-grid .tool-card-portrait .tc-p-pills {
+  margin-bottom: 6px;
+}
+.view-mode-grid .tool-card-portrait .tc-p-pills {
+  gap: 4px;
+}
+.view-mode-grid .tool-card-portrait .tc-p-pills span {
+  padding: 2px 5px;
+  font-size: 0.62em;
+}
+.view-mode-grid .tool-card-portrait .tc-p-desc {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  font-size: 0.7em;
+  line-height: 1.45;
+}
+.view-mode-grid .tool-card-portrait .tc-p-footer {
+  margin-top: 8px;
+}
+.view-mode-grid .tool-card-portrait .tc-p-btn {
+  padding: 7px 10px;
+  border-radius: 10px;
+  font-size: 0.76em;
+}
+.view-mode-grid .tool-card-portrait:hover {
+  transform: translateY(-4px) !important;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.14) !important;
+}
+.view-mode-grid .tool-ring-dots,
+.view-mode-grid .tool-ring-hint {
+  display: none !important;
+}
+
+@media (max-width: 560px) {
+  .tool-row-stage,
+  .tool-ring-stage {
+    height: 528px;
+  }
+  .tool-card-portrait {
+    width: 252px !important;
+    min-width: 252px !important;
+    max-width: 252px !important;
+    height: 475px !important;
+    padding: 18px 16px 14px !important;
+  }
+  .view-mode-grid .tool-row-track,
+  .view-mode-grid .tool-ring-carousel {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+  }
+  .view-mode-grid .tool-card-portrait {
+    height: 300px !important;
+    min-height: 300px !important;
+    padding: 13px 11px 10px !important;
+  }
+}
+
+/* —— 用户消息行没有头像，不预留 36px 头像宽度 ——
+   行收缩包裹时，calc(100% - 36px) 会把短消息气泡压成一字一行竖排；
+   行宽固定为 100%，限宽放在列上（基准为确定行宽，无收缩回环），
+   气泡自身的 88% 百分比上限在收缩行内会削短消息，这里抵消掉 */
+.chat-msg-user { width: 100%; }
+.chat-msg-user .chat-content { max-width: 88%; }
+.chat-msg-user .chat-bubble { max-width: none; }

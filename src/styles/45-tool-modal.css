@@ -1,0 +1,94 @@
+/* ============================================================
+   工具弹窗 · 关闭按钮 + 结果页顶部返回
+   ============================================================ */
+
+/* 工具弹窗右上角关闭 × */
+.tool-sheet {
+  position: relative;
+}
+.tool-sheet-close {
+  position: absolute !important;
+  top: 14px;
+  right: 14px;
+  z-index: 50;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1px solid var(--c-border-2);
+  background: var(--c-surface-3);
+  color: var(--c-text-2);
+  font-size: 1.15em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all .2s;
+}
+.tool-sheet-close:hover {
+  background: var(--c-surface-4);
+  color: var(--c-text-hi);
+  border-color: var(--c-border-3);
+}
+
+/* 结果页顶部行：← 返回 + 标题 */
+.tool-result-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 4px;
+  padding-right: 40px; /* 给右上角 × 留空间 */
+}
+.tool-back-btn {
+  flex-shrink: 0;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1px solid var(--c-border-2);
+  background: var(--c-surface-3);
+  color: var(--c-text);
+  font-size: 1.1em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all .2s;
+}
+.tool-back-btn:hover {
+  background: var(--ac1);
+  border-color: var(--ac4);
+  color: var(--ac-text);
+}
+.tool-result-top-info {
+  flex: 1;
+  min-width: 0;
+}
+.tool-result-top-title {
+  font-size: 1.05em;
+  font-weight: 700;
+  color: var(--c-text-hi);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 工具输入页也给右上角 × 留 padding */
+#toolModalContent {
+  padding-top: 8px;
+}
+
+/* 移动端适配 */
+@media (max-width: 560px) {
+  .tool-sheet-close {
+    top: 12px;
+    right: 12px;
+    width: 36px;
+    height: 36px;
+  }
+  .tool-back-btn {
+    width: 36px;
+    height: 36px;
+  }
+  .tool-result-top {
+    padding-right: 36px;
+  }
+}
