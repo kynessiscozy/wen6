@@ -1,0 +1,289 @@
+/* ============================================================
+   天气模块 — 定位 → Open-Meteo → 菜单头部内嵌行
+   城市名在前，去卡片化，融入 header
+   ============================================================ */
+
+const WX_MAP = {
+  0:  { icon: 'sun',        label: '晴' },
+  1:  { icon: 'sun-cloud',  label: '晴间多云' },
+  2:  { icon: 'cloud-sun',  label: '多云' },
+  3:  { icon: 'cloud',      label: '阴' },
+  45: { icon: 'fog',        label: '雾' },
+  48: { icon: 'fog',        label: '雾凇' },
+  51: { icon: 'drizzle',    label: '毛毛雨' },
+  53: { icon: 'drizzle',    label: '小雨' },
+  55: { icon: 'drizzle',    label: '中雨' },
+  61: { icon: 'rain',       label: '小雨' },
+  63: { icon: 'rain',       label: '中雨' },
+  65: { icon: 'heavy-rain', label: '大雨' },
+  71: { icon: 'snow',       label: '小雪' },
+  73: { icon: 'snow',       label: '中雪' },
+  75: { icon: 'snow',       label: '大雪' },
+  77: { icon: 'snow',       label: '雪粒' },
+  80: { icon: 'rain',       label: '阵雨' },
+  81: { icon: 'rain',       label: '中阵雨' },
+  82: { icon: 'heavy-rain', label: '大阵雨' },
+  85: { icon: 'snow',       label: '小阵雪' },
+  86: { icon: 'snow',       label: '大阵雪' },
+  95: { icon: 'thunder',    label: '雷暴' },
+  96: { icon: 'thunder',    label: '雷暴冰雹' },
+  99: { icon: 'thunder',    label: '强雷暴' },
+};
+
+/* ---- 天气大图标 (26x26) — 精致版，含微光填充 ---- */
+function wxIconBig(key) {
+  const h = '<svg viewBox="0 0 26 26" width="26" height="26" fill="none" stroke-linecap="round" stroke-linejoin="round">';
+  const s = 'stroke="currentColor" stroke-width="1.5"';
+  const su = 'stroke="currentColor" stroke-width="1.5" fill="currentColor" fill-opacity=".12"';
+  // 太阳 — 内外双圈 + 放射光芒
+  const sun = `<circle cx="13" cy="12" r="4.5" ${su}/><path d="M13 1.5v2M13 22.5v1.5M3.5 12h2M20.5 12h2M6.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M6.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4" ${s}/>`;
+  // 云 — 叠加层云轮廓
+  const cloud = `<path d="M5.5 14.5C2.5 14.5 1.5 12 1.5 10S3.5 6 6 5.5a6 6 0 0 1 11-1c2.5.2 4.5 2 4.5 4.8S18 14.5 15.5 14.5Z" ${s}/>`;
+  // 雨滴
+  const rain = `<path d="M14.5 19l-1 3M18.5 19.5l-1 3" ${s}/>`;
+  switch (key) {
+    case 'sun':
+      return h + sun + '</svg>';
+    case 'sun-cloud':
+      return h + `<circle cx="13" cy="10" r="3.5" ${su}/><path d="M13 2v1.5M13 18v1.5M5.5 10h1.5M18.5 10h1.5M7.7 6.7l1 1M16.3 13.3l1 1M7.7 13.3l1-1M16.3 6.7l1-1" ${s}/>` + cloud + '</svg>';
+    case 'cloud-sun':
+      return h + `<circle cx="7.5" cy="8.5" r="3" ${su}/><path d="M7.5 2v1.5M7.5 15v1.5M2.5 8.5h1.2M11.5 8.5h1.2M4 5l.9.9M10 12l.9.9M4 12l.9-.9M10 5l.9-.9" ${s}/>` + cloud + '</svg>';
+    case 'cloud':
+      return h + cloud + '</svg>';
+    case 'drizzle':
+      return h + cloud + `<path d="M10.5 19l-.5 2M13.5 19.5l-.5 2M16.5 19l-.5 2" stroke="currentColor" stroke-width="1.1"/>` + '</svg>';
+    case 'rain':
+      return h + rain + cloud + '</svg>';
+    case 'heavy-rain':
+      return h + cloud + `<path d="M9.5 19l-1 3M13 18.5l-1 3M16.5 19l-1 3" stroke="currentColor" stroke-width="1.2"/>` + '</svg>';
+    case 'snow':
+      return h + cloud + `<circle cx="10.5" cy="19" r="1.1" fill="currentColor" fill-opacity=".2" stroke="currentColor" stroke-width="1"/><circle cx="13.5" cy="20" r="1.1" fill="currentColor" fill-opacity=".2" stroke="currentColor" stroke-width="1"/><circle cx="16.5" cy="19" r="1.1" fill="currentColor" fill-opacity=".2" stroke="currentColor" stroke-width="1"/>` + '</svg>';
+    case 'thunder':
+      return h + cloud + `<path d="M13.5 14 9.5 18h3l-1.5 4 5-3.5h-3l2-4.5Z" fill="currentColor" fill-opacity=".18" stroke="currentColor" stroke-width="1.3"/>` + '</svg>';
+    case 'fog':
+      return h + `<path d="M3.5 10h19M3.5 13h15M3.5 16h17" stroke="currentColor" stroke-width="1.4"/>` + '</svg>';
+    default:
+      return h + sun + '</svg>';
+  }
+}
+
+/* ---- 辅助图标 — 定位针 / 湿度 / 风速 (13x13) ---- */
+const miniLoc = '<svg viewBox="0 0 14 14" width="13" height="13" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="5.5" r="2.5" stroke="currentColor" stroke-width="1.3"/><circle cx="7" cy="5.5" r="1" fill="currentColor" fill-opacity=".25"/><path d="M10.5 12c0-1.8-3.5-5.3-3.5-5.3S3.5 10.2 3.5 12" stroke="currentColor" stroke-width="1.3"/></svg>';
+const miniHum = '<svg viewBox="0 0 14 14" width="13" height="13" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M7 12.5c-1.5 0-2.7-1.2-2.7-2.7 0-2.3 2.7-5 2.7-5s2.7 2.7 2.7 5c0 1.5-1.2 2.7-2.7 2.7Z" stroke="currentColor" stroke-width="1.3"/><path d="M6.3 10.7c0-.4.3-.7.7-.7s.7.3.7.7" fill="currentColor" fill-opacity=".2" stroke="currentColor" stroke-width=".8"/></svg>';
+const miniWnd = '<svg viewBox="0 0 14 14" width="13" height="13" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6.5h6c1 0 1.8-.8 1.8-1.8S9 2.9 8 2.9s-1.8.8-1.8 1.8" stroke="currentColor" stroke-width="1.3"/><path d="M4.5 9.5h5.5c1 0 1.8.8 1.8 1.8s-.8 1.8-1.8 1.8-1.8-.8-1.8-1.8" stroke="currentColor" stroke-width="1.3"/><path d="M3 12h4.5" stroke="currentColor" stroke-width="1.3"/></svg>';
+
+/* ---- 反向地理编码 ---- */
+async function reverseCity(lat, lon) {
+  try {
+    const url = `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&accept-language=zh&zoom=10`;
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 4000);
+    let r;
+    try { r = await fetch(url, { signal: ctrl.signal }); }
+    finally { clearTimeout(t); }
+    if (!r.ok) throw new Error('nominatim fail');
+    const d = await r.json();
+    const addr = d.address || {};
+    return addr.city || addr.town || addr.county || addr.state || addr.country || '';
+  } catch (e) {
+    return '';
+  }
+}
+
+/* ---- 获取天气 ---- */
+async function fetchWeather(lat, lon) {
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&timezone=auto`;
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), 6000);
+  let r;
+  try { r = await fetch(url, { signal: ctrl.signal }); }
+  finally { clearTimeout(t); }
+  if (!r.ok) throw new Error(`API ${r.status}`);
+  return r.json();
+}
+
+/* ---- 渲染天气模块 ---- */
+/* 同时刷新首页和 p2 菜单的天气卡片 */
+function _setWxLoading(prefix) {
+  const card = document.getElementById(prefix + 'Line');
+  if (!card) return;
+  card.style.display = 'block';
+  card.classList.add('is-loading');
+  const iconEl = document.getElementById(prefix + 'Icon');
+  const primaryEl = document.getElementById(prefix + 'Primary');
+  const secondaryEl = document.getElementById(prefix + 'Secondary');
+  if (primaryEl) primaryEl.innerHTML = '天气加载中…';
+  if (secondaryEl) secondaryEl.innerHTML = '';
+  if (iconEl) iconEl.innerHTML = '<svg viewBox="0 0 26 26" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="13" cy="12" r="4.5" fill="currentColor" fill-opacity=".12"/><path d="M13 1.5v2M13 22.5v1.5M3.5 12h2M20.5 12h2M6.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M6.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/></svg>';
+}
+
+function _setWxContent(prefix, icon, temp, label, city, hum, wind) {
+  const card = document.getElementById(prefix + 'Line');
+  if (!card) return;
+  card.classList.remove('is-loading');
+  const iconEl = document.getElementById(prefix + 'Icon');
+  const primaryEl = document.getElementById(prefix + 'Primary');
+  const secondaryEl = document.getElementById(prefix + 'Secondary');
+  if (iconEl) iconEl.innerHTML = wxIconBig(icon);
+  if (primaryEl) primaryEl.innerHTML = `<span class="t">${temp}°</span>${label}`;
+  if (secondaryEl) {
+    let parts = [];
+    if (city) {
+      const safeCity = String(city).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+      parts.push(`<span class="wx-meta-item">${miniLoc}${safeCity}</span>`);
+    }
+    parts.push(`<span class="wx-meta-item">${miniHum}${hum}%</span>`);
+    parts.push(`<span class="wx-meta-item">${miniWnd}${wind} km/h</span>`);
+    secondaryEl.innerHTML = parts.join('<span class="wx-meta-sep">·</span>');
+  }
+}
+
+function _setWxError(prefix) {
+  const card = document.getElementById(prefix + 'Line');
+  if (!card) return;
+  card.classList.remove('is-loading');
+  const iconEl = document.getElementById(prefix + 'Icon');
+  const primaryEl = document.getElementById(prefix + 'Primary');
+  const secondaryEl = document.getElementById(prefix + 'Secondary');
+  if (primaryEl) primaryEl.innerHTML = '天气暂不可用';
+  if (secondaryEl) secondaryEl.innerHTML = '';
+  if (iconEl) iconEl.innerHTML = '<svg viewBox="0 0 26 26" width="26" height="26"><circle cx="13" cy="13" r="5" fill="none" stroke="currentColor" stroke-width="1.5" opacity=".4"/><path d="M10 10l6 6M10 16l6-6" stroke="currentColor" stroke-width="1.5" opacity=".4" stroke-linecap="round"/></svg>';
+}
+
+const WX_PREFIXES = ['wx', 'p2Wx']; /* 首页 + p2菜单 */
+
+async function refreshWeather() {
+  WX_PREFIXES.forEach(p => _setWxLoading(p));
+
+  try {
+    let lat, lon, city;
+    try {
+      // Reuse a recent location obtained by the fengshui tool; its explicit
+      // "获取当前位置" button still performs a fresh request when pressed.
+      const geo = _wxGeo && Date.now() - _lastGeo < WEATHER_TTL ? _wxGeo : await requestGeo();
+      lat = geo.lat.toFixed(4);
+      lon = geo.lon.toFixed(4);
+      city = geo.city;
+    } catch (e) {
+      // 明确标注默认城市，不能把回退天气当作当前位置。
+      lat = '39.9042'; lon = '116.4074'; city = '北京（默认）';
+    }
+
+    let data;
+    while (true) {
+      const locationVersion = _geoVersion;
+      try { data = await fetchWeather(lat, lon); }
+      catch (error) {
+        if (locationVersion === _geoVersion) throw error;
+      }
+      if (locationVersion === _geoVersion) break;
+      // A manual relocation completed while the weather was in flight. Do not
+      // show the older city's weather as if it belongs to the new location.
+      if (_wxGeo) {
+        lat = _wxGeo.lat.toFixed(4); lon = _wxGeo.lon.toFixed(4); city = _wxGeo.city;
+      } else {
+        lat = '39.9042'; lon = '116.4074'; city = '北京（默认）';
+      }
+    }
+    const cur = data.current;
+    if (!cur || ![cur.temperature_2m, cur.relative_humidity_2m, cur.wind_speed_10m].every(Number.isFinite)) throw new Error('天气数据不完整');
+    const wx = WX_MAP[cur.weather_code] || { icon: 'sun', label: '未知' };
+    const temp = Math.round(cur.temperature_2m);
+    const hum = cur.relative_humidity_2m;
+    const wind = Math.round(cur.wind_speed_10m);
+    _wxNow = { city, temp, hum, wind, label: wx.label, code: cur.weather_code, icon: wx.icon };
+    WX_PREFIXES.forEach(p => _setWxContent(p, wx.icon, temp, wx.label, city, hum, wind));
+    return _wxNow;
+  } catch (e) {
+    console.warn('天气获取失败:', e);
+    _wxNow = null;
+    WX_PREFIXES.forEach(p => _setWxError(p));
+    return null;
+  }
+}
+
+let _wxGeo = null;
+let _geoPending = null;
+let _wxNow = null;
+let _weatherPending = null;
+let _lastFetch = 0;
+let _lastGeo = 0;
+let _geoVersion = 0;
+let _initialized = false;
+const WEATHER_TTL = 600000;
+
+export function getWxGeo() { return _wxGeo; }
+export function getWxNow() { return _wxNow; }
+
+/* 定位中的天气与风水工具共享一次请求；失败后允许重试。 */
+export function requestGeo() {
+  if (_geoPending) return _geoPending;
+  _geoPending = new Promise((resolve, reject) => {
+    if (!navigator.geolocation) return reject(new Error('当前浏览器不支持定位'));
+    navigator.geolocation.getCurrentPosition((pos) => {
+      (async () => {
+        const lat = Number(pos.coords.latitude.toFixed(4));
+        const lon = Number(pos.coords.longitude.toFixed(4));
+        if (!Number.isFinite(lat) || Math.abs(lat) > 90 || !Number.isFinite(lon) || Math.abs(lon) > 180) throw new Error('定位坐标无效');
+        const city = (await reverseCity(lat, lon)) || '当前位置';
+        const changed = !_wxGeo || _wxGeo.lat !== lat || _wxGeo.lon !== lon || _wxGeo.city !== city;
+        _wxGeo = { city, lat, lon };
+        _lastGeo = Date.now();
+        if (changed) {
+          _geoVersion++;
+          // A cached forecast belongs to the old location (or the fallback).
+          // Refresh an open menu immediately; otherwise refresh on next use.
+          if (_wxNow) {
+            _wxNow = null;
+            _lastFetch = 0;
+            if (document.getElementById('homeMenuDrawer')?.classList.contains('open') ||
+                document.getElementById('p2MenuDrawer')?.classList.contains('open')) void ensureWeather();
+          }
+        }
+        return _wxGeo;
+      })().then(resolve, reject);
+    }, (err) => {
+      reject(new Error(err && err.code === 1 ? '定位权限被拒绝，请在浏览器设置中允许后重试' : '定位失败'));
+    }, { enableHighAccuracy: false, timeout: 8000, maximumAge: WEATHER_TTL });
+  }).catch(error => {
+    if (_wxGeo) {
+      _geoVersion++;
+      if (_wxNow) WX_PREFIXES.forEach(p => _setWxError(p));
+      _wxNow = null;
+      _lastFetch = 0;
+    }
+    _wxGeo = null;
+    _lastGeo = 0;
+    throw error;
+  }).finally(() => { _geoPending = null; });
+  return _geoPending;
+}
+
+/* 打开天气或穿搭时按需加载；同一轮只发一次，失败后可再次尝试。 */
+export function ensureWeather() {
+  if (_weatherPending) return _weatherPending;
+  if (_wxNow && Date.now() - _lastFetch < WEATHER_TTL) return Promise.resolve(_wxNow);
+  _weatherPending = refreshWeather().then(wx => {
+    if (wx) _lastFetch = Date.now();
+    return wx;
+  }).finally(() => { _weatherPending = null; });
+  return _weatherPending;
+}
+
+export function initWeather() {
+  if (_initialized) return;
+  if (!document.getElementById('wxLine')) return;
+  _initialized = true;
+  const homeDrawer = document.getElementById('homeMenuDrawer');
+  const p2Drawer = document.getElementById('p2MenuDrawer');
+  const onDrawerChange = () => {
+    if (homeDrawer?.classList.contains('open') || p2Drawer?.classList.contains('open')) {
+      void ensureWeather();
+    }
+  };
+  const observer = new MutationObserver(onDrawerChange);
+  if (homeDrawer) observer.observe(homeDrawer, { attributes: true, attributeFilter: ['class'] });
+  if (p2Drawer) observer.observe(p2Drawer, { attributes: true, attributeFilter: ['class'] });
+  // 菜单可能在主模块加载前就已打开。
+  onDrawerChange();
+}

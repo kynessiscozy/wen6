@@ -1,0 +1,372 @@
+import { probeConnection, getProvider, setProvider, providerNeedsKey } from '../ai/index.js';
+import { mountEvolveSettings } from '../evolve/ui.js';
+import { applyFontSize, getFontSizeKey } from '../font-size.js';
+import { focusSafely } from './focus.js';
+
+const defaults = { natural: true, context: true, length: 'short' };
+
+const BUILTIN_KEY          = (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_API_KEY) || '';
+const BUILTIN_DEEPSEEK_KEY = (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_DEEPSEEK_KEY) || '';
+const LS_KEY      = 'tj_ai_settings';
+// Legacy shared keys are deliberately not migrated: their provider is unknown.
+const apiKeyStorage = () => 'tj_ai_apikey_' + getProvider();
+
+/* ============================================================
+   获取当前生效的 API Key
+   优先级：用户自定义 > 内置（跟随当前提供方）
+   ============================================================ */
+export function getApiKey() {
+  // 内置模型免密钥。返回非空标识只是为了让既有 UI 的「AI 是否可用」
+  // 判断通过，该值不会作为密钥发送给任何服务。
+  if (!providerNeedsKey()) return 'workbuddy-cloud';
+  try {
+    const custom = localStorage.getItem(apiKeyStorage());
+    if (custom && custom.trim()) return custom.trim();
+  } catch (_) {}
+  return getProvider() === 'deepseek' ? BUILTIN_DEEPSEEK_KEY : BUILTIN_KEY;
+}
+
+export function getAISettings() {
+  try {
+    return Object.assign({}, defaults, JSON.parse(localStorage.getItem(LS_KEY) || '{}'));
+  } catch (e) {
+    return { ...defaults };
+  }
+}
+
+/* ============================================================
+   弹窗开关（聊天工具栏入口，可独立使用）
+   ============================================================ */
+export function toggleAISettings() {
+  const modal = document.getElementById('aiSettingsModal');
+  if (!modal) return;
+  if (modal.classList.contains('open')) {
+    closeAISettingsModal();
+  } else {
+    openAISettingsModal();
+  }
+}
+
+let settingsReturnFocus = null;
+let sheetWasInert = false;
+
+export function openAISettingsModal() {
+  const modal = document.getElementById('aiSettingsModal');
+  if (!modal) return;
+  const panel = document.getElementById('aiSettingsPanel');
+  if (panel && !panel.children.length) {
+    _buildPanel(panel);
+  }
+  settingsReturnFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+  const sheet = document.getElementById('aiSheet');
+  sheetWasInert = !!sheet?.inert;
+  if (sheet) sheet.inert = true;
+  modal.inert = false;
+  modal.setAttribute('aria-hidden', 'false');
+  modal.classList.add('open');
+  const dock = document.querySelector('.ig-dock.tab-bar');
+  if (dock) dock.style.display = 'none';
+  document.querySelector('.ai-settings')?.setAttribute('aria-expanded', 'true');
+  focusSafely(modal.querySelector('.modal-close'));
+}
+
+export function closeAISettingsModal() {
+  const modal = document.getElementById('aiSettingsModal');
+  if (!modal) return;
+  modal.classList.remove('open');
+  modal.setAttribute('aria-hidden', 'true');
+  modal.inert = true;
+  const sheet = document.getElementById('aiSheet');
+  if (sheet) sheet.inert = sheet.classList.contains('open') ? sheetWasInert : true;
+  const dock = document.querySelector('.ig-dock.tab-bar');
+  if (dock) dock.style.display = '';
+  document.querySelector('.ai-settings')?.setAttribute('aria-expanded', 'false');
+  window.dispatchEvent(new CustomEvent('tj:ai-settings-changed'));
+  const target = settingsReturnFocus;
+  settingsReturnFocus = null;
+  if (target?.isConnected && target.getClientRects().length) focusSafely(target);
+  else if (sheet?.classList.contains('open')) focusSafely(sheet.querySelector('.ai-settings'));
+}
+
+if (typeof window !== 'undefined') {
+  window.closeAISettingsModal = closeAISettingsModal;
+  document.getElementById('aiSettingsModal')?.addEventListener?.('keydown', event => {
+    if (event.key !== 'Tab') return;
+    const controls = [...event.currentTarget.querySelectorAll('button:not([disabled]), input:not([disabled]), select:not([disabled]), a[href]')]
+      .filter(el => el.getClientRects().length);
+    if (!controls.length) return;
+    const first = controls[0], last = controls[controls.length - 1];
+    if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+    else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+  });
+}
+
+/* 提供方对应密钥说明 */
+function _providerInfo(p) {
+  if (p === 'workbuddy') {
+    return '由应用内置的模型能力提供回复，<b>无需填写 API Key</b>。提问与相关命盘上下文会发送给该模型服务用于生成回复，请避免输入敏感信息；离线或额度不足时，AI 问答会自动回退到本地知识库回答。';
+  }
+  if (p === 'deepseek') {
+    return '自行填写的 Key 保存在本机浏览器；使用 AI 或检测连接时会发送给所选服务商。对话与工具解读还会发送问题及相关上下文，请避免输入敏感信息。<br>获取地址：<a href="https://platform.deepseek.com/api_keys" target="_blank" rel="noopener">platform.deepseek.com/api_keys</a>';
+  }
+  return '自行填写的 Key 保存在本机浏览器；使用 AI 或检测连接时会发送给所选服务商。对话与工具解读还会发送问题及相关上下文，请避免输入敏感信息。<br>获取地址：<a href="https://openrouter.ai/keys" target="_blank" rel="noopener">openrouter.ai/keys</a>';
+}
+
+/* ============================================================
+   构建设置面板 DOM（导出供全局设置嵌入）
+   ============================================================ */
+export function buildAISettingsPanel(container) {
+  return _buildPanel(container);
+}
+
+/* ============================================================
+   构建设置面板 DOM
+   ============================================================ */
+function _buildPanel(container) {
+  const v = getAISettings();
+  const savedKey = _getSavedCustomKey();
+  const maskedKey = savedKey ? _maskKey(savedKey) : '';
+  const hasCustom = !!savedKey;
+  const p = getProvider();
+  const cloudMode = p === 'workbuddy';
+
+  container.innerHTML = `
+    <div class="ai-setting-section">
+      <div class="ai-setting-section-title">服务提供商</div>
+      <select id="aiProviderSelect" class="ai-provider-select" aria-label="服务提供商">
+        <option value="workbuddy"${cloudMode ? ' selected' : ''}>内置模型（免密钥・默认）</option>
+        <option value="deepseek"${p === 'deepseek' ? ' selected' : ''}>DeepSeek</option>
+        <option value="openrouter"${p === 'openrouter' ? ' selected' : ''}>OpenRouter</option>
+      </select>
+      <div class="ai-setting-hint">内置模型免密钥即可使用；切换到其他服务商需填写对应 API Key。</div>
+    </div>
+
+    <div class="ai-setting-section" id="aiKeySection" style="display:${cloudMode ? 'none' : ''}">
+      <div class="ai-setting-section-title">API Key</div>
+      <div class="ai-key-status" id="aiKeyStatus">
+        ${hasCustom
+          ? '<span class="ai-key-badge custom">自定义</span><span class="ai-key-masked">' + maskedKey + '</span>'
+          : BUILTIN_KEY || BUILTIN_DEEPSEEK_KEY
+            ? '<span class="ai-key-badge builtin">内置</span><span class="ai-key-hint">使用内置 Key</span>'
+            : '<span class="ai-key-badge none">未配置</span><span class="ai-key-hint">请输入 Key 才能使用 AI</span>'
+        }
+      </div>
+      <div class="ai-key-input-row" id="aiKeyInputRow" style="display:none">
+        <input type="password" id="aiKeyInput" class="ai-key-input" aria-label="API Key"
+               placeholder="sk-..." autocomplete="off" spellcheck="false" />
+        <button type="button" id="aiKeySave" class="ai-key-save">保存</button>
+      </div>
+      <div class="ai-key-actions">
+        <button type="button" id="aiKeyEditBtn" class="ai-key-action">${hasCustom ? '更换 Key' : '自定义 Key'}</button>
+        ${hasCustom ? '<button type="button" id="aiKeyResetBtn" class="ai-key-action danger">恢复内置</button>' : ''}
+      </div>
+      <div class="ai-key-note" id="aiKeyNote">${_providerInfo(p)}</div>
+    </div>
+
+    <div class="ai-setting-section" id="aiCloudSection" style="display:${cloudMode ? '' : 'none'}">
+      <div class="ai-setting-section-title">内置模型状态</div>
+      <div class="ai-setting-hint" id="aiCloudStatus">已开启 · 免密钥，正在检测模型…</div>
+      <div class="ai-key-note" id="aiCloudNote">${_providerInfo('workbuddy')}</div>
+    </div>
+
+    <div class="ai-setting-section">
+      <div class="ai-setting-section-title">对话偏好</div>
+      <label class="ai-setting-row"><span>自然对话</span><input id="aiSettingNatural" type="checkbox" ${v.natural ? 'checked' : ''}></label>
+      <label class="ai-setting-row"><span>携带近期对话</span><input id="aiSettingContext" type="checkbox" ${v.context ? 'checked' : ''}></label>
+      <div class="ai-setting-hint">关闭近期对话后，仍会发送当前问题及相关命盘或工具依据。</div>
+      <label class="ai-setting-row"><span>回复长度</span><select id="aiSettingLength"><option value="short">简洁</option><option value="standard">标准</option></select></label>
+    </div>
+
+    <div class="ai-setting-section">
+      <div class="ai-setting-section-title">文字大小</div>
+      <div class="ai-font-size-opts">
+        <button type="button" class="ai-fs-opt" data-key="small">
+          <span class="ai-fs-a">A</span>
+          <span class="ai-fs-l">小</span>
+        </button>
+        <button type="button" class="ai-fs-opt" data-key="standard">
+          <span class="ai-fs-a">A</span>
+          <span class="ai-fs-l">标准</span>
+        </button>
+        <button type="button" class="ai-fs-opt" data-key="large">
+          <span class="ai-fs-a">A</span>
+          <span class="ai-fs-l">大</span>
+        </button>
+        <button type="button" class="ai-fs-opt" data-key="xlarge">
+          <span class="ai-fs-a">A</span>
+          <span class="ai-fs-l">特大</span>
+        </button>
+      </div>
+      <div class="ai-setting-hint">仅调整聊天文字显示大小，不影响推演结果</div>
+    </div>
+
+    <div class="ai-settings-note">设置只影响后续 AI 回复，不会修改已有对话。</div>
+  `;
+
+  container.querySelector('#aiSettingLength').value = v.length;
+
+  // —— 对话偏好监听 ——
+  container.querySelectorAll('#aiSettingNatural,#aiSettingContext,#aiSettingLength').forEach(x =>
+    x.addEventListener('change', () => {
+      const n = {
+        natural: container.querySelector('#aiSettingNatural').checked,
+        context: container.querySelector('#aiSettingContext').checked,
+        length:  container.querySelector('#aiSettingLength').value
+      };
+      try { localStorage.setItem(LS_KEY, JSON.stringify(n)); } catch (e) {}
+    })
+  );
+
+  // —— 文字大小设置 ——
+  const currentFsKey = getFontSizeKey();
+  container.querySelectorAll('.ai-fs-opt').forEach(btn => {
+    if (btn.dataset.key === currentFsKey) btn.classList.add('active');
+    btn.addEventListener('click', () => {
+      container.querySelectorAll('.ai-fs-opt').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      applyFontSize(btn.dataset.key);
+    });
+  });
+
+  // —— 服务商切换 ——
+  const provSel = container.querySelector('#aiProviderSelect');
+  provSel.addEventListener('change', async () => {
+    const np = provSel.value;
+    setProvider(np);
+    const isCloud = np === 'workbuddy';
+    container.querySelector('#aiKeySection').style.display = isCloud ? 'none' : '';
+    container.querySelector('#aiCloudSection').style.display = isCloud ? '' : 'none';
+    container.querySelector('#aiKeyNote').innerHTML = _providerInfo(np);
+    _refreshKeyStatus(container);
+    container.querySelector('#aiKeyInput').value = '';
+    container.querySelector('#aiKeyInputRow').style.display = 'none';
+    const cloudStatus = container.querySelector('#aiCloudStatus');
+    if (isCloud) {
+      cloudStatus.textContent = '正在检测模型…';
+      const s = await probeConnection();
+      if (cloudStatus.isConnected) {
+        cloudStatus.textContent = s === 'online'
+          ? '已连接 · 无需 API Key，可直接提问'
+          : '暂时不可用，请稍后重试或切换服务商';
+      }
+    } else {
+      probeConnection(getApiKey());
+    }
+  });
+
+  // —— API Key 交互 ——
+  const editBtn  = container.querySelector('#aiKeyEditBtn');
+  const resetBtn = container.querySelector('#aiKeyResetBtn');
+  const inputRow = container.querySelector('#aiKeyInputRow');
+  const input    = container.querySelector('#aiKeyInput');
+  const saveBtn  = container.querySelector('#aiKeySave');
+
+  editBtn.addEventListener('click', () => {
+    inputRow.style.display = inputRow.style.display === 'none' ? 'flex' : 'none';
+    if (inputRow.style.display !== 'none') {
+      input.value = '';
+      input.type = 'password';
+      setTimeout(() => input.focus(), 80);
+    }
+  });
+
+  saveBtn.addEventListener('click', () => {
+    const val = input.value.trim();
+    if (!val) return;
+    try { localStorage.setItem(apiKeyStorage(), val); } catch (_) {}
+    inputRow.style.display = 'none';
+    _refreshKeyStatus(container);
+    probeConnection(val);
+  });
+
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); saveBtn.click(); }
+  });
+
+  if (resetBtn) {
+    resetBtn.addEventListener('click', () => {
+      try { localStorage.removeItem(apiKeyStorage()); } catch (_) {}
+      inputRow.style.display = 'none';
+      _refreshKeyStatus(container);
+      probeConnection(getApiKey());
+    });
+  }
+
+  // 默认内置模型：进入设置时做一次真实连通性检测，失败给出明确提示
+  if (cloudMode) {
+    probeConnection().then(s => {
+      const el = container.querySelector('#aiCloudStatus');
+      if (!el || !el.isConnected) return;
+      el.textContent = s === 'online'
+        ? '已连接 · 无需 API Key，可直接提问'
+        : '暂时不可用，请稍后重试或切换服务商';
+    });
+  }
+
+  mountEvolveSettings(container);
+  return container;
+}
+
+/* ============================================================
+   辅助函数
+   ============================================================ */
+function _getSavedCustomKey() {
+  try { return localStorage.getItem(apiKeyStorage()) || ''; } catch (_) { return ''; }
+}
+
+function _maskKey(key) {
+  if (!key || key.length < 12) return '••••••••';
+  return key.slice(0, 8) + '••••' + key.slice(-4);
+}
+
+function _refreshKeyStatus(container) {
+  const statusEl = container.querySelector('#aiKeyStatus');
+  if (!providerNeedsKey()) {
+    if (statusEl) statusEl.innerHTML = '<span class="ai-key-badge builtin">内置</span><span class="ai-key-hint">无需 API Key</span>';
+    return;
+  }
+  const editBtn  = container.querySelector('#aiKeyEditBtn');
+  const actionsEl = container.querySelector('.ai-key-actions');
+  const savedKey = _getSavedCustomKey();
+  const hasCustom = !!savedKey;
+
+  if (hasCustom) {
+    statusEl.innerHTML = '<span class="ai-key-badge custom">自定义</span><span class="ai-key-masked">' + _maskKey(savedKey).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])) + '</span>';
+    editBtn.textContent = '更换 Key';
+    if (!actionsEl.querySelector('#aiKeyResetBtn')) {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.id = 'aiKeyResetBtn';
+      btn.className = 'ai-key-action danger';
+      btn.textContent = '恢复内置';
+      btn.addEventListener('click', () => {
+        try { localStorage.removeItem(apiKeyStorage()); } catch (_) {}
+        container.querySelector('#aiKeyInputRow').style.display = 'none';
+        _refreshKeyStatus(container);
+        probeConnection(getApiKey());
+      });
+      actionsEl.appendChild(btn);
+    }
+  } else {
+    statusEl.innerHTML = (BUILTIN_KEY || BUILTIN_DEEPSEEK_KEY)
+      ? '<span class="ai-key-badge builtin">内置</span><span class="ai-key-hint">使用内置 Key</span>'
+      : '<span class="ai-key-badge none">未配置</span><span class="ai-key-hint">请输入 Key 才能使用 AI</span>';
+    if (!getApiKey()) {
+      try { if (localStorage.getItem('tj_ai_apikey')) statusEl.innerHTML += '<span class="ai-key-hint">旧版共用 Key 未自动迁移，请在对应服务商下重新填写。</span>'; } catch (_) {}
+    }
+    editBtn.textContent = '自定义 Key';
+    const oldReset = actionsEl.querySelector('#aiKeyResetBtn');
+    if (oldReset) oldReset.remove();
+  }
+}
+
+/* ============================================================
+   初始化
+   ============================================================ */
+export function initAISettings() {
+  window.getAISettings = getAISettings;
+  window.getApiKey = getApiKey;
+  window.toggleAISettings = toggleAISettings;
+  window.openAISettingsModal = openAISettingsModal;
+  window.closeAISettingsModal = closeAISettingsModal;
+}

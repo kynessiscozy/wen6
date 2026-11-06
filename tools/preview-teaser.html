@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><title>预告页预览</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>html,body{margin:0;height:100%;background:#0b0b0b}</style>
+</head>
+<body>
+<script type="module">
+import { showFunnelTeaserIfNeeded } from '../src/ui/funnel-teaser.js';
+
+const trait = new URLSearchParams(location.search).get('trait') || 'moonfox';
+localStorage.setItem('wen_funnel_v1', JSON.stringify({
+  applied: 1, teasered: 0, trait, name: '林知远',
+  timeStr: '10:30', concerns: ['career'],
+}));
+
+window._ctx = {
+  b: { Y: { g: '壬', z: '申' }, M: { g: '丙', z: '午' }, D: { g: '甲', z: '子' }, H: { g: '己', z: '巳' } },
+  dg: '甲', dw: '木',
+  pa: ['偏印格', '食神生财'],
+  cLn: { y: 2026 },
+  cDy: { g: '戊', z: '戌', ys: 2021, ye: 2031 },
+  cDyIdx: 2,
+  dy: { ds: [{ g: '丁', z: '酉', ys: 2011, as: 18 }, { g: '戊', z: '戌', ys: 2021, as: 28 }, { g: '己', z: '亥', ys: 2031, as: 38 }, { g: '庚', z: '子', ys: 2041, as: 48 }] },
+  ln: [{ y: 2026, g: '丙', z: '午' }, { y: 2027, g: '丁', z: '未' }],
+  cs: 78, ws: 64, ls: 71, hs: 58,
+  ssOf: (g) => ({ 甲: '比肩', 乙: '劫财', 丙: '食神', 丁: '伤官', 戊: '偏财', 己: '正财', 庚: '七杀', 辛: '正官', 壬: '偏印', 癸: '正印' }[g] || '—'),
+};
+
+document.getElementById('s-ming')?.remove?.();
+// 报告目录依赖主应用的分区 DOM，这里造三个等价节点
+const mk = (id, title, score) => {
+  const s = document.createElement('section');
+  s.id = id;
+  s.innerHTML = `<div class="bb-title">${title}</div><div class="bs-head">${score}</div>`;
+  document.body.appendChild(s);
+};
+mk('s-ming', '命盘：木火通明的底盘，贵人在西南', '综合 78 分');
+mk('s-yun', '运势：2026 上半年蓄势，秋后转机', '流年 72 分');
+mk('s-rel', '关系：你给得比拿得多，边界要立起来', '关系 71 分');
+
+window.__teaser = showFunnelTeaserIfNeeded();
+</script>
+</body>
+</html>

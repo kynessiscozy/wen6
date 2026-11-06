@@ -1,0 +1,738 @@
+/* ============================================================
+   液体玻璃全局覆盖层 (Liquid Glass)
+   加载顺序：theme-claude.css → styles.css → ... → evolve.css → liquid-glass.css
+   作用：把 Claude 的「纸感扁平」覆盖回「通透空灵液态玻璃」
+   ============================================================ */
+
+/* ---------- 1. 玻璃档位 ---------- */
+body[data-glass="clear"] {
+  --glass-blur: 6px;
+  --glass-saturate: 120%;
+  --glass-tint: color-mix(in srgb, var(--c-surface-2) 48%, transparent);
+}
+body[data-glass="tinted"] {
+  --glass-blur: 24px;
+  --glass-saturate: 160%;
+  --glass-tint: color-mix(in srgb, var(--c-surface-2) 68%, transparent);
+}
+
+/* ---------- 2. 恢复被 Claude 层压制的背景与光标 ---------- */
+html[data-theme] body.home .mesh,
+html[data-theme] body.home .particles,
+html[data-theme] body.report-active .mesh,
+html[data-theme] body.report-active .particles,
+html[data-theme] body .cursor-ring,
+html[data-theme] body .cursor-dot {
+  display: block !important;
+}
+
+/* 背景 mesh：用光球主题色绘制环境辉光，与液态光球同色族、提升整体统一感 */
+html[data-theme] body.home .mesh,
+html[data-theme] body.report-active .mesh {
+  opacity: 0.9 !important;
+  background:
+    radial-gradient(ellipse 62% 56% at 50% 44%, var(--orb-amb-1) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 38% at 26% 20%, var(--orb-amb-3) 0%, transparent 52%),
+    radial-gradient(ellipse 44% 42% at 80% 82%, var(--orb-amb-2) 0%, transparent 56%),
+    linear-gradient(160deg, var(--c-bg), var(--c-bg-2)) !important;
+  background-size: 200% 200% !important;
+  animation: meshM 20s ease-in-out infinite alternate !important;
+}
+
+/* 背景渐变流动：在 mesh 上加两枚光球色的漂移光晕层（under orbs），持续流动 */
+html[data-theme] body.home .mesh::before,
+html[data-theme] body.home .mesh::after {
+  content: '' !important;
+  position: absolute !important;
+  inset: -30% !important;
+  pointer-events: none !important;
+  will-change: transform !important;
+}
+html[data-theme] body.home .mesh::before {
+  background:
+    radial-gradient(ellipse 52% 46% at 38% 42%, var(--orb-amb-1) 0%, transparent 62%),
+    radial-gradient(ellipse 34% 30% at 72% 24%, var(--orb-amb-2) 0%, transparent 56%),
+    radial-gradient(ellipse 36% 32% at 16% 78%, var(--orb-amb-3) 0%, transparent 60%),
+    radial-gradient(ellipse 26% 30% at 62% 82%, var(--orb-amb-2) 0%, transparent 58%) !important;
+  animation: meshFlow 18s ease-in-out infinite alternate !important;
+  mix-blend-mode: screen !important;
+  filter: saturate(130%) !important;
+}
+html[data-theme] body.home .mesh::after {
+  background:
+    radial-gradient(ellipse 46% 40% at 68% 60%, var(--orb-amb-2) 0%, transparent 58%),
+    radial-gradient(ellipse 32% 30% at 24% 20%, var(--orb-amb-1) 0%, transparent 54%),
+    radial-gradient(ellipse 36% 40% at 82% 82%, var(--orb-amb-3) 0%, transparent 60%),
+    radial-gradient(ellipse 24% 28% at 30% 88%, var(--orb-amb-1) 0%, transparent 58%) !important;
+  animation: meshFlow 22s ease-in-out 1.5s infinite alternate-reverse !important;
+  mix-blend-mode: screen !important;
+  filter: saturate(130%) !important;
+}
+
+/* 漂移流动关键帧：更大位移 + 旋转 + 缩放，营造更明显的液体流动 */
+@keyframes meshFlow {
+  0%   { transform: translate3d(-4%, -3%, 0) rotate(-3deg) scale(1.05); }
+  25%  { transform: translate3d(3%, -1%, 0) rotate(1deg) scale(1.14); }
+  50%  { transform: translate3d(4%, 3%, 0) rotate(3deg) scale(0.98); }
+  75%  { transform: translate3d(-2%, 4%, 0) rotate(-1.5deg) scale(1.1); }
+  100% { transform: translate3d(2%, -3%, 0) rotate(2.5deg) scale(1.06); }
+}
+/* 中心主辉光脉动：与光球呼吸呼应，强化主题色流动 */
+html[data-theme] body.home .mesh {
+  animation: meshM 20s ease-in-out infinite alternate, meshPulse 9s ease-in-out infinite !important;
+}
+@keyframes meshPulse {
+  0%, 100% { filter: saturate(100%) brightness(1); }
+  50%      { filter: saturate(135%) brightness(1.05); }
+}
+html[data-theme] body .particles {
+  opacity: 0.7 !important;
+}
+
+/* ---------- 3. 全局卡片玻璃化（覆盖 claude-ui.css 的 !important） ---------- */
+html[data-theme] body[data-glass] .glass,
+html[data-theme] body[data-glass] .home-card,
+html[data-theme] body[data-glass] .qr-card,
+html[data-theme] body[data-glass] .ai-sum,
+html[data-theme] body[data-glass] .beginner-brief,
+html[data-theme] body[data-glass] .tool-panel,
+html[data-theme] body[data-glass] .tj-result,
+html[data-theme] body[data-glass] .tj-tool-intro,
+html[data-theme] body[data-glass] .modal-sheet,
+html[data-theme] body[data-glass] .mm-sheet,
+html[data-theme] body[data-glass] .tool-sheet,
+html[data-theme] body[data-glass] .ai-settings-panel,
+html[data-theme] body[data-glass] .lg-panel,
+html[data-theme] body[data-glass] .form-modal-sheet,
+html[data-theme] body[data-glass] .home-card {
+  background: var(--glass-tint) !important;
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate)) !important;
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate)) !important;
+  border-color: var(--glass-border) !important;
+  box-shadow: var(--glass-shadow) !important;
+}
+
+/* 嵌套玻璃避免叠加模糊 */
+html[data-theme] body[data-glass] .glass .glass,
+html[data-theme] body[data-glass] .home-card .home-card,
+html[data-theme] body[data-glass] #page2 .glass .glass {
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: none !important;
+  border-color: transparent !important;
+}
+
+/* ---------- 4. 液态流光按钮 ---------- */
+@keyframes liquidShimmer {
+  0% { background-position: 200% 50%; }
+  100% { background-position: -200% 50%; }
+}
+
+html[data-theme] body .home-cta,
+html[data-theme] body .home-cta-ghost,
+html[data-theme] body .home-menu-footer button,
+html[data-theme] body .pf-io-btn,
+html[data-theme] body .ai-send,
+html[data-theme] body .save-btn,
+html[data-theme] body .ai-basis-pill,
+html[data-theme] body .mode-top-switch,
+html[data-theme] body .result-style-option,
+html[data-theme] body .tool-cta-btn,
+html[data-theme] body .tool-hub-cta,
+html[data-theme] body .beginner-primary,
+html[data-theme] body .gs-seg .gs-opt,
+html[data-theme] body .theme-toggle-home {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+html[data-theme] body .home-cta::before,
+html[data-theme] body .home-cta-ghost::before,
+html[data-theme] body .home-menu-footer button::before,
+html[data-theme] body .pf-io-btn::before,
+html[data-theme] body .ai-send::before,
+html[data-theme] body .save-btn::before,
+html[data-theme] body .ai-basis-pill::before,
+html[data-theme] body .mode-top-switch::before,
+html[data-theme] body .result-style-option::before,
+html[data-theme] body .tool-cta-btn::before,
+html[data-theme] body .tool-hub-cta::before,
+html[data-theme] body .beginner-primary::before,
+html[data-theme] body .gs-seg .gs-opt::before,
+html[data-theme] body .theme-toggle-home::before {
+  content: "";
+  position: absolute;
+  inset: -60%;
+  z-index: -1;
+  background: linear-gradient(
+    115deg,
+    transparent 30%,
+    color-mix(in srgb, var(--c-accent) 28%, transparent) 46%,
+    color-mix(in srgb, var(--c-accent) 52%, transparent) 54%,
+    transparent 70%
+  );
+  background-size: 200% 100%;
+  background-position: 200% 50%;
+  opacity: 0.35;
+  transform: rotate(12deg);
+  transition: opacity 0.35s ease, background-position 0.5s ease;
+  animation: liquidShimmer 7s linear infinite;
+  pointer-events: none;
+}
+
+/* 小型工具按钮（抽屉页脚三项 / 导入导出）：通栏低矮的药丸上，
+   流光带的斜向边缘会在按钮内部生硬截断，看起来像内嵌了残缺图形。
+   这类按钮移除流光层，保留玻璃底色、描边与悬停态。
+   两个抽屉作用域选择器用于压过基础规则的
+   `.home-menu-footer button::before` 特异性。 */
+html[data-theme] body .home-menu-drawer .pf-io-btn::before,
+html[data-theme] body .p2-menu-drawer .pf-io-btn::before { content: none; }
+
+html[data-theme] body .home-cta:hover::before,
+html[data-theme] body .home-cta-ghost:hover::before,
+html[data-theme] body .home-menu-footer button:hover::before,
+html[data-theme] body .pf-io-btn:hover::before,
+html[data-theme] body .ai-send:hover::before,
+html[data-theme] body .save-btn:hover::before,
+html[data-theme] body .ai-basis-pill:hover::before,
+html[data-theme] body .mode-top-switch:hover::before,
+html[data-theme] body .result-style-option:hover::before,
+html[data-theme] body .tool-cta-btn:hover::before,
+html[data-theme] body .tool-hub-cta:hover::before,
+html[data-theme] body .beginner-primary:hover::before,
+html[data-theme] body .gs-seg .gs-opt:hover::before,
+html[data-theme] body .theme-toggle-home:hover::before {
+  opacity: 0.8;
+  animation-duration: 2.2s;
+}
+
+html[data-theme] body .home-cta:active::before,
+html[data-theme] body .home-cta-ghost:active::before,
+html[data-theme] body .home-menu-footer button:active::before,
+html[data-theme] body .pf-io-btn:active::before,
+html[data-theme] body .ai-send:active::before,
+html[data-theme] body .save-btn:active::before,
+html[data-theme] body .ai-basis-pill:active::before,
+html[data-theme] body .mode-top-switch:active::before,
+html[data-theme] body .result-style-option:active::before,
+html[data-theme] body .tool-cta-btn:active::before,
+html[data-theme] body .tool-hub-cta:active::before,
+html[data-theme] body .beginner-primary:active::before,
+html[data-theme] body .gs-seg .gs-opt:active::before,
+html[data-theme] body .theme-toggle-home:active::before {
+  opacity: 1;
+}
+
+/* active/selected 态保持流动 */
+html[data-theme] body .result-style-option.active::before,
+html[data-theme] body .mode-top-switch.active::before,
+html[data-theme] body .gs-seg .gs-opt.active::before {
+  opacity: 0.65;
+  animation-duration: 3s;
+}
+
+/* ghost 按钮用 surface 流光，避免盖过文字 */
+html[data-theme] body .home-cta-ghost::before {
+  background: linear-gradient(
+    115deg,
+    transparent 30%,
+    color-mix(in srgb, var(--c-surface-3) 55%, transparent) 46%,
+    color-mix(in srgb, var(--c-surface-4) 75%, transparent) 54%,
+    transparent 70%
+  );
+  background-size: 200% 100%;
+}
+
+/* ---------- 4.1 首页 CTA 质感增强（玻璃高光 + 立体阴影 + 更强液态流光） ---------- */
+/* 主按钮：实色底叠加玻璃顶部高光与底部内阴影，强化液态光泽与体积感 */
+html[data-theme] body .home-cta::before {
+  background: linear-gradient(
+    115deg,
+    transparent 28%,
+    rgba(255, 255, 255, .42) 46%,
+    rgba(255, 255, 255, .62) 54%,
+    transparent 72%
+  );
+  opacity: 0.5;
+}
+html[data-theme] body .home-cta {
+  box-shadow:
+    0 10px 28px color-mix(in srgb, var(--c-accent) 46%, transparent),
+    inset 0 1.5px 0 rgba(255, 255, 255, .45),
+    inset 0 -3px 9px rgba(0, 0, 0, .16) !important;
+}
+html[data-theme] body .home-cta:hover {
+  box-shadow:
+    0 15px 38px color-mix(in srgb, var(--c-accent) 56%, transparent),
+    inset 0 1.5px 0 rgba(255, 255, 255, .52),
+    inset 0 -3px 9px rgba(0, 0, 0, .16) !important;
+}
+html[data-theme] body .home-cta:active {
+  box-shadow:
+    0 6px 18px color-mix(in srgb, var(--c-accent) 42%, transparent),
+    inset 0 1.5px 0 rgba(255, 255, 255, .32),
+    inset 0 2px 9px rgba(0, 0, 0, .26) !important;
+}
+/* 幽灵按钮（日历模式）：升级为玻璃质感，与整体玻璃语言统一，文字更清晰 */
+html[data-theme] body .home-cta-ghost {
+  background: var(--glass-tint) !important;
+  backdrop-filter: blur(12px) saturate(135%) !important;
+  -webkit-backdrop-filter: blur(12px) saturate(135%) !important;
+  color: var(--c-text-2) !important;
+  border: 1px solid var(--glass-border) !important;
+  box-shadow: var(--glass-shadow) !important;
+}
+html[data-theme] body .home-cta-ghost:hover {
+  background: color-mix(in srgb, var(--c-surface-3) 50%, var(--glass-tint)) !important;
+  border-color: color-mix(in srgb, var(--c-text-4) 75%, transparent) !important;
+  box-shadow: var(--glass-shadow) !important;
+}
+html[data-theme] body .home-cta-ghost:active {
+  box-shadow:
+    var(--glass-shadow),
+    inset 0 2px 9px rgba(0, 0, 0, .2) !important;
+}
+
+/* ---------- 5. 首页标题轻盈化 ---------- */
+html[data-theme] body.home .home-hero {
+  position: relative;
+  z-index: 2;
+}
+
+html[data-theme] body.home .home-hero-title {
+  font-weight: 400 !important;
+  font-size: clamp(1.85em, 6vw, 2.75em) !important;
+  letter-spacing: 3px !important;
+  line-height: 1.15 !important;
+  color: var(--c-title) !important;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, .35) !important;
+}
+
+html[data-theme] body.home .home-hero-sub {
+  font-weight: 400 !important;
+  letter-spacing: 5px !important;
+  color: var(--c-text-3) !important;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, .2) !important;
+}
+
+html[data-theme="dark"] body.home .home-hero-title {
+  text-shadow: 0 1px 0 rgba(0, 0, 0, .35) !important;
+}
+html[data-theme="dark"] body.home .home-hero-sub {
+  text-shadow: 0 1px 0 rgba(0, 0, 0, .2) !important;
+}
+
+/* ---------- 6. 中央液态光球 ---------- */
+.liquid-orb {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1;
+  pointer-events: none;
+  filter: blur(9px) saturate(125%);
+  will-change: filter; /* 提示浏览器独立合成层，避免 blur 重算时连带重绘整页 */
+  opacity: 1;
+  transition: opacity 0.6s ease;
+}
+body:not(.home) .liquid-orb,
+body.report-active .liquid-orb {
+  opacity: 0;
+}
+
+/* 静态回退：无 JS 或 reduced-motion 时显示 CSS 渐变球 */
+.liquid-orb-static {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  width: 38vmin;
+  height: 38vmin;
+  transform: translate(-50%, -54%);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 38% 32%, var(--orb-core) 0%, transparent 46%),
+    radial-gradient(circle at 62% 68%, color-mix(in srgb, var(--orb-b) 60%, transparent) 0%, transparent 50%),
+    radial-gradient(circle at 50% 50%, var(--orb-a) 0%, color-mix(in srgb, var(--orb-c) 55%, transparent) 72%, transparent 100%);
+  filter: blur(28px);
+  opacity: 0.42;
+  z-index: 0;
+  pointer-events: none;
+}
+
+@media (min-width: 768px) {
+  .liquid-orb-static {
+    width: 22vmin;
+    height: 22vmin;
+    top: 50%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .liquid-orb { opacity: 0 !important; }
+  .liquid-orb-static { opacity: 0.38 !important; }
+}
+
+/* ---------- 7. 菜单抽屉 ----------
+   首页与结果页侧边栏统一使用 enhance.css 的基础实色样式，
+   不再单独给首页做玻璃化覆盖，避免两个抽屉外观不一致。 */
+
+/* ---------- 首页右上角：光球调色盘 ---------- */
+/* 仅首页显示；非首页隐藏（与主题切换按钮行为一致） */
+html[data-theme] body:not(.home) .home-orb-palette-btn,
+html[data-theme] body:not(.home) .home-orb-palette-panel {
+  display: none !important;
+}
+html[data-theme] body .home-orb-palette-btn {
+  position: fixed !important;
+  top: max(14px, env(safe-area-inset-top)) !important;
+  right: 64px !important;
+  z-index: 1100 !important;
+  width: 42px !important;
+  height: 42px !important;
+  min-width: 42px !important;
+  min-height: 42px !important;
+  padding: 0 !important;
+  border-radius: 50% !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: var(--glass-tint) !important;
+  backdrop-filter: blur(10px) saturate(120%) !important;
+  -webkit-backdrop-filter: blur(10px) saturate(120%) !important;
+  border: 1px solid var(--glass-border) !important;
+  box-shadow: var(--glass-shadow) !important;
+  cursor: pointer !important;
+  transition: transform .2s var(--ig-dock-ease, ease), box-shadow .18s ease !important;
+  -webkit-tap-highlight-color: transparent;
+}
+html[data-theme] body .home-orb-palette-btn:hover {
+  transform: translateY(-1px) !important;
+  border-color: color-mix(in srgb, var(--glass-border) 68%, rgba(255,255,255,.3)) !important;
+  box-shadow: var(--glass-shadow), 0 6px 18px rgba(0,0,0,.14) !important;
+}
+html[data-theme] body .home-orb-palette-btn:active {
+  transform: translateY(0) scale(.94) !important;
+}
+html[data-theme] body .home-orb-palette-btn .home-orb-palette-icon {
+  width: 24px !important;
+  height: 24px !important;
+  display: block !important;
+  fill: none !important;
+  animation: aiOrbBreath 3.6s ease-in-out infinite !important;
+}
+html[data-theme] body .home-orb-palette-btn .home-orb-palette-core {
+  transform-origin: 12px 12px;
+}
+
+/* 调色面板：玻璃卡片，位于右上角按钮下方 */
+html[data-theme] body .home-orb-palette-panel {
+  position: fixed !important;
+  top: calc(max(14px, env(safe-area-inset-top)) + 54px) !important;
+  right: 64px !important;
+  z-index: 1150 !important;
+  width: 240px !important;
+  padding: 14px !important;
+  border-radius: 18px !important;
+  background: color-mix(in srgb, var(--c-surface) 46%, transparent) !important;
+  backdrop-filter: blur(26px) saturate(140%) !important;
+  -webkit-backdrop-filter: blur(26px) saturate(140%) !important;
+  border: 1px solid var(--glass-border) !important;
+  box-shadow: 0 20px 50px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.10) !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  transform: translateY(-8px) !important;
+  transition: opacity .22s ease, transform .22s ease, visibility .22s !important;
+  pointer-events: none !important;
+}
+html[data-theme] body .home-orb-palette-panel.open {
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform: translateY(0) !important;
+  pointer-events: auto !important;
+}
+html[data-theme] body .home-orb-palette-head {
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  color: var(--c-text-2) !important;
+  margin-bottom: 12px !important;
+  letter-spacing: .04em !important;
+}
+html[data-theme] body .home-orb-palette-grid {
+  display: grid !important;
+  grid-template-columns: repeat(4, 1fr) !important;
+  gap: 10px !important;
+}
+html[data-theme] body .home-orb-palette-swatch {
+  width: 100% !important;
+  aspect-ratio: 1 !important;
+  border-radius: 12px !important;
+  border: 1px solid var(--glass-border) !important;
+  box-shadow: inset 0 1px rgba(255,255,255,.25), 0 3px 8px rgba(0,0,0,.14) !important;
+  cursor: pointer !important;
+  position: relative !important;
+  transition: transform .16s ease, box-shadow .16s ease !important;
+}
+html[data-theme] body .home-orb-palette-swatch:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: inset 0 1px rgba(255,255,255,.25), 0 6px 14px rgba(0,0,0,.2) !important;
+}
+html[data-theme] body .home-orb-palette-swatch:active {
+  transform: scale(.92) !important;
+}
+html[data-theme] body .home-orb-palette-swatch.active::after {
+  content: '' !important;
+  position: absolute !important;
+  inset: -4px !important;
+  border-radius: 15px !important;
+  border: 2px solid var(--c-text-hi) !important;
+  opacity: .7 !important;
+  pointer-events: none !important;
+}
+html[data-theme] body .home-orb-palette-swatch .home-orb-palette-name {
+  position: absolute !important;
+  left: 50% !important;
+  bottom: -16px !important;
+  transform: translateX(-50%) !important;
+  font-size: 10px !important;
+  color: var(--c-text-4) !important;
+  white-space: nowrap !important;
+}
+
+/* 首页菜单分区沿用基础列表样式；玻璃按钮只保留全局 .pf-io-btn，
+   两个抽屉的页脚按钮由同一条规则统一处理。 */
+html[data-theme] body .pf-io-btn {
+  background: var(--glass-tint) !important;
+  border-color: var(--glass-border) !important;
+  backdrop-filter: blur(10px) saturate(120%) !important;
+  -webkit-backdrop-filter: blur(10px) saturate(120%) !important;
+}
+
+/* ---------- 8. 底部 Dock 玻璃化 ---------- */
+html[data-theme] body .ig-dock.tab-bar {
+  background: var(--glass-tint) !important;
+  backdrop-filter: blur(26px) saturate(145%) !important;
+  -webkit-backdrop-filter: blur(26px) saturate(145%) !important;
+  border-top: 1px solid var(--glass-border) !important;
+  box-shadow: var(--glass-shadow) !important;
+}
+
+html[data-theme] body .ig-dock .tab-item.active {
+  background: color-mix(in srgb, var(--c-accent) 18%, transparent) !important;
+  box-shadow: inset 0 0 12px color-mix(in srgb, var(--c-accent) 14%, transparent), 0 0 0 1px var(--glass-border) !important;
+}
+
+html[data-theme] body .ig-dock .tab-item.active::before {
+  background: linear-gradient(115deg, transparent 30%, color-mix(in srgb, var(--c-accent) 45%, transparent) 50%, transparent 70%) !important;
+  background-size: 200% 100% !important;
+  animation: liquidShimmer 3s linear infinite !important;
+}
+
+/* ---------- 9. 主题切换按钮玻璃化 ---------- */
+html[data-theme] body .theme-toggle-home {
+  background: var(--glass-tint) !important;
+  backdrop-filter: blur(12px) saturate(130%) !important;
+  -webkit-backdrop-filter: blur(12px) saturate(130%) !important;
+  border: 1px solid var(--glass-border) !important;
+  box-shadow: var(--glass-shadow) !important;
+}
+
+/* ---------- 10. 报告页 / 工具页 / 弹窗铺开 ---------- */
+html[data-theme] body #page2 .glass,
+html[data-theme] body #toolHubRoot .tool-hub,
+html[data-theme] body #toolHubRoot .tool-tile,
+html[data-theme] body .form-modal-sheet,
+html[data-theme] body .ai-sheet,
+html[data-theme] body .chat-card,
+html[data-theme] body .wx-card,
+html[data-theme] body .profile-card,
+html[data-theme] body .today-card,
+html[data-theme] body .recent-card,
+html[data-theme] body .about-modal-body,
+html[data-theme] body .disclaimer-modal-body {
+  background: var(--glass-tint) !important;
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate)) !important;
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate)) !important;
+  border-color: var(--glass-border) !important;
+  box-shadow: var(--glass-shadow) !important;
+}
+
+/* 表单输入框半透明 */
+html[data-theme] body input,
+html[data-theme] body select,
+html[data-theme] body textarea,
+html[data-theme] body .form-field {
+  background: color-mix(in srgb, var(--c-surface-2) 55%, transparent) !important;
+  border-color: var(--glass-border) !important;
+}
+
+/* ---------- 11. 填表页：去除白色层级，改为通透玻璃 ---------- */
+html[data-theme] body .form-modal-sheet.form-modal-sheet {
+  background: color-mix(in srgb, var(--c-surface) 28%, transparent) !important;
+  backdrop-filter: blur(24px) saturate(135%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(135%) !important;
+}
+html[data-theme] body .form-modal-sheet .home-card {
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+html[data-theme] body .form-modal-sheet input,
+html[data-theme] body .form-modal-sheet select,
+html[data-theme] body .form-modal-sheet .form-field,
+html[data-theme] body .form-modal-sheet textarea {
+  background: color-mix(in srgb, var(--c-surface-2) 28%, transparent) !important;
+}
+html[data-theme] body .form-modal-sheet .result-style-option {
+  background: color-mix(in srgb, var(--c-surface-3) 30%, transparent) !important;
+}
+html[data-theme] body .form-modal-sheet .result-style-option.active {
+  background: var(--c-accent) !important;
+  color: var(--c-on-accent) !important;
+}
+
+/* ---------- 11.5 工具中心外框：去掉卡片背景框（背景/阴影/玻璃装饰），
+   内容直接浮于页面上；内部工具卡片的自身样式不受影响 ---------- */
+html[data-theme] body #toolHubRoot.tool-hub {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+html[data-theme] body #toolHubRoot.tool-hub::before,
+html[data-theme] body #toolHubRoot.tool-hub::after { display: none !important; }
+html[data-theme] body .form-modal-close {
+  background: color-mix(in srgb, var(--c-surface-2) 35%, transparent) !important;
+  backdrop-filter: blur(10px) saturate(120%) !important;
+  -webkit-backdrop-filter: blur(10px) saturate(120%) !important;
+}
+
+/* ---------- 12. 首页菜单抽屉 ----------
+   与结果页共用 enhance.css 的基础外观；分区与卡片沿用各自内容样式，
+   不再对首页抽屉单独做去边框 / 清透玻璃处理。 */
+
+/* ---------- 13. 工具页：去掉外层 sheet 边框，让背景模糊自然成框 ---------- */
+/* 结果页光球背景移除后，磨砂自然成框不再成立：sheet 恢复近实色表面 */
+html[data-theme] body .tool-modal.open .tool-sheet,
+html[data-theme] body .tool-sheet {
+  background: color-mix(in srgb, var(--c-surface) 92%, transparent) !important;
+  border: 0 !important;
+  box-shadow: var(--glass-shadow) !important;
+  backdrop-filter: blur(18px) saturate(124%) !important;
+  -webkit-backdrop-filter: blur(18px) saturate(124%) !important;
+}
+html[data-theme] body .tool-modal-bg {
+  background: color-mix(in srgb, var(--c-bg) 75%, transparent) !important;
+  backdrop-filter: blur(18px) saturate(124%) !important;
+}
+html[data-theme] body .tool-sheet-close {
+  background: color-mix(in srgb, var(--c-surface-2) 45%, transparent) !important;
+  border: 1px solid var(--glass-border) !important;
+  backdrop-filter: blur(10px) saturate(120%) !important;
+}
+
+/* ---------- 14. 问问大师面板：玻璃质感升级 ---------- */
+html[data-theme] body .ai-sheet {
+  background: color-mix(in srgb, var(--c-surface) 26%, transparent) !important;
+  backdrop-filter: blur(34px) saturate(150%) !important;
+  border: 1px solid var(--glass-border) !important;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, .16), inset 0 1px 0 rgba(255, 255, 255, .10) !important;
+}
+html[data-theme] body .ai-sheet::after {
+  display: none !important; /* 移除指向 Dock 的实心三角，避免透明穿帮 */
+}
+html[data-theme] body .ai-sheet .ai-actions {
+  background: color-mix(in srgb, var(--c-surface-2) 36%, transparent) !important;
+  border: 1px solid var(--glass-border) !important;
+  backdrop-filter: blur(12px) saturate(130%) !important;
+}
+html[data-theme] body .ai-sheet .ai-new,
+html[data-theme] body .ai-sheet .ai-settings {
+  background: transparent !important;
+}
+html[data-theme] body .ai-sheet .ai-new:hover,
+html[data-theme] body .ai-sheet .ai-settings:hover {
+  background: color-mix(in srgb, var(--c-surface-3) 45%, transparent) !important;
+}
+html[data-theme] body .ai-sheet .ai-context {
+  background: color-mix(in srgb, var(--c-surface-2) 30%, transparent) !important;
+  border: 1px solid var(--glass-border) !important;
+  backdrop-filter: blur(10px) saturate(120%) !important;
+}
+html[data-theme] body .ai-sheet .ai-input-row {
+  background: color-mix(in srgb, var(--c-surface-2) 32%, transparent) !important;
+  border: 1px solid var(--glass-border) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08) !important;
+  backdrop-filter: blur(14px) saturate(130%) !important;
+}
+html[data-theme] body .ai-sheet .ai-input-row:focus-within {
+  border-color: var(--c-accent) !important;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--c-accent) 16%, transparent), inset 0 1px 0 rgba(255, 255, 255, .10) !important;
+}
+html[data-theme] body .ai-sheet .ai-send {
+  background: var(--c-accent) !important;
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--c-accent) 34%, transparent) !important;
+}
+html[data-theme] body .ai-user-bubble,
+html[data-theme] body .chat-bubble-user {
+  background: linear-gradient(135deg, color-mix(in srgb, var(--c-accent) 22%, transparent), color-mix(in srgb, var(--c-accent) 10%, transparent)) !important;
+  border: 1px solid color-mix(in srgb, var(--c-accent) 38%, transparent) !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, .08) !important;
+  color: var(--c-text-hi) !important;
+}
+html[data-theme] body .ai-answer-wrap,
+html[data-theme] body .chat-bubble-ai,
+html[data-theme] body .ai-dialogue-text {
+  background: color-mix(in srgb, var(--c-surface-2) 32%, transparent) !important;
+  border: 1px solid var(--glass-border) !important;
+  border-left: 2px solid color-mix(in srgb, var(--c-accent) 55%, transparent) !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, .06) !important;
+}
+
+/* ---------- 15. 性能与无障碍回退 ---------- */
+@media (prefers-reduced-motion: reduce) {
+  html[data-theme] body .home-cta::before,
+  html[data-theme] body .home-cta-ghost::before,
+  html[data-theme] body .home-menu-footer button::before,
+  html[data-theme] body .pf-io-btn::before,
+  html[data-theme] body .ai-send::before,
+  html[data-theme] body .save-btn::before,
+  html[data-theme] body .ai-basis-pill::before,
+  html[data-theme] body .mode-top-switch::before,
+  html[data-theme] body .result-style-option::before,
+  html[data-theme] body .tool-cta-btn::before,
+  html[data-theme] body .tool-hub-cta::before,
+  html[data-theme] body .beginner-primary::before,
+  html[data-theme] body .gs-seg .gs-opt::before,
+  html[data-theme] body .theme-toggle-home::before,
+  html[data-theme] body .ig-dock .tab-item.active::before {
+    animation: none !important;
+    opacity: 0 !important;
+  }
+  /* 背景渐变流动：减弱动效偏好下静止 */
+  html[data-theme] body.home .mesh::before,
+  html[data-theme] body.home .mesh::after {
+    animation: none !important;
+  }
+  /* 调色盘按钮图标呼吸：减弱动效偏好下静止 */
+  html[data-theme] body .home-orb-palette-btn .home-orb-palette-icon {
+    animation: none !important;
+  }
+}
+
+/* ---------- 12. 结果页背景与卡片可读性 ----------
+   结果页背景不出现光球环境辉光（光球仅首页保留）；
+   黑色模式下结果页卡片不透明度 +10%（48% → 58%），方便阅读。 */
+html[data-theme] body.report-active .mesh { opacity: 0 !important; animation: none !important; }
+html[data-theme] body.report-active .liquid-orb,
+html[data-theme] body.report-active .liquid-orb-static { opacity: 0 !important; visibility: hidden !important; }
+html[data-theme] body.report-active .mesh::before,
+html[data-theme] body.report-active .mesh::after { content: none !important; }
+html[data-theme="dark"] body.report-active #page2 .glass:not(.tool-hub) {
+  background: color-mix(in srgb, var(--c-surface) 58%, transparent) !important;
+}

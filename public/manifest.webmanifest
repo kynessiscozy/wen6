@@ -1,0 +1,21 @@
+{
+  "id": "./",
+  "name": "问问大师 · 东方人生决策系统",
+  "short_name": "问问大师",
+  "description": "八字推演与决策工具：把命理提示转化为当下可执行的选择。",
+  "start_url": "./funnel.html?sharecode=GLG66364RT",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "background_color": "#faf9f5",
+  "theme_color": "#d97757",
+  "lang": "zh-CN",
+  "categories": ["lifestyle", "productivity"],
+  "prefer_related_applications": false,
+  "icons": [
+    { "src": "./icon-twins-192.png?sharecode=GLG66364RT", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "./icon-twins-512.png?sharecode=GLG66364RT", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "./icon-twins-maskable-192.png?sharecode=GLG66364RT", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "./icon-twins-maskable-512.png?sharecode=GLG66364RT", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

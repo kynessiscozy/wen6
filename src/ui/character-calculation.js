@@ -1,0 +1,210 @@
+import { HOME_THEMES } from './home-theme.js';
+import { focusSafely } from './focus.js';
+
+const SCENE_DURATION = 2100;
+// A funnel handoff still shows the real result before acknowledging it.
+const RESULT_HOLD_MS = 900;
+
+// Presentation helpers must not make the calculation fail on older WebViews.
+function mediaQuery(query) {
+  try { return window.matchMedia(query); }
+  catch (_) { return { matches: false }; }
+}
+
+function selectedThemeId() {
+  const requested = document.documentElement.dataset.homeTheme;
+  return Object.prototype.hasOwnProperty.call(HOME_THEMES, requested) ? requested : 'wenwen';
+}
+function setImage(image, src) {
+  if (!image || !src) return;
+  // A missing, loading, or failed image otherwise draws the browser's broken
+  // image outline through the scene. Reveal only the current, decoded asset;
+  // also hide the previous portrait while a different role is loading.
+  if (!image.__calculationImageObserved) {
+    const sync = () => image.classList.toggle('is-calculation-image-loading', !image.complete || !image.naturalWidth);
+    image.addEventListener('load', sync);
+    image.addEventListener('error', sync);
+    image.__calculationImageObserved = true;
+  }
+  // Retry a previously failed optional image the next time it is requested.
+  if (image.getAttribute('src') !== src || (image.complete && !image.naturalWidth)) {
+    image.classList.add('is-calculation-image-loading');
+    image.setAttribute('src', src);
+  }
+  image.classList.toggle('is-calculation-image-loading', !image.complete || !image.naturalWidth);
+}
+function requestRoleProps(overlay, themeId) {
+  const assets = HOME_THEMES[themeId]?.character.assets;
+  overlay.querySelectorAll(`.calculation-props--${themeId} [data-calculation-src], .calculation-props--${themeId} [data-calculation-asset]`)
+    .forEach((image) => setImage(image, image.dataset.calculationSrc || assets?.[image.dataset.calculationAsset]?.src));
+}
+
+/** Start fetching the chosen role's optional props while the user fills the form. */
+export function warmCharacterCalculation() {
+  if (mediaQuery('(prefers-reduced-motion: reduce)').matches) return;
+  const overlay = document.getElementById('calculationOverlay');
+  if (overlay) requestRoleProps(overlay, selectedThemeId());
+}
+
+/** The scene remains in charge until the user explicitly continues from the real result. */
+export function beginCharacterCalculation({ autoAdvance = false } = {}) {
+  const overlay = document.getElementById('calculationOverlay');
+  const skip = document.getElementById('calculationSkip');
+  const proceed = document.getElementById('calculationContinue');
+  if (!overlay || !skip || !proceed) return null;
+
+  const themeId = selectedThemeId();
+  const theme = HOME_THEMES[themeId];
+  const reducedMotion = mediaQuery('(prefers-reduced-motion: reduce)');
+  const previousFocus = document.activeElement;
+  const startedAt = performance.now();
+  let skipped = false;
+  let finished = false;
+  let releaseAnimation = null;
+  let releaseResult = null;
+  let waitTimer = null;
+  let autoAdvanceTimer = null;
+
+  const narrow = mediaQuery('(max-aspect-ratio: 4/5)').matches;
+  setImage(overlay.querySelector('[data-calculation-backdrop]'), narrow ? theme.backdrop.mobile : theme.backdrop.wide);
+  setImage(overlay.querySelector('[data-calculation-portrait]'), theme.character.assets.portrait.src);
+  if (!reducedMotion.matches) requestRoleProps(overlay, themeId);
+  overlay.dataset.calculationTheme = themeId;
+  overlay.dataset.calculationState = 'computing';
+  delete overlay.dataset.animationSkipped;
+  const byline = document.getElementById('calculationByline');
+  const title = document.getElementById('calculationTitle');
+  const status = document.getElementById('calculationStatus');
+  if (byline) byline.textContent = `${theme.trait.label} · 命盘推演`;
+  if (title) title.textContent = '正在推演';
+  if (status) status.textContent = '排定四柱，合参星位…';
+  overlay.querySelectorAll('[data-calculation-pillar]').forEach((item) => { item.textContent = '—'; });
+  overlay.querySelector('.calculation-pillars')?.setAttribute('aria-label', '四柱结果');
+  skip.hidden = reducedMotion.matches;
+  proceed.hidden = true;
+  overlay.hidden = false;
+  focusSafely(skip.hidden ? overlay : skip);
+
+  // Move focus first, then make every other body layer unavailable until the
+  // report is ready. Restore each element's previous state on all exits.
+  const background = Array.from(document.body.children)
+    .filter((element) => element !== overlay && !['SCRIPT', 'STYLE', 'LINK'].includes(element.tagName))
+    .map((element) => ({ element, inert: element.hasAttribute('inert'), aria: element.getAttribute('aria-hidden') }));
+  background.forEach(({ element }) => { element.setAttribute('inert', ''); element.setAttribute('aria-hidden', 'true'); });
+
+  const onSkip = (event) => {
+    // Resolving the animation can reveal the result before the same click
+    // bubbles; it must never count as the separate result confirmation.
+    event?.stopPropagation?.();
+    if (overlay.dataset.calculationState !== 'computing') return;
+    skipped = true;
+    overlay.dataset.animationSkipped = 'true';
+    releaseAnimation?.();
+  };
+  const onClick = (event) => {
+    if (event.target === skip || skip.contains(event.target) || overlay.dataset.calculationState !== 'ready') return;
+    event.stopPropagation();
+    releaseResult?.();
+  };
+  const onKeyDown = (event) => {
+    // Global report shortcuts must not act on the inert page behind the scene.
+    event.stopPropagation();
+    if (event.key === 'Tab') {
+      event.preventDefault();
+      focusSafely(overlay.dataset.calculationState === 'ready' ? proceed : skip.hidden ? overlay : skip);
+    } else if (event.key === 'Escape') {
+      event.preventDefault();
+      // Escape skips only the animation; it can never dismiss the result.
+      onSkip();
+    }
+  };
+  const onVisibility = () => { if (document.hidden) onSkip(); };
+  const onMotionChange = (event) => { if (event.matches) onSkip(); };
+  skip.addEventListener('click', onSkip);
+  overlay.addEventListener('click', onClick);
+  overlay.addEventListener('keydown', onKeyDown);
+  document.addEventListener('visibilitychange', onVisibility);
+  try {
+    if (reducedMotion.addEventListener) reducedMotion.addEventListener('change', onMotionChange);
+    else reducedMotion.addListener?.(onMotionChange); // older Safari
+  } catch (_) {}
+
+  return {
+    /** Let the browser paint the scene before the synchronous engine runs. */
+    async paint() {
+      if (reducedMotion.matches || document.hidden) return;
+      await new Promise((resolve) => {
+        const fallback = setTimeout(resolve, 150);
+        requestAnimationFrame(() => requestAnimationFrame(() => { clearTimeout(fallback); resolve(); }));
+      });
+    },
+    /** The displayed pillars are always taken from the actual calculation. */
+    showResult(bazi) {
+      const names = { Y: '年柱', M: '月柱', D: '日柱', H: '时柱' };
+      const labels = [];
+      overlay.querySelectorAll('[data-calculation-pillar]').forEach((item) => {
+        const pillar = bazi?.[item.dataset.calculationPillar];
+        item.textContent = pillar?.g && pillar?.z ? `${pillar.g}${pillar.z}` : '—';
+        labels.push(`${names[item.dataset.calculationPillar]}${item.textContent}`);
+      });
+      overlay.querySelector('.calculation-pillars')?.setAttribute('aria-label', `四柱结果，${labels.join('，')}`);
+    },
+    async wait() {
+      // A skip, hidden document, or reduced motion removes only the animation.
+      if (!skipped && !reducedMotion.matches && !document.hidden) {
+        const remaining = Math.max(0, startedAt + SCENE_DURATION - performance.now());
+        if (remaining > 0) {
+          await new Promise((resolve) => { releaseAnimation = resolve; waitTimer = setTimeout(resolve, remaining); });
+          clearTimeout(waitTimer);
+          releaseAnimation = null;
+        }
+      }
+      if (finished) return;
+      overlay.dataset.calculationState = 'ready';
+      if (title) title.textContent = '推演完成';
+      if (status) status.textContent = '点击画面或查看报告继续';
+      skip.hidden = true;
+      proceed.hidden = false;
+      focusSafely(proceed);
+      window.dispatchEvent(new CustomEvent('tj:calculation-ready'));
+      // The funnel's loading ritual ends with the report, so its handoff may
+      // acknowledge the result automatically — but never before it is shown,
+      // never repeatedly, and never for an ordinary visit.
+      if (autoAdvance) {
+        autoAdvanceTimer = setTimeout(() => {
+          autoAdvanceTimer = null;
+          releaseResult?.();
+        }, RESULT_HOLD_MS);
+      }
+      // No timer, visibility change, or motion preference may dismiss this result.
+      await new Promise((resolve) => { releaseResult = resolve; });
+      releaseResult = null;
+    },
+    close({ restoreFocus = false } = {}) {
+      if (finished) return;
+      finished = true;
+      clearTimeout(waitTimer);
+      clearTimeout(autoAdvanceTimer);
+      autoAdvanceTimer = null;
+      releaseAnimation?.();
+      releaseResult?.();
+      skip.removeEventListener('click', onSkip);
+      overlay.removeEventListener('click', onClick);
+      overlay.removeEventListener('keydown', onKeyDown);
+      document.removeEventListener('visibilitychange', onVisibility);
+      try {
+        if (reducedMotion.removeEventListener) reducedMotion.removeEventListener('change', onMotionChange);
+        else reducedMotion.removeListener?.(onMotionChange);
+      } catch (_) {}
+      overlay.hidden = true;
+      delete overlay.dataset.calculationState;
+      delete overlay.dataset.animationSkipped;
+      background.forEach(({ element, inert, aria }) => {
+        if (!inert) element.removeAttribute('inert');
+        if (aria === null) element.removeAttribute('aria-hidden');
+        else element.setAttribute('aria-hidden', aria);
+      });
+      if (restoreFocus && previousFocus?.isConnected) focusSafely(previousFocus);
+    },
+  };
+}

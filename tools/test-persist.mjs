@@ -1,0 +1,53 @@
+import { selectHomeTrait, openDemoReport, continueCalculation } from './test-entry.mjs';
+import assert from 'node:assert/strict';
+import puppeteer from 'puppeteer';
+const BASE=process.env.BASE_URL||'http://localhost:5173/index.html';
+const b=await puppeteer.launch({headless:'new',args:['--no-sandbox']});
+const p=await b.newPage();await p.setViewport({width:430,height:932});
+const errs=[];p.on('pageerror',e=>errs.push(e.message));
+await p.goto(BASE,{waitUntil:'domcontentloaded',timeout:15000});
+await selectHomeTrait(p);
+await p.waitForFunction(() => typeof window.calc === 'function', { timeout: 15000 });
+await new Promise(r=>setTimeout(r,800));
+
+// 1. 生成报告 → 保存档案
+await openDemoReport(p);
+await new Promise(r=>setTimeout(r,3600));
+await p.evaluate(()=>window.openSaveModal());
+await new Promise(r=>setTimeout(r,400));
+await p.evaluate(()=>{document.getElementById('saveName').value='测试档案A';});
+await p.evaluate(()=>window.confirmSaveProfile());
+await new Promise(r=>setTimeout(r,900));
+console.log('保存后 toast:', await p.evaluate(()=>document.querySelector('.tj-toast')?.innerText||'(无)'));
+
+// 2. 刷新页面，看档案是否还在
+await p.reload({waitUntil:'domcontentloaded',timeout:15000});
+await selectHomeTrait(p);
+await p.waitForFunction(() => typeof window.calc === 'function', { timeout: 15000 });
+await new Promise(r=>setTimeout(r,1200));
+const after=await p.evaluate(()=>({
+  recentVisible: document.getElementById('recentZone')?.style.display,
+  recentCards: document.querySelectorAll('#recentGrid .r-card').length,
+  profileCards: document.querySelectorAll('#profileGrid .r-card').length,
+  firstName: document.querySelector('#profileGrid .r-name')?.innerText||'(无)',
+}));
+console.log('刷新后:', JSON.stringify(after));
+assert.equal(after.recentVisible, 'block');
+assert.equal(after.profileCards, 1);
+assert.equal(after.firstName, '测试档案A');
+
+// 3. 点击档案能否载入
+if(after.profileCards>0){
+  const id=await p.evaluate(()=>{const m=document.querySelector('#profileGrid .r-card').getAttribute('onclick').match(/\d+/);return m?+m[0]:null;});
+  await p.evaluate(i=>{ void window.loadProfile(i); },id);
+  await continueCalculation(p);
+  // loadProfile 会触发 calc()，含约 2s 的推演动画，需等待其结束
+  await new Promise(r=>setTimeout(r,4000));
+  const restored = await p.evaluate(() => ({ date: document.getElementById('bDate').value, report: document.getElementById('page2').classList.contains('active') }));
+  assert.equal(restored.date, '1990-06-15');
+  assert.equal(restored.report, true);
+  console.log('载入后:', restored);
+}
+assert.deepEqual(errs, []);
+console.log('错误:', errs.length?[...new Set(errs)].join(' | '):'无');
+await b.close();

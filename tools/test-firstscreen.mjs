@@ -1,0 +1,23 @@
+import { selectHomeTrait, openDemoReport } from './test-entry.mjs';
+import assert from 'node:assert/strict';
+import puppeteer from 'puppeteer';
+const BASE=process.env.BASE_URL||'http://localhost:5173/index.html';
+const b=await puppeteer.launch({headless:'new',args:['--no-sandbox']});
+const p=await b.newPage();await p.setViewport({width:430,height:932,deviceScaleFactor:2});
+const errs=[];p.on('pageerror',e=>errs.push(e.message));
+await p.goto(BASE,{waitUntil:'domcontentloaded',timeout:15000});
+await selectHomeTrait(p);
+await p.waitForFunction(() => typeof window.calc === 'function', { timeout: 15000 });
+await openDemoReport(p);
+await new Promise(r=>setTimeout(r,4200));
+console.log('=== 新手首屏数据位 ===');
+const text = await p.evaluate(()=>[...document.querySelectorAll('.beginner-basic > div')]
+  .map(d=>d.innerText.replace(/\n/g,' | ')).join('\n'));
+console.log(text);
+assert.match(text, /日主/);
+assert.match(text, /用神/);
+assert.match(text, /大运/);
+assert.deepEqual(errs, []);
+await p.screenshot({path:'/tmp/first-screen.png'});
+console.log('\n错误:', errs.length?[...new Set(errs)].join(' | '):'无');
+await b.close();

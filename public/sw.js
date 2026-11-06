@@ -1,0 +1,172 @@
+/* 问问大师 PWA：离线可用 + 秒开的缓存策略。
+   静态资源带 hash，可长期缓存；HTML 走 network-first 保证更新及时。 */
+const CACHE = 'wenda-cache-v71';
+const BASE = './';
+
+const OPTIONAL_ASSETS = [
+  // Keep the previous paths for pages and bookmarks that have not updated yet.
+  'art/luye-fullbody.webp', 'art/luye-fullbody-avatar.webp', 'art/suyan-fullbody.webp', 'art/suyan-fullbody-avatar.webp',
+  'art/wenwen-cinema3d-blink-v2.webp', 'art/moonfox-cinema3d-blink-v2.webp', 'art/diyan-cinema3d-blink-v2.webp', 'art/yuchen-cinema3d-blink-v2.webp', 'art/qinglan-cinema3d-blink-v2.webp', 'art/xingling-cinema3d-blink-v2.webp', 'art/luye-cinema3d-blink-v2.webp', 'art/suyan-cinema3d-blink-v2.webp', 'art/rongrong-cinema3d-blink-v2.webp', 'art/zhiya-cinema3d-blink-v2.webp',
+  'art/wenwen-cinema3d.webp', 'art/wenwen-cinema3d-avatar.webp', 'art/wenwen-cinema3d-blink.webp', 'art/wenwen-cinema3d-speak.webp',
+  'art/moonfox-cinema3d.webp', 'art/moonfox-cinema3d-avatar.webp', 'art/moonfox-cinema3d-blink.webp', 'art/moonfox-cinema3d-speak.webp',
+  'art/diyan-cinema3d.webp', 'art/diyan-cinema3d-avatar.webp', 'art/diyan-cinema3d-blink.webp', 'art/diyan-cinema3d-speak.webp',
+  'art/yuchen-cinema3d.webp', 'art/yuchen-cinema3d-avatar.webp', 'art/yuchen-cinema3d-blink.webp', 'art/yuchen-cinema3d-speak.webp',
+  'art/qinglan-cinema3d.webp', 'art/qinglan-cinema3d-avatar.webp', 'art/qinglan-cinema3d-blink.webp', 'art/qinglan-cinema3d-speak.webp',
+  'art/xingling-cinema3d.webp', 'art/xingling-cinema3d-avatar.webp', 'art/xingling-cinema3d-blink.webp', 'art/xingling-cinema3d-speak.webp',
+  'art/luye-cinema3d.webp', 'art/luye-cinema3d-avatar.webp', 'art/luye-cinema3d-blink.webp', 'art/luye-cinema3d-speak.webp',
+  'art/suyan-cinema3d.webp', 'art/suyan-cinema3d-avatar.webp', 'art/suyan-cinema3d-blink.webp', 'art/suyan-cinema3d-speak.webp',
+  'art/rongrong-cinema3d.webp', 'art/rongrong-cinema3d-avatar.webp', 'art/rongrong-cinema3d-blink.webp', 'art/rongrong-cinema3d-speak.webp',
+  'art/zhiya-cinema3d.webp', 'art/zhiya-cinema3d-avatar.webp', 'art/zhiya-cinema3d-blink.webp', 'art/zhiya-cinema3d-speak.webp',
+  'art/leizi-cinema3d.webp', 'art/leizi-cinema3d-avatar.webp', 'art/leizi-cinema3d-blink.webp', 'art/leizi-cinema3d-speak.webp',
+  'art/muse-cinema3d.webp', 'art/muse-cinema3d-avatar.webp', 'art/muse-cinema3d-blink.webp', 'art/muse-cinema3d-speak.webp',
+  'art/leizi-hall-wide.webp', 'art/leizi-hall-mobile.webp', 'art/muse-hall-wide.webp', 'art/muse-hall-mobile.webp',
+  'manifest.webmanifest', 'pwa-install.js', 'icon.svg', 'icon-192.png', 'icon-512.png',
+  'icon-twins-128.png', 'icon-twins-192.png', 'icon-twins-512.png',
+  'icon-twins-maskable-192.png', 'icon-twins-maskable-512.png', 'apple-touch-icon-twins.png',
+  'art/master-twin-indigo.webp', 'art/master-twin-rose.webp',
+  'art/master-twin-indigo-avatar.webp', 'art/master-twin-rose-avatar.webp',
+  'art/wenwen-reimagined.webp', 'art/wenwen-reimagined-avatar.webp', 'art/wenwen-reimagined-blink.webp', 'art/wenwen-reimagined-speak.webp',
+  'art/wenwen-lantern.webp', 'art/wenwen-cloud-trail.webp', 'art/sacred-study-wide.webp', 'art/sacred-study-mobile.webp',
+  'art/moon-fox-reimagined.webp', 'art/moon-fox-reimagined-avatar.webp', 'art/moon-fox-reimagined-blink.webp', 'art/moon-fox-reimagined-speak.webp',
+  'art/moon-fox-cloud-trail.webp', 'art/moon-fox-study-wide.webp', 'art/moon-fox-study-mobile.webp',
+  'art/earthfire-sovereign.webp', 'art/earthfire-sovereign-avatar.webp', 'art/earthfire-sovereign-blink.webp', 'art/earthfire-sovereign-speak.webp',
+  'art/earthfire-flame-seat.webp', 'art/earthfire-hall-wide.webp', 'art/earthfire-hall-mobile.webp', 'art/earthfire-runes.webp', 'art/earthfire-rune-seal.webp',
+  'art/yuchen-empress.webp', 'art/yuchen-empress-avatar.webp', 'art/yuchen-empress-blink.webp', 'art/yuchen-empress-speak.webp',
+  'art/yuchen-hall-wide.webp', 'art/yuchen-hall-mobile.webp',
+  'art/qinglan-renewed.webp', 'art/qinglan-renewed-avatar.webp', 'art/qinglan-renewed-blink.webp', 'art/qinglan-renewed-speak.webp',
+  'art/qinglan-room-wide.webp', 'art/qinglan-room-mobile.webp', 'art/qinglan-sword.webp',
+  'art/xingling-renewed.webp', 'art/xingling-renewed-avatar.webp', 'art/xingling-renewed-blink.webp', 'art/xingling-renewed-speak.webp',
+  'art/xingling-room-wide.webp', 'art/xingling-room-mobile.webp', 'art/xingling-fan.webp',
+  'art/luye-3d.webp', 'art/luye-3d-avatar.webp', 'art/luye-3d-blink.webp', 'art/luye-3d-speak.webp',
+  'art/luye.webp', 'art/luye-avatar.webp', 'art/luye-blink.webp', 'art/luye-speak.webp',
+  'art/luye-room-wide.webp', 'art/luye-room-mobile.webp', 'art/luye-turntable.svg', 'art/luye-vinyl.svg',
+  'art/suyan-3d.webp', 'art/suyan-3d-avatar.webp', 'art/suyan-3d-blink.webp', 'art/suyan-3d-speak.webp',
+  'art/suyan.webp', 'art/suyan-avatar.webp', 'art/suyan-blink.webp', 'art/suyan-speak.webp',
+  'art/suyan-room-wide.webp', 'art/suyan-room-mobile.webp', 'art/suyan-camera.svg',
+  'art/rongrong.webp', 'art/rongrong-avatar.webp', 'art/rongrong-blink.webp', 'art/rongrong-speak.webp',
+  'art/rongrong-room-wide.webp', 'art/rongrong-room-mobile.webp', 'art/rongrong-pawbell.webp',
+  'art/zhiya.webp', 'art/zhiya-avatar.webp', 'art/zhiya-blink.webp', 'art/zhiya-speak.webp',
+  'art/zhiya-room-wide.webp', 'art/zhiya-room-mobile.webp', 'art/zhiya-crane.webp',
+  'art/awakening-scroll.webp', 'art/awakening-fox-fan.webp', 'art/awakening-phoenix-wing.webp',
+  // Funnel entry: posters/lords keep the four personas readable offline even
+  // when their (large) MP4s are not cached.
+  'art/diyan-lord.webp', 'art/yuchen-lord.webp', 'art/yuebai-lord.webp', 'art/xiyao-lord.webp', 'art/leizi-lord.webp', 'art/muse-lord.webp',
+  'art/diyan-entry2-poster.webp', 'art/diyan-ritual-poster.webp',
+];
+
+self.addEventListener('install', (e) => {
+  e.waitUntil((async () => {
+    const cache = await caches.open(CACHE);
+    // Never replace a working offline version unless the new HTML is available.
+    await cache.add(BASE);
+    // funnel.html is a separate navigation target (the fallback surface links
+    // back to it). Keep its own cached copy instead of serving index.html.
+    await cache.add(BASE + 'funnel.html');
+    await cache.add(BASE + 'index.html');
+    // Production emits a manifest of hashed application chunks. Fetch them at
+    // install time so a first visit can be used offline after activation.
+    try {
+      const response = await fetch(BASE + 'offline-assets.json', { cache: 'no-store' });
+      if (response.ok) {
+        const text = await response.text();
+        // Vite's dev server responds to unknown URLs with its HTML fallback.
+        const assets = text.trimStart().startsWith('<') ? [] : JSON.parse(text);
+        if (Array.isArray(assets)) await Promise.all(assets.filter(asset => /^assets\/[\w.\-]+\.(?:js|css)$/.test(asset)).map(asset => cache.add(BASE + asset)));
+      }
+    } catch (error) {
+      // Do not replace a working version with an incomplete installation.
+      throw error;
+    }
+    await Promise.all(OPTIONAL_ASSETS.map(async (asset) => {
+      const url = BASE + asset;
+      try {
+        await cache.add(url);
+      } catch {
+        // Keep a previous offline copy if a nonessential asset is unavailable.
+        const previous = await caches.match(url);
+        if (previous) await cache.put(url, previous);
+      }
+    }));
+    await self.skipWaiting();
+  })());
+});
+
+self.addEventListener('activate', (e) => {
+  e.waitUntil((async () => {
+    const keys = await caches.keys();
+    await Promise.all(keys.filter((key) => key.startsWith('wenda-cache-') && key !== CACHE).map((key) => caches.delete(key)));
+    await self.clients.claim();
+  })());
+});
+
+self.addEventListener('fetch', (e) => {
+  const req = e.request;
+  if (req.method !== 'GET') return;
+  const url = new URL(req.url);
+  if (url.origin !== location.origin) return; // 只缓存本站，AI API 等外部请求不碰
+
+  // HTML: never replace a usable offline page with an error response.
+  if (req.mode === 'navigate') {
+    const isRoot = url.pathname === new URL(BASE, self.location.href).pathname;
+    const network = fetch(req);
+    e.waitUntil(network.then((res) => {
+      if (res.ok) {
+        // Cache each navigation under its own URL: caching funnel.html under
+        // BASE would make offline visits to the app root open the funnel page.
+        return caches.open(CACHE).then((cache) => cache.put(isRoot ? BASE : req, res.clone()));
+      }
+    }).catch(() => {}));
+    const offline = () => caches.match(req).then(async (hit) => {
+      if (hit) return hit;
+      // Query strings (e.g. ?stats or ?panel=guide) do not change the shell.
+      // Never turn an offline funnel navigation into the app's index page.
+      const path = url.pathname.slice(new URL(BASE, self.location.href).pathname.length);
+      if (path === 'funnel.html') return caches.match(BASE + 'funnel.html');
+      if (isRoot || path === 'index.html') return (await caches.match(BASE + 'index.html')) || caches.match(BASE);
+      return caches.match(BASE);
+    });
+    e.respondWith(network.then((res) => {
+      if (res.ok) return res;
+      return offline().then((hit) => hit || res);
+    }).catch(offline));
+    return;
+  }
+
+  const basePath = new URL(BASE, self.location.href).pathname;
+  const relativePath = url.pathname.startsWith(basePath) ? url.pathname.slice(basePath.length) : '';
+
+  // Vite's development modules and styles reuse URLs as files change. Never
+  // serve them from CacheStorage; a stale module can break a newly loaded page.
+  if (/^(?:src\/|@vite\/|@id\/|node_modules\/\.vite\/)/.test(relativePath)) return;
+
+  // Artwork keeps readable, un-hashed names. Prefer fresh artwork online while
+  // keeping the pre-cached copy available for offline use.
+  if (relativePath.startsWith('art/')) {
+    const network = fetch(req);
+    e.waitUntil(network.then((res) => {
+      if (res && res.ok && res.type === 'basic') {
+        const copy = res.clone();
+        return caches.open(CACHE).then((c) => c.put(req, copy));
+      }
+    }).catch(() => {}));
+    e.respondWith(network.then((res) => {
+      if (res.ok) return res;
+      return caches.match(req).then((hit) => hit || res);
+    }).catch(() => caches.match(req)));
+    return;
+  }
+
+  // 带 hash 的资源与其他静态：cache-first，miss 再网络并回填
+  e.respondWith(
+    caches.match(req).then((hit) => {
+      if (hit) return hit;
+      return fetch(req).then((res) => {
+        if (res && res.status === 200 && res.type === 'basic') {
+          const copy = res.clone();
+          caches.open(CACHE).then((c) => c.put(req, copy)).catch(() => {});
+        }
+        return res;
+      });
+    })
+  );
+});

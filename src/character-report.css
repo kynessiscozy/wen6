@@ -1,0 +1,396 @@
+/* Guide perspectives are separate from the chart: same facts, different
+   reading priorities and reflective prompts, never a second prediction. */
+#page2 .guide-perspective {
+  margin: 0 0 16px;
+  padding: 18px 20px;
+  border: 1px solid var(--c-border, #dedbd4);
+  border-left: 3px solid var(--c-accent, #d97757);
+  border-radius: 14px;
+  background: var(--c-surface, #fff);
+  color: var(--c-text, #3d3b37);
+}
+.guide-perspective-kicker { margin: 0 0 6px; color: var(--c-accent, #b6533a); font-size: 12px; font-weight: 700; }
+.guide-perspective-title { margin: 0 0 8px; color: var(--c-text-hi, #262624); font-size: 17px; line-height: 1.4; }
+.guide-perspective-facts, .guide-perspective-prompt { margin: 0 0 7px; font-size: 13px; line-height: 1.65; }
+.guide-perspective-facts { color: var(--c-text-2, #666); }
+.guide-perspective-note { margin: 9px 0 0; color: var(--c-text-2, #666); font-size: 11px; line-height: 1.5; }
+@media (forced-colors: active) {
+  #page2 .guide-perspective { color: CanvasText; background: Canvas; border-color: CanvasText; }
+  #page2 .guide-perspective :is(.guide-perspective-kicker, .guide-perspective-title, .guide-perspective-facts, .guide-perspective-prompt, .guide-perspective-note) { color: CanvasText; }
+}
+
+/* One continuous overview: the selected figure accompanies the actual chart. */
+#page2 .result-character-hero {
+  --result-character-accent: #ecc1ae;
+  position: relative;
+  isolation: isolate;
+  min-height: 320px;
+  margin: 0 calc(var(--sp-4, 16px) * -1) 18px;
+  overflow: hidden;
+  color: #fff9f1;
+  background: var(--result-scene-bg, #19181c);
+}
+.result-character-scene {
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 1;
+  height: 330px;
+  overflow: hidden;
+  background: var(--result-scene-bg, #19181c);
+  pointer-events: none;
+}
+.result-character-scene picture, .result-character-backdrop {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.result-character-backdrop { object-fit: cover; opacity: .72; }
+.result-character-scene::before, .result-character-scene::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.result-character-scene::before {
+  z-index: 1;
+  background: radial-gradient(ellipse at 75% 35%, transparent 12%, rgba(14, 13, 18, .28) 78%);
+}
+.result-character-scene::after {
+  z-index: 3;
+  background: linear-gradient(90deg, hsla(var(--accent-h), 30%, 7%, .96) 0%, hsla(var(--accent-h), 30%, 7%, .83) 30%, hsla(var(--accent-h), 30%, 7%, .28) 57%, transparent 80%),
+    linear-gradient(0deg, var(--result-scene-bg, #19181c) 0%, transparent 40%);
+}
+.result-character-figure {
+  position: absolute;
+  z-index: 2;
+  top: -3%;
+  right: -3%;
+  width: 67%;
+  height: 118%;
+}
+.result-character-portrait, .result-character-blink, .result-character-speaking {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center top;
+}
+.result-character-blink { opacity: 0; animation: result-character-blink 7.2s linear infinite; }
+.result-character-speaking { opacity: 0; }
+.is-speaking .result-character-speaking { animation: result-character-speaking 1.8s steps(1, end); }
+@keyframes result-character-blink { 0%, 91%, 95%, 100% { opacity: 0; } 92%, 94% { opacity: 1; } }
+@keyframes result-character-speaking {
+  0%, 24%, 50%, 75%, 100% { opacity: 0; }
+  12%, 37%, 63%, 88% { opacity: 1; }
+}
+.result-character-copy {
+  position: relative;
+  z-index: 3;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0 8px;
+  padding: 18px clamp(20px, 4vw, 32px) 0;
+  color: #fff9f1;
+  pointer-events: none;
+}
+.result-character-kicker {
+  grid-area: 1 / 1;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-width: 0;
+  margin: 0;
+  color: var(--result-character-accent);
+  font-size: 11px;
+  font-weight: 650;
+  line-height: 1.3;
+}
+.result-character-mark {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  font-size: 10px;
+}
+.result-character-demo { padding-left: 6px; border-left: 1px solid rgba(255, 255, 255, .35); }
+.result-character-reselect, .result-character-hint-button {
+  min-height: 40px;
+  padding: 0 3px;
+  border: 0;
+  background: transparent;
+  color: #fff3e7;
+  font: 600 11px/1.2 var(--sf, sans-serif);
+  text-shadow: 0 1px 8px #090a12;
+  cursor: pointer;
+  pointer-events: auto;
+}
+.result-character-reselect:hover, .result-character-hint-button:hover { text-decoration: underline; }
+.result-character-reselect:focus-visible, .result-character-hint-button:focus-visible {
+  outline: 2px solid #fff !important;
+  outline-offset: 2px !important;
+}
+.result-character-controls { grid-area: 1 / 2; }
+.result-character-hint-button { color: #fff9f1; font-weight: 500; }
+.result-character-hint {
+  grid-column: 1 / -1;
+  grid-row: 3;
+  max-width: 300px;
+  margin: 5px 0 8px;
+  padding: 8px 10px;
+  border-left: 1px solid var(--result-character-accent);
+  background: rgba(10, 12, 20, .74);
+}
+.result-character-hint p { margin: 0; color: #fffaf4; font-size: 12px; line-height: 1.6; }
+.result-character-reading { grid-column: 1 / -1; grid-row: 2; padding-top: 13px; }
+.result-character-title {
+  margin: 0 0 7px;
+  color: #fffaf4 !important;
+  font: 600 clamp(25px, 3vw, 31px)/1.25 var(--serif, serif) !important;
+}
+.result-character-description { max-width: 220px; margin: 0; color: #e4e2e8; font-size: 12px; line-height: 1.6; }
+
+/* The original collapsible overview remains the sole source of eastern data. */
+.result-character-overview { position: relative; z-index: 2; padding: 2px clamp(20px, 4vw, 32px) 18px; }
+.result-overview-heading {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0;
+}
+#page2 .result-character-overview .qr-card {
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: visible;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  color: #fff9f1;
+  animation: none;
+}
+#page2 .result-character-overview .qr-head {
+  max-width: min(57%, 330px);
+  min-height: 32px;
+  margin: 0 0 7px !important;
+  color: #fff9f1;
+}
+.result-character-overview .qr-badge { display: none; }
+/* Older browsers without inert must not tab into the clipped reading. */
+#page2 .result-character-overview .qr-collapsed .qr-body { visibility: hidden; }
+/* All three readings use a compact fold affordance rather than a second title. */
+#page2 .result-character-overview .qr-title {
+  color: #e9ded4 !important;
+  font: 600 11px/1.3 var(--sf, sans-serif) !important;
+}
+.result-character-overview .qr-toggle { border-color: #fff3e7; }
+#page2 .result-character-overview .qr-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 6px !important;
+  width: min(57%, 330px);
+  margin: 0 0 12px;
+}
+#page2 .result-character-overview .qr-item {
+  min-width: 0;
+  padding: 8px 7px !important;
+  border: 1px solid rgba(255, 245, 229, .18);
+  border-radius: 8px !important;
+  background: hsla(var(--accent-h), 30%, 6%, .72) !important;
+  text-align: left;
+}
+#page2 .result-character-overview .qr-l { color: #dfd4c9 !important; font-size: 11px; }
+#page2 .result-character-overview .qr-v { margin-top: 3px; color: #fffaf4 !important; font-size: 15px; font-weight: 650; }
+#page2 .result-character-overview .qr-summary {
+  max-width: 560px;
+  margin: 2px 0 10px;
+  padding: 11px 0 0;
+  border-top: 1px solid rgba(255, 245, 229, .22);
+  border-radius: 0 !important;
+  background: transparent;
+  color: #f3eee9 !important;
+  font-size: 13px !important;
+  line-height: 1.65;
+}
+#page2 .result-character-overview .qr-summary * { color: inherit !important; font-size: inherit !important; }
+#page2 .result-character-overview .qr-acts { display: flex; flex-wrap: wrap; gap: 6px; }
+#page2 .result-character-overview .qr-act {
+  min-height: 36px;
+  padding: 0 11px;
+  border: 1px solid rgba(255, 245, 229, .28);
+  background: rgba(15, 17, 24, .42);
+  color: #fff8f0;
+  font-size: 11px !important;
+}
+#page2 .result-character-overview .qr-act:focus-visible, #page2 .result-character-overview .qr-head:focus-visible {
+  outline: 2px solid #fff !important; outline-offset: 2px !important;
+}
+/* Beginner mode still has its separate teaching card, with this compact overview above it. */
+body.beginner-mode #p2Inner .sec .result-character-overview .qr-card { display: block !important; }
+body.beginner-mode #p2Inner .sec .result-character-overview .pro-toggle {
+  justify-content: flex-start;
+  width: min(57%, 330px);
+  margin: 0 0 10px;
+  border-color: rgba(255, 245, 229, .3);
+  background: rgba(17, 18, 23, .55);
+  color: #fff8f0;
+}
+
+/* Western canvases are the background, not a second screen below the figure. */
+.result-western-theatre { position: absolute; inset: 0; }
+#page2 .result-western-theatre .w3d-hero {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  background: hsl(var(--accent-h), 38%, 10%);
+}
+#page2 .result-western-theatre .w3d-ov { pointer-events: none; }
+#page2 .result-western-theatre .w3d-ov-chips b { color: inherit; font: inherit; }
+#page2 .result-western-theatre .w3d-reset { top: auto; right: 90px; bottom: 78px; }
+#page2 .result-western-theatre .w3d-loading {
+  z-index: 0;
+  align-items: flex-start;
+  padding: 90px 54% 75px 20px;
+  font-size: 11px;
+  letter-spacing: .05em;
+  background: radial-gradient(ellipse at 50% 40%, hsl(var(--accent-h), 40%, 21%) 0%, hsl(var(--accent-h), 38%, 10%) 78%);
+  pointer-events: none;
+}
+html[data-system-mode="western"] #page2 .result-character-hero { min-height: 340px; background: hsl(var(--accent-h), 38%, 10%); }
+html[data-system-mode="western"] #page2 .result-character-hero.has-hint { min-height: 405px; }
+html[data-system-mode="western"] .result-character-scene { height: 100%; background: transparent; }
+html[data-system-mode="western"] .result-character-scene picture { display: none; }
+html[data-system-mode="western"] .result-character-scene::before { background: none; }
+html[data-system-mode="western"] .result-character-scene::after {
+  background: linear-gradient(90deg, rgba(7, 10, 24, .7), rgba(7, 10, 24, .12) 55%, transparent 85%);
+}
+html[data-system-mode="western"] .result-character-figure { top: -1%; right: -6%; width: 57%; height: 118%; }
+
+/* Fortune and relationships use the same continuous scene + real reading,
+   instead of a companion banner followed by a second quick-read card. */
+#page2 .result-character-chapter {
+  position: relative;
+  isolation: isolate;
+  min-height: 220px;
+  margin: 0 calc(var(--sp-4, 16px) * -1) 18px;
+  overflow: hidden;
+  color: #fff9f1;
+  background: var(--result-scene-bg, #19181c);
+}
+.result-character-chapter::before, .result-character-chapter::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.result-character-chapter::before {
+  z-index: 0;
+  background: radial-gradient(ellipse at 76% 22%, color-mix(in srgb, var(--result-character-accent) 38%, transparent), transparent 56%);
+}
+.result-character-chapter::after {
+  z-index: 1;
+  top: 180px;
+  background: linear-gradient(0deg, var(--result-scene-bg, #19181c) 35%, transparent);
+}
+.result-chapter-figure {
+  position: absolute;
+  z-index: 1;
+  inset: -20px -28px auto auto;
+  width: 225px;
+  height: 335px;
+  -webkit-mask-image: linear-gradient(0deg, transparent 0%, #000 32%);
+  mask-image: linear-gradient(0deg, transparent 0%, #000 32%);
+  pointer-events: none;
+}
+.result-chapter-copy { position: relative; z-index: 2; max-width: 65%; padding: 21px 22px 0; pointer-events: none; }
+.result-chapter-kicker { margin: 0; color: var(--result-character-accent); font-size: 10px; font-weight: 700; }
+.result-chapter-overview { padding-top: 7px; }
+.result-chapter-reading { padding-bottom: 23px; padding-top: 8px; }
+.result-chapter-reading h2 { margin: 0 0 6px; color: #fffaf4 !important; font: 650 18px/1.3 var(--serif, serif); }
+.result-chapter-reading p { margin: 0; color: #e1e0e6; font-size: 12px; line-height: 1.6; }
+html[data-system-mode="western"] #page2 .result-character-chapter { min-height: 310px; border: 0; background: hsl(var(--accent-h), 38%, 10%); }
+html[data-system-mode="western"] .result-character-chapter::before,
+html[data-system-mode="western"] .result-character-chapter::after { display: none; }
+html[data-system-mode="western"] .result-chapter-figure {
+  top: -12px; right: -25px; width: 52%; height: 345px;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 25%);
+  mask-image: linear-gradient(90deg, transparent 0%, #000 25%);
+}
+html[data-system-mode="western"] .result-chapter-copy { max-width: 58%; }
+html[data-system-mode="western"] .result-chapter-kicker { color: var(--result-character-accent); }
+
+/* A small accessible control remains when the art is hidden. The image itself
+   stays pointer-transparent, so swiping across it still operates the 3D scene. */
+.result-portrait-toggle {
+  position: absolute;
+  z-index: 4;
+  right: 14px;
+  bottom: 78px;
+  min-height: 36px;
+  padding: 0 11px;
+  border: 1px solid rgba(255, 245, 229, .42);
+  border-radius: 999px;
+  background: rgba(7, 10, 24, .78);
+  color: #fff9f1;
+  font: 600 11px/1 var(--sf, sans-serif);
+  cursor: pointer;
+}
+.result-portrait-toggle:hover { background: rgba(26, 31, 49, .94); }
+.result-portrait-toggle:focus-visible { outline: 2px solid #fff !important; outline-offset: 3px !important; }
+html[data-system-mode="western"] .is-portrait-hidden .result-character-figure,
+html[data-system-mode="western"] .is-portrait-hidden .result-chapter-figure { visibility: hidden; opacity: 0; }
+
+@media (max-width: 420px) {
+  .result-character-figure { width: 78%; right: -9%; }
+  .result-chapter-figure { width: 200px; height: 300px; right: -32px; }
+  .result-chapter-copy { max-width: 67%; }
+  html[data-system-mode="western"] .result-character-figure { width: 65%; right: -10%; }
+}
+@media (max-width: 350px) {
+  .result-character-copy { padding-inline: 17px; }
+  .result-character-overview { padding-inline: 17px; }
+  #page2 .result-character-overview .qr-grid, #page2 .result-character-overview .qr-head { width: 59%; max-width: 59%; }
+  .result-chapter-copy { max-width: 66%; padding-left: 19px; }
+  .result-chapter-figure { width: 180px; height: 270px; }
+}
+@media (max-height: 450px) and (orientation: landscape) {
+  html[data-system-mode="western"] #page2 .result-character-hero,
+  html[data-system-mode="western"] #page2 .result-character-chapter { min-height: 280px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .result-character-blink, .result-character-speaking { display: none; animation: none; }
+  .result-western-theatre .w3d-load-ring { animation: none; }
+}
+@media (forced-colors: active) {
+  #page2 .result-character-hero, #page2 .result-character-chapter { background: Canvas; color: CanvasText; }
+  .result-character-scene, .result-chapter-figure, .result-portrait-toggle { display: none; }
+  .result-character-chapter::before, .result-character-chapter::after { display: none; }
+  .result-character-copy, .result-character-kicker, .result-character-description, .result-chapter-kicker,
+  .result-character-hint-button, .result-character-reselect, .result-character-hint p { color: CanvasText; text-shadow: none; }
+  .result-character-title, #page2 #characterResultHero .result-character-overview .qr-title,
+  #page2 .result-character-overview .qr-title,
+  #page2 .result-character-overview .qr-l, #page2 .result-character-overview .qr-v,
+  #page2 .result-character-overview .qr-summary, #page2 .result-character-overview .qr-act { color: CanvasText !important; }
+  .result-character-hint, #page2 .result-character-overview .qr-item,
+  #page2 .result-character-overview .qr-act { border-color: CanvasText; background: Canvas; }
+  .result-character-reselect:focus-visible, .result-character-hint-button:focus-visible { outline-color: Highlight !important; }
+  .result-western-theatre { position: relative; }
+  #page2 .result-western-theatre .w3d-hero { position: relative; height: auto; background: Canvas; }
+  /* Three sets an inline display:block on its canvas; override it in high contrast. */
+  #page2 .result-western-theatre canvas { display: none !important; }
+  #page2 .result-western-theatre .w3d-reset, #page2 .result-western-theatre .w3d-loading { display: none; }
+  #page2 .result-western-theatre .w3d-ov { position: relative; padding: 12px 20px; background: Canvas; }
+  #page2 .result-western-theatre .w3d-ov * { color: CanvasText; border-color: CanvasText; background: Canvas; }
+  html[data-system-mode="western"] #page2 .result-character-chapter,
+  html[data-system-mode="western"] #page2 .result-character-hero { min-height: 0; background: Canvas; }
+  html[data-system-mode="western"] .result-chapter-reading h2, html[data-system-mode="western"] .result-chapter-reading p,
+  html[data-system-mode="western"] .result-chapter-kicker { color: CanvasText !important; }
+}

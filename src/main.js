@@ -1,0 +1,1937 @@
+import { showToast } from './ui/toast.js';
+import { showFunnelTeaserIfNeeded } from './ui/funnel-teaser.js';
+import { focusSafely } from './ui/focus.js';
+import { CURR_YEAR, TG, DZ, SS, ZHI_CHONG } from './engines/shared.js';
+import { CD, CG } from './engines/cities.js';
+import { jqDate, solarTermDutyDay, resolveBirthDateTime, getDayPillarIndex } from './engines/calendar.js';
+import { mkBazi, mkWx, mkSs, mkShenSha, mkDy, mkLn, getLiuYue } from './engines/bazi.js';
+import { mkZw } from './engines/ziwei.js';
+import { solarToLunar } from './engines/lunar.js';
+import { mkQm } from './engines/qimen.js';
+import { mkMh } from './engines/meihua.js';
+import { mkSi } from './engines/sizhi.js';
+import { initSectionTabs } from './ui/section-tabs.js';
+import { TJ } from './state/tj.js';
+import { getCtx } from './state/context.js';
+import { closeToolPage, openToolPage } from './tools/center.js';
+import { openDecisionTool, runDecisionTool } from './tools/decision.js';
+import { startBreathTool } from './tools/wellness.js';
+import { runWealthTool } from './tools/wealth.js';
+import { runCareerTool } from './tools/career.js';
+import { runDateTool } from './tools/dating.js';
+import { runLayoffTool } from './tools/layoff-tool.js';
+import { runDailyTool } from './tools/daily.js';
+import { runNameTool } from './tools/naming.js';
+import { runOracleTool } from './tools/oracle.js';
+import { runLotteryTool } from './tools/lottery.js';
+import { runZodiacTool } from './tools/zodiac.js';
+import { runRelationTool } from './tools/relation.js';
+import { openPosterShare as showPosterShare, openCanvasShare } from './share/studio.js';
+import { initTools3DRingCarousel } from './render/tools-ring.js';
+import { characterCompanion, homeThemePicker } from './home.js';
+import { mountCharacterReport } from './ui/character-report.js';
+import { beginCharacterCalculation, warmCharacterCalculation } from './ui/character-calculation.js';
+import { getResultStyle } from './state/result-style.js';
+
+// The preview module loads with the report, so an already available report
+// can still be shared for the first time without a network connection.
+window.openPosterShare = function(kind = 'report') {
+  try { showPosterShare({ kind, opener: document.activeElement }); }
+  catch(error) { console.error('[share]', error); showToast(error?.message || '分享暂时不可用，请重试'); }
+};
+window.TJOpenSharePreview = openCanvasShare;
+// Preserve the old entry point for integrations while opening the new studio.
+window.openFullReportShare = () => window.openPosterShare('report');
+window.openNoviceGuide = openNoviceGuide;
+window.closeNoviceGuide = closeNoviceGuide;
+window.switchNoviceGuideTab = switchNoviceGuideTab;
+
+window.selectResultStyle=function(value){
+  const hidden=document.getElementById('bResultStyle');
+  const hint=document.getElementById('resultStyleHint');
+  if(hidden)hidden.value=value;
+  document.querySelectorAll('.result-style-option').forEach(btn=>{
+    const active=btn.dataset.style===value;
+    btn.classList.toggle('active',active);
+    btn.setAttribute('aria-checked',active?'true':'false');
+  });
+  if(hint)hint.textContent=getResultStyle(value).intro;
+  window._formDirty=true;
+};
+// 捕获阶段兜底：即使局部表单监听未初始化，按钮仍能切换风格。
+document.addEventListener('click',e=>{
+  const btn=e.target.closest?.('.result-style-option');
+  if(btn)window.selectResultStyle(btn.dataset.style);
+},true);
+import { calcYearScores } from './state/scoring.js';
+import { buildContext } from './state/context.js';
+import {
+  calcLayoffRisk, renderAll, switchStructureTab, toggleFullGods, calcRelation, copyReport
+} from './render/index.js';
+import {
+  applyTheme, jumpTo, showPage2, goBack, switchTab, setGlassMode, moveTabIndicator, initNavigationUI, openAsk, closeAsk, newAskChat, doAsk, doAskCustom, aiOnInputSuggest, setAiBasis, toggleAISettings, initAISettings, buildAISettingsPanel, applyThemePref, getThemePref
+} from './ui/index.js';
+import { initFontSize } from './font-size.js';
+import { initWeather } from './ui/weather.js';
+import { initOnboarding, openNoviceGuide, closeNoviceGuide, switchNoviceGuideTab } from './onboarding.js';
+import { initEvolveUI } from './evolve/ui.js';
+
+// This module can arrive after DOMContentLoaded or load on a slow connection.
+function onDomReady(callback){
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',callback,{once:true});
+  else queueMicrotask(callback);
+}
+function onWindowLoad(callback){
+  if(document.readyState==='complete')queueMicrotask(callback);
+  else window.addEventListener('load',callback,{once:true});
+}
+
+/* tools2 改为动态 import（见文件末尾 bootstrap 处）：
+   工具系统体积大且非首屏必需，独立成异步 chunk，缩小主包。 */
+
+initWeather();
+initSectionTabs();
+initNavigationUI();
+initAISettings();
+initFontSize();
+initEvolveUI();
+
+/* ============================================================
+   全局函数暴露：index.html 和动态生成的 onclick 需要全局访问
+   ES module 内的函数默认不挂载到 window，
+   但 inline onclick="fn()" 只能调用 window.fn。
+   ============================================================ */
+let aboutReturnFocus=null;
+(function(){
+  // 1. 已存在但未暴露的函数（来自 import 或本模块定义）
+  window.setGlassMode=setGlassMode;
+  window.jumpTo=jumpTo;
+  window.newAskChat=newAskChat;
+  window.doAskCustom=doAskCustom;
+  window.closeRq=closeRq;
+  window.showRiQian=showRiQian;
+  window.focusSwitchTab=focusSwitchTab;
+  window.calcLayoffRisk=calcLayoffRisk;
+  window.calcRelation=calcRelation;
+  window.switchStructureTab=switchStructureTab;
+  window.toggleFullGods=toggleFullGods;
+  window.setUserMode=setSystemMode;
+  window.setSystemMode=setSystemMode;
+  window.setAiBasis=setAiBasis;
+  window.toggleUserMode=toggleUserMode;
+  window.doAsk=doAsk;
+  window.toggleAISettings=toggleAISettings;
+
+  // 2. 旧版工具函数（tools/ 模块，已被 tools2 接管但仍可能被 onclick 引用）
+  window.openToolPage=openToolPage;
+  window.closeToolPage=closeToolPage;
+  window.openDecisionTool=openDecisionTool;
+  window.runDecisionTool=runDecisionTool;
+  window.startBreathTool=startBreathTool;
+  window.runWealthTool=runWealthTool;
+  window.runCareerTool=runCareerTool;
+  window.runDateTool=runDateTool;
+  window.runLayoffTool=runLayoffTool;
+  window.runDailyTool=runDailyTool;
+  window.runNameTool=runNameTool;
+  window.runOracleTool=runOracleTool;
+  window.runLotteryTool=runLotteryTool;
+  window.runZodiacTool=runZodiacTool;
+  window.runRelationTool=runRelationTool;
+
+  // 3. 之前已暴露的函数（保持不变）
+  window.calc=calc;window.loadProfile=loadProfile;window.selChip=selChip;window.exportProfiles=exportProfiles;window.handleImport=handleImport;window.openAsk=openAsk;window.closeAsk=closeAsk;window.goBack=goBack;window.switchTab=switchTab;window.showPage2=showPage2;window.openSaveModal=openSaveModal;window.closeSaveModal=closeSaveModal;window.openArchiveModal=openArchiveModal;window.closeArchiveModal=closeArchiveModal;window.loadProfileFromArchive=loadProfileFromArchive;window.deleteProfileFromArchive=deleteProfileFromArchive;window.confirmSaveProfile=confirmSaveProfile;window.quickSaveName=quickSaveName;window.updateSaveNameCount=updateSaveNameCount;window.deleteProfile=deleteProfile;window.openMonthModal=openMonthModal;window.closeMonthModal=closeMonthModal;window.openCalendarMode=openCalendarMode;window.openAboutModal=function(){const m=document.getElementById('aboutModal');if(!m)return;aboutReturnFocus=document.activeElement;m.classList.add('open');focusSafely(m.querySelector('.modal-close'));};window.closeAboutModal=function(){const m=document.getElementById('aboutModal');if(!m?.classList.contains('open'))return;m.classList.remove('open');if(aboutReturnFocus?.isConnected&&aboutReturnFocus.getClientRects().length)focusSafely(aboutReturnFocus);aboutReturnFocus=null;};window.openDisclaimerModal=function(){document.getElementById('disclaimerModal').classList.add('open');};window.closeDisclaimerModal=function(){document.getElementById('disclaimerModal').classList.remove('open');};
+
+  // Report and contextual share buttons all open the same preview studio.
+  window.TJShareReport=()=>window.openPosterShare('year');
+  window.TJShareRiQian=()=>window.openPosterShare('today');
+  window.TJShareWeek=()=>window.openPosterShare('week');
+
+  // 5. 缺失函数：速读卡折叠/展开
+  window.TJToggleQuickRead=function(btn){
+    const card=btn.closest('.qr-card');if(!card)return;
+    const expanded=btn.getAttribute('aria-expanded')==='true';
+    btn.setAttribute('aria-expanded',!expanded);
+    card.classList.toggle('qr-collapsed',expanded);
+    const body=card.querySelector('.qr-body');
+    if(body){if(expanded)body.setAttribute('inert','');else body.removeAttribute('inert');body.setAttribute('aria-hidden',String(expanded));}
+    if(btn.dataset.compactOverview==='true'){
+      const title=btn.querySelector('.qr-title');
+      if(title)title.textContent=expanded?'展开':'收起';
+      btn.setAttribute('aria-label',(expanded?'展开':'收起')+(btn.dataset.overviewLabel||'命盘速读'));
+    }
+  };
+
+  // 5.5 运势页：年/月/周/日 档位切换
+  window.TJActivateYunTab=function(key){
+    const yunSec=document.getElementById('s-yun');if(!yunSec)return;
+    const tabs=yunSec.querySelectorAll('.yun-tab');
+    const panes=yunSec.querySelectorAll('.yun-pane');
+    let found=false;
+    tabs.forEach(t=>{
+      const on=t.dataset.yun===key;
+      t.classList.toggle('active',on);
+      t.setAttribute('aria-selected',on?'true':'false');
+      if(on)found=true;
+    });
+    panes.forEach(p=>{
+      p.classList.toggle('active',p.dataset.yun===key);
+    });
+    if(!found)return;
+    // 切换后滚动回标签栏顶部
+    const sc=document.getElementById('p2Scroll');
+    const tabsEl=yunSec.querySelector('.yun-tabs');
+    if(sc&&tabsEl){
+      const top=tabsEl.getBoundingClientRect().top-(sc.getBoundingClientRect()?.top||0);
+      if(top<0)sc.scrollBy({top,behavior:'smooth'});
+    }
+  };
+
+  // 5.6 命盘/关系页：与运势页同构的分区标签切换（命盘：结构/人格/三式/判读；关系：亲密/朋友/亲人/合盘）
+  function activateSecGroup(secId,cls,attr,key){
+    const sec=document.getElementById(secId);if(!sec)return;
+    let found=false;
+    sec.querySelectorAll('.'+cls+'-tab').forEach(t=>{
+      const on=t.getAttribute(attr)===key;
+      t.classList.toggle('active',on);
+      t.setAttribute('aria-selected',on?'true':'false');
+      if(on)found=true;
+    });
+    sec.querySelectorAll('.'+cls+'-pane').forEach(p=>p.classList.toggle('active',p.getAttribute(attr)===key));
+    if(!found)return;
+    // 切换后滚动回标签栏顶部
+    const sc=document.getElementById('p2Scroll');
+    const tabsEl=sec.querySelector('.'+cls+'-tabs');
+    if(sc&&tabsEl){
+      const top=tabsEl.getBoundingClientRect().top-(sc.getBoundingClientRect()?.top||0);
+      if(top<0)sc.scrollBy({top,behavior:'smooth'});
+    }
+  }
+  window.TJActivateMingTab=function(key){activateSecGroup('s-ming','ming','data-ming',key);};
+  window.TJActivateRelTab=function(key){activateSecGroup('s-rel','rel','data-rel',key);};
+  // 西方三分区标签组(与东方同款切换)
+  window.TJActivateWastroTab=function(key){activateSecGroup('s-ming','wastro','data-wastro',key);};
+  window.TJActivateWhoroTab=function(key){activateSecGroup('s-yun','whoro','data-whoro',key);};
+  window.TJActivateWnumTab=function(key){activateSecGroup('s-rel','wnum','data-wnum',key);};
+
+  // 6. 档案菜单切换（使用 IndexedDB）
+  window.TJToggleProfileMenu=async function(){
+    const menu=document.getElementById('p2ProfileMenu');
+    const btn=document.getElementById('p2ProfileBtn');
+    if(!menu)return;
+    const isOpen=menu.classList.toggle('open');
+    if(btn)btn.setAttribute('aria-expanded',isOpen?'true':'false');
+    if(!isOpen)return;
+    try{
+      const list=await dbGetAll();
+      let html='';
+      html+='<button class="p2-profile-save-btn" onclick="openSaveModal();document.getElementById(\'p2ProfileMenu\').classList.remove(\'open\')"><span class="p2ps-icon">＋</span><span class="p2ps-text">保存当前命盘</span><span class="p2ps-arrow">→</span></button>';
+      html+='<div class="p2-profile-sep" style="height:1px;background:var(--c-border,#eee);margin:6px 0"></div>';
+      if(list.length===0){
+        html+='<div class="profile-empty">还没有保存的档案</div>';
+      }else{
+        html+=list.slice(0,10).map(p=>{
+          const city=CD[p.bp]||{n:'未知'};
+          return `<div class="profile-item" style="cursor:pointer" onclick="loadProfile(${Number(p.id)});document.getElementById('p2ProfileMenu').classList.remove('open')">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <span style="font-weight:600;font-size:.9em">${profileEscape(p.name||'未命名')}</span>
+              <span style="font-size:.7em;color:var(--c-text-4,#aaa);cursor:pointer" onclick="event.stopPropagation();deleteProfile(${Number(p.id)});TJToggleProfileMenu()">×</span>
+            </div>
+            <div style="font-size:.72em;color:var(--c-text-3,#999);margin-top:2px">${profileEscape(p.bd||'')} · ${city.n} · ${p.gen==='male'?'男':'女'}</div>
+          </div>`;
+        }).join('');
+      }
+      html+='<div class="p2-profile-sep" style="height:1px;background:var(--c-border,#eee);margin:6px 0"></div>';
+      html+='<div style="display:flex;gap:8px;padding:0 4px">';
+      html+='<button class="profile-item" style="flex:1;font-size:.78em;padding:6px" onclick="exportProfiles();document.getElementById(\'p2ProfileMenu\').classList.remove(\'open\')">导出</button>';
+      html+='<button class="profile-item" style="flex:1;font-size:.78em;padding:6px" onclick="document.getElementById(\'impFile2\').click();document.getElementById(\'p2ProfileMenu\').classList.remove(\'open\')">导入</button>';
+      html+='</div>';
+      html+='<input type="file" id="impFile2" style="display:none" accept=".json" onchange="handleImport(this)">';
+      menu.innerHTML=html;
+    }catch(e){
+      menu.innerHTML='<div class="profile-empty">加载失败</div>';
+    }
+  };
+})();
+
+function refreshCharacterReport(isDemo=!!window._ctx?.isDemoPreview){
+  try{
+    mountCharacterReport({ctx:window._ctx,western:window.__w3dData,isDemo});
+  }catch(error){
+    // A missing optional character asset must not prevent the report itself.
+    console.warn('[report] 角色导览暂不可用',error);
+  }
+}
+// Switching traits updates the already calculated report without recalculating
+// it, discarding inputs, or changing the separate 问问 assistant.
+window.addEventListener('tj:trait-change',()=>{
+  if(window._ctx && document.getElementById('s-ming'))refreshCharacterReport();
+});
+
+// A visible, persistent error is actionable on a small screen, unlike a short toast.
+function clearFormError(){
+  const error=document.getElementById('formError');
+  if(error){error.hidden=true;error.textContent='';}
+  document.querySelectorAll('#formModal [aria-invalid="true"]').forEach(el=>el.removeAttribute('aria-invalid'));
+}
+function showFormError(message,field){
+  const modal=document.getElementById('formModal');
+  if(!modal?.classList.contains('open'))window.TJOpenForm?.();
+  const error=document.getElementById('formError');
+  if(modal?.classList.contains('open')&&error){
+    clearFormError();
+    error.textContent=message;error.hidden=false;
+    if(field){
+      field.setAttribute('aria-invalid','true');
+      // TJOpenForm may have queued focus on the heading; the invalid field wins.
+      requestAnimationFrame(()=>{if(modal.classList.contains('open')&&field.getAttribute('aria-invalid')==='true')field.focus();});
+    }
+  }else showToast(message,{type:'error',duration:6000});
+}
+
+const CITY_SELECTION_MESSAGE='请从候选列表选择出生地点；找不到时可选择附近城市。';
+function closeCityDropdown(){
+  const dd=document.getElementById('cDD'),inp=document.getElementById('cInp');
+  dd?.classList.remove('show');
+  inp?.setAttribute('aria-expanded','false');
+  inp?.removeAttribute('aria-activedescendant');
+}
+function selectBirthCity(id){
+  const city=CD[id],inp=document.getElementById('cInp'),hid=document.getElementById('bPlace');
+  if(!city||!inp||!hid)return;
+  if(hid.value!==id||inp.value!==city.n)window._formDirty=true;
+  hid.value=id;inp.value=city.n;
+  closeCityDropdown();clearFormError();
+}
+function resolveBirthCity(){
+  const inp=document.getElementById('cInp'),hid=document.getElementById('bPlace');
+  const text=(inp?.value||'').trim();
+  if(!text)return null;
+  const selected=CD[hid?.value];
+  if(selected&&text===selected.n)return {id:hid.value,city:selected};
+  // Exact names, ids and unambiguous abbreviations are safe to accept even
+  // when the user pressed submit instead of tapping a suggestion. Never guess
+  // from a partial or ambiguous query (e.g. sz = 深圳 / 苏州).
+  const key=text.toLowerCase().replace(/市$/,'');
+  const matches=Object.entries(CD).filter(([id,city])=>
+    id.toLowerCase()===key||city.n.toLowerCase().replace(/市$/,'')===key||(city.p||'').toLowerCase()===key);
+  if(matches.length!==1)return null;
+  const [id,city]=matches[0];
+  selectBirthCity(id);
+  return {id,city};
+}
+/* funnel.html 的问卷允许自由填写甚至跳过出生城市，而表单要求一个已选中的
+   城市 id。统一在这里解析：识别不了就回退默认城市并提示，绝不让访客困在
+   遮罩后面看一条看不见的校验错误。 */
+window.applyEntryPayload = function(payload){
+  const set=(id,value)=>{
+    const el=document.getElementById(id);
+    if(!el || value===undefined || value===null) return;
+    el.value=value;
+    el.dispatchEvent(new Event('input',{bubbles:true}));
+    el.dispatchEvent(new Event('change',{bubbles:true}));
+  };
+  const cityInput=document.getElementById('cInp');
+  const placeInput=document.getElementById('bPlace');
+  const defaults={city:cityInput?.value||'',place:placeInput?.value||''};
+  set('bDate',payload.bd);
+  if(payload.timeStr)set('bTime',payload.timeStr); // 跳过时保留默认 09:00
+  if(payload.gen)set('bGen',payload.gen);
+  let warning='';
+  if(payload.cityName){
+    set('cInp',payload.cityName);
+    if(placeInput)placeInput.value=''; // 强制按新文本重新解析
+    if(!resolveBirthCity()){
+      set('cInp',defaults.city);
+      if(placeInput)placeInput.value=defaults.place;
+      warning='出生地点没能识别，已按默认城市计算；可在表单里修改。';
+      showToast(warning,{duration:6000});
+    }
+  }else if(placeInput&&!CD[placeInput.value]){
+    set('cInp',defaults.city);
+    placeInput.value=defaults.place;
+  }
+  clearFormError();
+  window._formDirty=false;
+  return {ok:true,warning};
+};
+
+function validBirthDate(value){
+  const match=/^(\d{4,})-(\d{2})-(\d{2})$/.exec(value);
+  if(!match)return false;
+  const [,ys,ms,ds]=match;const y=Number(ys),m=Number(ms),d=Number(ds);
+  if(y<1||y>9999||m<1||m>12||d<1||d>31)return false;
+  const date=new Date(0);date.setUTCFullYear(y,m-1,d);date.setUTCHours(0,0,0,0);
+  return date.getUTCFullYear()===y&&date.getUTCMonth()===m-1&&date.getUTCDate()===d;
+}
+
+let calculationInProgress=false;
+async function calc(isDemoPreview=false){
+  if(calculationInProgress)return;
+  window.__wenFlow?.onCalcStart?.();
+  const formModal=document.getElementById('formModal');
+  const fromForm=!!(formModal&&formModal.classList.contains('open'))&&!isDemoPreview;
+  const dateField=document.getElementById('bDate'),timeField=document.getElementById('bTime');
+  const bd=dateField.value;
+  const validationError=(message,field)=>{
+    window.__wenFlow?.onCalcFailed?.({formOpen:!!formModal?.classList.contains('open')});
+    return showFormError(message,field);
+  };
+  if(!validBirthDate(bd))return validationError(bd?'请输入有效的出生日期。':'请选择出生日期。',dateField);
+  const timeStr=timeField.value||'09:00';
+  if(timeField.validity?.badInput||!/^([01]\d|2[0-3]):[0-5]\d(?::00(?:\.0{1,3})?)?$/.test(timeStr)){
+    return validationError('请输入有效的出生时间。',timeField);
+  }
+  const [hh,mm]=timeStr.split(':').map(Number);
+  const place=resolveBirthCity();
+  if(!place)return validationError(CITY_SELECTION_MESSAGE,document.getElementById('cInp'));
+  const {id:bp,city}=place;
+  const gen=document.getElementById('bGen').value;
+  const q=document.getElementById('bQ').value;
+  const resultStyleId=document.getElementById('bResultStyle')?.value||'companion';
+  const resultStyle=getResultStyle(resultStyleId);
+  const useTrueSolar=document.getElementById('swTrueSolar').classList.contains('on');
+  const[y,m,d]=bd.split('-').map(Number);
+  clearFormError();closeCityDropdown();
+
+  // 纯计算与渲染。失败抛错，由两条过渡路径各自处理界面。
+  function doCompute(){
+    const resolved=resolveBirthDateTime(y,m,d,hh,mm,useTrueSolar,city.o,city.tz);
+    const b=mkBazi(resolved.year,resolved.month,resolved.day,resolved.hourZhi,resolved.hour,resolved.minute,resolved.instant);
+    const wx=mkWx(b),ss=mkSs(b),dy=mkDy(b,gen,y,m,d),ln=mkLn(CURR_YEAR),zw=mkZw(b,solarToLunar(resolved.year,resolved.month,resolved.day)),qm=mkQm(b),mh=mkMh(b),si=mkSi(b);
+    const shensha=mkShenSha(b);const liuyue=getLiuYue(CURR_YEAR);
+    b._meta={hourZhi:resolved.hourZhi,useTrueSolar:resolved.note?true:false,by:y,bm:m,bd:d,dutyDay:solarTermDutyDay(resolved.instant)};
+    const _input={by:y,bm:m,bd:d,bd_raw:bd,timeStr,bp,gen,q,useTrueSolar,resultStyle:resultStyleId,resultStyleLabel:resultStyle.label};
+    const _preCtx=buildContext({b,wx,ss,dy,ln,zw,qm,mh,si,shensha,liuyue,P:null,gen,q,city,input:_input});
+    window._ctx=_preCtx;window._baziData=_preCtx;window._reportData=_preCtx;
+    window._formDirty=false; // 已推演应用，表单修改视为已保存
+    applyTheme(wx.ys);
+    renderAll(b,wx,ss,dy,ln,zw,qm,mh,si,gen,q,city,y,shensha,liuyue,_preCtx);
+    // 让问问大师与报告顶部共享“示例报告”状态。
+    if(window._ctx)window._ctx.isDemoPreview=!!isDemoPreview;
+    if(window._baziData)window._baziData.isDemoPreview=!!isDemoPreview;
+    if(window._reportData)window._reportData.isDemoPreview=!!isDemoPreview;
+    if(isDemoPreview){
+      const reportInner=document.getElementById('p2Inner');
+      if(reportInner)reportInner.insertAdjacentHTML('afterbegin','<div class="demo-report-note" role="status"><span>示例</span><b>当前为体验用示例报告</b><em>内容基于默认示例信息生成，请勿用于个人判断。</em></div>');
+    }
+    // The chosen home character accompanies the real report, including when
+    // a calendar update recalculates it without immediately opening the page.
+    refreshCharacterReport(!!isDemoPreview);
+  }
+
+  // 日历录入只更新档案并留在日历；所有真正打开报告的入口共享同一推演场景。
+  const calModal=document.getElementById('toolModal');
+  const fromCalendar=fromForm&&!!(calModal&&calModal.classList.contains('cal-fullscreen'));
+  const previous={ctx:window._ctx,bazi:window._baziData,report:window._reportData,dirty:window._formDirty,
+    yongShen:document.documentElement.getAttribute('data-yongshen')};
+  calculationInProgress=true;
+  let scene=null,completed=false;
+  // Only the calculation belonging to this handoff may present its teaser.
+  // A saved profile or a manual recalculation must never inherit an old one.
+  const isFunnelHandoff=!!window.__wenFlow?.isAutoAdvance?.();
+  try{
+    if(!fromCalendar){
+      // Only an in-flight funnel handoff may auto-acknowledge the result;
+      // every other visit keeps the explicit "查看报告" confirmation.
+      scene=beginCharacterCalculation({autoAdvance:isFunnelHandoff});
+      if(scene)await scene.paint(); // 让角色场景先绘制，再执行同步排盘
+    }
+    doCompute();
+    if(fromCalendar){
+      formModal.classList.remove('open');
+      document.body.classList.remove('form-open');
+      const mb=document.getElementById('homeMenuBtn');if(mb)mb.style.display='';
+      window.dispatchEvent(new CustomEvent('tj:profile-ready'));
+      // Calendar re-renders after receiving the profile, replacing its button.
+      if(!formReturnFocus?.isConnected)formReturnFocus=calModal.querySelector('[data-fill]');
+      restoreFormFocus();
+      completed=true;
+      window.__wenFlow?.onCalcFailed?.({formOpen:false});
+      return;
+    }
+    scene?.showResult(window._ctx?.b);
+    if(scene)await scene.wait();
+    scene?.close();
+    if(formModal&&formModal.classList.contains('open')){
+      formModal.classList.remove('open');
+      document.body.classList.remove('form-open');
+      const mb=document.getElementById('homeMenuBtn');if(mb)mb.style.display='';
+    }
+    showPage2();
+    characterCompanion.onReportReady({isDemo:isDemoPreview});
+    // 只显示这次问卷对应的预告，避免旧问卷串到档案或手动推演。
+    if(isFunnelHandoff)try { showFunnelTeaserIfNeeded(); } catch (e) { console.warn('[funnel] 预告页失败', e); }
+    window.__wenFlow?.onReportReady?.();
+    document.querySelectorAll('.tab-item')[0].click();
+    formReturnFocus=null;
+    focusSafely(document.getElementById('p2MenuBtn'));
+    completed=true;
+  }catch(e){
+    // Keep the original form and last successful context available for retry.
+    window._ctx=previous.ctx;window._baziData=previous.bazi;window._reportData=previous.report;
+    window._formDirty=previous.dirty;
+    if(previous.yongShen===null)document.documentElement.removeAttribute('data-yongshen');
+    else document.documentElement.setAttribute('data-yongshen',previous.yongShen);
+    scene?.close({restoreFocus:true});
+    console.error(e);
+    window.__wenFlow?.onCalcFailed?.({formOpen:!!formModal?.classList.contains('open')});
+    const detail=e?.message||String(e);
+    if(fromForm)showFormError('推演未完成：'+detail+'。出生信息已保留，请检查后重试。');
+    showToast('推演出错：'+detail+'。出生信息已保留，请检查后重试。',{type:'error',duration:6000});
+  }finally{
+    scene?.close({restoreFocus:!completed});
+    calculationInProgress=false;
+  }
+}
+
+/* 表单弹窗开关：操作按钮在对话框内，首页和日历共用。 */
+let formReturnFocus = null;
+function restoreFormFocus(){
+  let target=formReturnFocus;
+  formReturnFocus=null;
+  if(!target?.isConnected || !target.getClientRects().length){
+    target=window.__wenFlow?.focusTarget?.() ||
+      document.getElementById(document.body.classList.contains('report-active')?'p2MenuBtn':'homeCtaMain');
+  }
+  if(target && target.isConnected && target.getClientRects().length && typeof target.focus==='function'){
+    focusSafely(target);
+  }
+}
+window.TJOpenForm=function(){
+  const m=document.getElementById('formModal');
+  if(!m || m.classList.contains('open'))return;
+  window.__wenFlow?.onFormOpen?.();
+  formReturnFocus=document.activeElement;
+  m.classList.add('open');
+  document.body.classList.add('form-open');
+  // Non-blocking: the chosen character's props can arrive while the form is filled.
+  if(!document.getElementById('toolModal')?.classList.contains('cal-fullscreen')){
+    try{warmCharacterCalculation();}catch(error){console.warn('[calculation] 道具预加载失败',error);}
+  }
+
+  // The weather location is not necessarily the user's birthplace. Do not
+  // overwrite a selected or partially entered city when the form is reopened.
+
+  requestAnimationFrame(()=>{
+    if(m.classList.contains('open'))focusSafely(document.getElementById('formModalTitle'));
+  });
+};
+window.TJCloseForm=function(){
+  const m=document.getElementById('formModal');
+  if(m)m.classList.remove('open');
+  closeCityDropdown();
+  document.body.classList.remove('form-open');
+  // 单一状态机决定下一屏：回到刚才的报告，或显示可操作的兜底入口卡。
+  // 不再用 setTimeout 猜 DOM、不再静默跳回 funnel.html。
+  window.__wenFlow?.onFormClosed?.();
+  restoreFormFocus();
+};
+// Clear stale feedback only when the user edits an input; an error otherwise remains visible.
+document.getElementById('formModal')?.addEventListener('input',clearFormError);
+document.getElementById('formModal')?.addEventListener('change',clearFormError);
+// Keep keyboard focus inside the modal until it is closed.
+document.getElementById('formModal')?.addEventListener('keydown',e=>{
+  if(e.key!=='Tab')return;
+  const controls=[...e.currentTarget.querySelectorAll('button:not([disabled]),input:not([type="hidden"]):not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])')]
+    .filter(el=>el.getClientRects().length);
+  if(!controls.length)return;
+  const first=controls[0],last=controls[controls.length-1];
+  if(e.shiftKey && (document.activeElement===first || !controls.includes(document.activeElement))){e.preventDefault();last.focus();}
+  else if(!e.shiftKey && document.activeElement===last){e.preventDefault();first.focus();}
+});
+
+function renderRiQian(){
+  const now=new Date();const y=now.getFullYear(),m=now.getMonth()+1,d=now.getDate();
+  const dji=getDayPillarIndex(y,m,d);const dgi=dji%10,dzi=dji%12;const dg=TG[dgi],dz=DZ[dzi];
+  let jie='';for(let i=0;i<12;i++){const j=jqDate(y,i);if(j){if(m>j[0]||(m===j[0]&&d>=j[1]))jie=['立春','惊蛰','清明','立夏','芒种','小暑','立秋','白露','寒露','立冬','大雪','小寒'][i];}}
+  const sxm={'子':'鼠','丑':'牛','寅':'虎','卯':'兔','辰':'龙','巳':'蛇','午':'马','未':'羊','申':'猴','酉':'鸡','戌':'狗','亥':'猪'};
+  const todaySX=sxm[dz],chongSX=sxm[ZHI_CHONG[dz]];
+  const sxjx={'鼠':'天贵','牛':'天德','虎':'天马','兔':'文昌','龙':'紫微','蛇':'红鸾','马':'将星','羊':'天医','猴':'驿马','鸡':'桃花','狗':'华盖','猪':'福星'};
+  let yi=[],ji=['与'+chongSX+'相冲者大事需谨慎'];let yj='';
+  if('甲乙'.includes(dg)){yi.push('种植','出行','会友');ji.push('动土','开矿');yj='木气生发之日，宜动不宜静，早起行好运，利谋新事。';}
+  else if('丙丁'.includes(dg)){yi.push('文书','庆典','装饰');ji.push('涉水','冷库作业');yj='火德当令，光明在前，利文书庆典，忌口舌争执。';}
+  else if('戊己'.includes(dg)){yi.push('置业','收纳','祭祀');ji.push('嫁娶','远行');yj='土性厚重，稳中求进，忌冒进求快，适合整理收纳。';}
+  else if('庚辛'.includes(dg)){yi.push('裁决','交易','修造');ji.push('宴饮','借贷');yj='金气锐利，当断则断，利裁决交易，忌优柔寡断。';}
+  else{yi.push('流通','迁移','沐浴');ji.push('签约','婚嫁');yj='水势汪洋，顺势而为，宜流通迁移，忌固守一域。';}
+  return`<div style="text-align:center;margin-bottom:14px"><div style="font-family:var(--serif);font-size:1.6em;color:var(--ac-text);margin-bottom:4px">${dg}${dz}日</div><div style="font-size:.75em;color:var(--ac-dim)">${y}年${m}月${d}日${jie?' · '+jie+'后':''}</div></div>
+  <div style="display:flex;gap:8px;margin:12px 0"><div style="flex:1;padding:10px;border-radius:10px;background:var(--c-surface-2);text-align:center"><div style="font-size:.65em;color:var(--c-text-3);margin-bottom:4px">生肖</div><div style="font-size:1.1em;font-weight:600">${todaySX}</div></div><div style="flex:1;padding:10px;border-radius:10px;background:var(--c-surface-2);text-align:center"><div style="font-size:.65em;color:var(--c-text-3);margin-bottom:4px">冲煞</div><div style="font-size:1.1em;font-weight:600;color:#d4654a">冲${chongSX}</div></div><div style="flex:1;padding:10px;border-radius:10px;background:var(--c-surface-2);text-align:center"><div style="font-size:.65em;color:var(--c-text-3);margin-bottom:4px">吉神</div><div style="font-size:1.1em;font-weight:600;color:#7ab648">${sxjx[todaySX]||'天德'}</div></div></div>
+  <div style="margin:10px 0"><div style="font-size:.75em;color:var(--ac-dim);margin-bottom:6px">今日宜</div><div style="display:flex;flex-wrap:wrap;gap:6px">${yi.map(x=>`<span class="tg tj">${x}</span>`).join('')}</div></div>
+  <div style="margin:10px 0"><div style="font-size:.75em;color:var(--ac-dim);margin-bottom:6px">今日忌</div><div style="display:flex;flex-wrap:wrap;gap:6px">${ji.map(x=>`<span class="tg tc">${x}</span>`).join('')}</div></div>
+  <div style="font-size:.78em;color:var(--c-text-2);margin-top:12px;padding-top:10px;border-top:1px solid var(--c-border)"><b>一句话日签：</b>${yj}</div>`;
+}
+function showRiQian(){const baseHtml=renderRiQian();document.getElementById('rqResult').innerHTML=baseHtml;document.getElementById('rqModal').classList.add('open');}
+function closeRq(){document.getElementById('rqModal').classList.remove('open');}
+
+function openMonthModal(idx,name,gz,jq,ss){
+  const d=window._baziData;if(!d)return;
+  const dg=d.dg;
+  const monthAnalysis={
+    '比肩':'本月比肩当令，自我意识增强，适合独立行动与团队协作，但需防过度竞争消耗精力。',
+    '劫财':'本月劫财临旺，易有意外支出或人际摩擦，理财需谨慎，防朋友借贷不还。',
+    '食神':'本月食神吐秀，创意与表达力强，适合学习新技能、展示才华、社交联谊。',
+    '伤官':'本月伤官透出，思维活跃但易言辞过激，注意沟通方式，利创新突破与变革。',
+    '偏财':'本月偏财星动，有意外收入机会，但忌贪心冒进，适可而止见好就收。',
+    '正财':'本月正财当旺，适合稳健理财、谈薪资、收款项，财运平稳上升。',
+    '七杀':'本月七杀压身，压力较大但机遇并存，适合攻坚克难、挑战自我、突破瓶颈。',
+    '正官':'本月正官临旺，事业运佳，适合争取晋升、考试认证、建立规则与秩序。',
+    '偏印':'本月偏印当令，适合学习研究、向内探索，但需防思虑过多、情绪低落。',
+    '正印':'本月正印生身，贵人运旺，适合拜师学习、获取资源支持、充电提升。'
+  };
+  const analysis=monthAnalysis[ss]||'本月气场平和，按部就班即可，宜整理与复盘。';
+  // 宜忌跟着当月十神走，不再是一张通用清单
+  const _mYiJi={
+    '比肩':{yi:['独立推进','团队协作','健身蓄力'],ji:['过度竞争','单打独斗到底']},
+    '劫财':{yi:['明确权责','谈清分成','守住边界'],ji:['冲动借钱','为人担保']},
+    '食神':{yi:['创作表达','学习技能','轻松社交'],ji:['透支玩乐','拖延正事']},
+    '伤官':{yi:['创新提案','优化流程','表达观点'],ji:['顶撞上级','言辞带刺']},
+    '偏财':{yi:['拓展渠道','捕捉机会','灵活增收'],ji:['贪多冒进','重仓投机']},
+    '正财':{yi:['稳健理财','谈薪收款','精算账目'],ji:['盲目扩张','轻信高息']},
+    '七杀':{yi:['攻坚克难','争取突破','立规矩'],ji:['硬碰硬','透支健康']},
+    '正官':{yi:['争取晋升','考试认证','理顺流程'],ji:['越权行事','忽视规则']},
+    '偏印':{yi:['研究复盘','独处充电','整理思路'],ji:['钻牛角尖','闭门造车']},
+    '正印':{yi:['拜师学习','争取支持','休养生息'],ji:['过度依赖','懒散拖延']}
+  };
+  const _mj=_mYiJi[ss]||{yi:['整理规划','稳步推进'],ji:['冲动决定','熬夜透支']};
+  const yi=_mj.yi,ji=_mj.ji;
+  const el=document.getElementById('monthModalContent');
+  el.innerHTML=`<div class="mm-title">${name} · ${gz}</div>
+    <div class="mm-row"><span class="mm-label">十神</span><span class="mm-value">${ss}</span></div>
+    <div class="mm-row"><span class="mm-label">节气</span><span class="mm-value">${jq||'待查'}</span></div>
+    <div class="mm-row"><span class="mm-label">日主</span><span class="mm-value">${dg}</span></div>
+    <div style="margin:14px 0;font-size:.82em;color:var(--c-text);line-height:1.8">${analysis}</div>
+    <div style="margin:10px 0"><div style="font-size:.7em;color:rgba(122,182,72,.8);margin-bottom:6px">本月宜</div><div style="display:flex;flex-wrap:wrap;gap:4px">${yi.map(x=>`<span class="mm-tag yi">宜${x}</span>`).join('')}</div></div>
+    <div style="margin:10px 0"><div style="font-size:.7em;color:rgba(212,101,74,.8);margin-bottom:6px">本月忌</div><div style="display:flex;flex-wrap:wrap;gap:4px">${ji.map(x=>`<span class="mm-tag ji">忌${x}</span>`).join('')}</div></div>`;
+  document.getElementById('monthModal').classList.add('open');
+}
+function closeMonthModal(){document.getElementById('monthModal').classList.remove('open');}
+
+function selChip(el){const wrap=document.getElementById('qChips');wrap.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));el.classList.add('active');document.getElementById('bQ').value=el.dataset.q;}
+
+const profileEscape = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+// Version 3 repairs v2 databases created without a profiles store by older funnel menus.
+// Keep this schema in sync with public/funnel.html.
+const DB_NAME='TJ_Bazi',DB_VER=3;
+let _db=null;
+function initDB(){return new Promise((res,rej)=>{const r=indexedDB.open(DB_NAME,DB_VER);r.onerror=()=>rej(r.error);r.onsuccess=(e)=>{_db=e.target.result;_db.onversionchange=()=>{_db.close();_db=null;};res(_db);};r.onupgradeneeded=(e)=>{const d=e.target.result;const s=d.objectStoreNames.contains('profiles')?r.transaction.objectStore('profiles'):d.createObjectStore('profiles',{keyPath:'id',autoIncrement:true});if(!s.indexNames.contains('updatedAt'))s.createIndex('updatedAt','updatedAt',{unique:false});};});}
+function dbPut(p){return new Promise((res,rej)=>{if(!_db)return rej('DB未就绪');const t=_db.transaction('profiles','readwrite'),s=t.objectStore('profiles');const r=s.put(p);r.onsuccess=(e)=>res(e.target.result);r.onerror=()=>rej(r.error);});}
+function dbGetAll(){return new Promise((res,rej)=>{if(!_db)return res([]);const t=_db.transaction('profiles','readonly'),s=t.objectStore('profiles');const r=s.index('updatedAt').openCursor(null,'prev');const arr=[];r.onsuccess=(e)=>{const c=e.target.result;if(c){arr.push(c.value);c.continue();}else res(arr);};r.onerror=()=>rej(r.error);});}
+function dbDel(id){return new Promise((res,rej)=>{if(!_db)return rej('DB未就绪');const t=_db.transaction('profiles','readwrite'),s=t.objectStore('profiles');const r=s.delete(id);r.onsuccess=()=>res();r.onerror=()=>rej(r.error);});}
+function saveCurrentProfile(name){
+  const d=getCtx();
+  const input=d&&(d._input||d.input);
+  if(!d||!input)return Promise.reject('无当前命盘数据');
+  // 仅持久化"原始输入"，避免存入巨大对象
+  const rec={bd:input.bd_raw||input.bd,timeStr:input.timeStr,bp:input.bp,gen:input.gen,q:input.q,useTrueSolar:!!input.useTrueSolar,resultStyle:input.resultStyle||'companion',name,createdAt:Date.now(),updatedAt:Date.now()};
+  return dbPut(rec);
+}
+async function renderProfiles(){try{const list=await dbGetAll();const zone=document.getElementById('profileZone');const grid=document.getElementById('profileGrid');const empty=document.getElementById('profileEmpty');const recentZone=document.getElementById('recentZone');const recentGrid=document.getElementById('recentGrid');const recentEmpty=document.getElementById('recentEmpty');const profileZoneEmpty=document.getElementById('profileZoneEmpty');
+  if(!list.length){if(grid)grid.innerHTML='';if(empty)empty.style.display='none';if(zone)zone.style.display='none';if(recentZone)recentZone.style.display='none';if(recentEmpty)recentEmpty.style.display='block';if(profileZoneEmpty)profileZoneEmpty.style.display='block';return;}
+  if(empty)empty.style.display='none';if(zone)zone.style.display='block';if(recentEmpty)recentEmpty.style.display='none';if(profileZoneEmpty)profileZoneEmpty.style.display='none';
+  if(recentZone){recentZone.style.display='block';recentGrid.innerHTML=list.slice(0,3).map(p=>{const _bd=(p.bd||'1990-1-1').split('-').map(Number);/* 用保存的出生时间推时辰（无则按子时），避免档案星级一律按子时失真 */const _hm=String(p.timeStr||'').split(':');const _hh=Number(_hm[0]);const _hz=(Number.isFinite(_hh))?Math.floor(((_hh+1)%24)/2):0;const _b=mkBazi(_bd[0],_bd[1],_bd[2],_hz,Number.isFinite(_hh)?_hh:12);const dg=_b.D.g;const dy=mkDy(_b,p.gen||'male',_bd[0],_bd[1]||1,_bd[2]||1);const age=TJ.calcAge(_bd[0],_bd[1]||1,_bd[2]||1);const cDy=TJ.findDaYun(dy,age)||dy.ds[0];const cLn=mkLn(CURR_YEAR);let stars='★★★☆☆';try{const wx=mkWx(_b),ss=mkSs(_b);const sc=calcYearScores(_b,wx,ss,SS[dg][cDy.g],SS[dg][cLn.g],null,cDy,cLn);const avgv=(sc.career+sc.wealth+sc.love+sc.health)/4;const n=Math.max(1,Math.min(5,Math.round(avgv/20)));stars='★'.repeat(n)+'☆'.repeat(5-n);}catch(e){}return`<div class="r-card" onclick="loadProfile(${Number(p.id)})"><div class="r-ava">${profileEscape(String(p.name||'未').charAt(0))}</div><div class="r-info"><div class="r-name">${profileEscape(p.name||'未命名')}</div><div class="r-meta">当前大运：${cDy.g}${cDy.z} · ${CURR_YEAR}运势：${stars}<br>最近关注：${profileEscape(p.q||'综合')}</div></div><div class="r-arrow">›</div></div>`;}).join('');}
+  if(grid)grid.innerHTML=list.slice(0,8).map(p=>{const city=CD[p.bp]||{n:'未知'};return`<div class="r-card" onclick="loadProfile(${Number(p.id)})"><div class="r-ava">${profileEscape(String(p.name||'未').charAt(0))}</div><div class="r-info"><div class="r-name">${profileEscape(p.name||'未命名')}</div><div class="r-meta">${profileEscape(p.bd||'')} · ${city.n} · ${p.gen==='male'?'男':'女'}${p.useTrueSolar?'·真':''}</div></div><div style="position:absolute;top:6px;right:8px;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.9em;color:var(--c-text-4);cursor:pointer;transition:all .15s;z-index:2" onclick="event.stopPropagation();deleteProfile(${Number(p.id)})">×</div></div>`;}).join('');
+}catch(e){console.log('renderProfiles',e);}}
+async function loadProfile(id){try{const list=await dbGetAll();const p=list.find(x=>x.id===id);if(!p)return;document.getElementById('bDate').value=p.bd||'';document.getElementById('bTime').value=p.timeStr||'09:00';document.getElementById('bPlace').value=p.bp||'';document.getElementById('cInp').value=(CD[p.bp]||{n:''}).n;document.getElementById('bGen').value=p.gen||'male';const styleEl=document.getElementById('bResultStyle');if(styleEl){styleEl.value=p.resultStyle||'companion';document.querySelectorAll('.result-style-option').forEach(btn=>{const on=btn.dataset.style===styleEl.value;btn.classList.toggle('active',on);btn.setAttribute('aria-checked',on?'true':'false');});const loadedStyle=getResultStyle(styleEl.value);const loadedHint=document.getElementById('resultStyleHint');if(loadedHint)loadedHint.textContent=loadedStyle.intro;}document.getElementById('bQ').value=p.q||'';const sw=document.getElementById('swTrueSolar');if(sw){if(p.useTrueSolar)sw.classList.add('on');else sw.classList.remove('on');sw.setAttribute('aria-checked',String(sw.classList.contains('on')));document.getElementById('swText').textContent=(sw.classList.contains('on')?'开启':'关闭')+'真太阳时（按时区、经度和均时差估算）';}const chips=document.getElementById('qChips');if(chips){chips.querySelectorAll('.chip').forEach(c=>c.classList.toggle('active',c.dataset.q===p.q));}calc();}catch(e){console.log('loadProfile',e);}}
+async function deleteProfile(id){try{await dbDel(id);renderProfiles();}catch(e){console.log('deleteProfile',e);}}
+function openSaveModal(){
+  const m=document.getElementById('saveModal');
+  if(!m)return;
+  m.classList.add('open');
+  // 隐藏 dock 栏，避免底部按钮被遮挡
+  const dock=document.querySelector('.ig-dock.tab-bar');
+  if(dock)dock.style.display='none';
+  const n=document.getElementById('saveName');
+  n.value='';
+  updateSaveNameCount();
+  setTimeout(()=>n.focus(),100);
+  // 填充命盘预览
+  const d=getCtx();
+  const input=d&&(d._input||d.input);
+  const bdEl=document.getElementById('spBd');
+  const bpEl=document.getElementById('spBp');
+  const genEl=document.getElementById('spGen');
+  const genIconEl=document.getElementById('spGenIcon');
+  const baziEl=document.getElementById('spBazi');
+  if(input){
+    if(bdEl)bdEl.textContent=input.bd||'—';
+    if(bpEl)bpEl.textContent=(CD[input.bp]||{n:'未知'}).n;
+    if(genEl)genEl.textContent=input.gen==='male'?'男（乾造）':'女（坤造）';
+    if(genIconEl)genIconEl.textContent=input.gen==='male'?'♂':'♀';
+    // 填充四柱
+    if(baziEl&&d&&d.b){
+      const b=d.b;
+      const pillars=[
+        {label:'年',gz:b.Y.g+b.Y.z},
+        {label:'月',gz:b.M.g+b.M.z},
+        {label:'日',gz:b.D.g+b.D.z},
+        {label:'时',gz:b.H.g+b.H.z}
+      ];
+      baziEl.innerHTML=pillars.map(p=>
+        `<span class="bz-pillar"><small>${p.label}</small><b>${p.gz}</b></span>`
+      ).join('');
+    }
+  }
+}
+function closeSaveModal(){
+  document.getElementById('saveModal').classList.remove('open');
+  // 恢复 dock 栏显示
+  const dock=document.querySelector('.ig-dock.tab-bar');
+  if(dock)dock.style.display='';
+}
+/* ---- 档案库弹窗 ---- */
+function openArchiveModal(){
+  const m=document.getElementById('archiveModal');
+  if(!m)return;
+  m.classList.add('open');
+  const dock=document.querySelector('.ig-dock.tab-bar');
+  if(dock)dock.style.display='none';
+  renderArchiveList();
+}
+function closeArchiveModal(){
+  const m=document.getElementById('archiveModal');
+  if(!m)return;
+  m.classList.remove('open');
+  const dock=document.querySelector('.ig-dock.tab-bar');
+  if(dock)dock.style.display='';
+}
+async function renderArchiveList(){
+  const list=document.getElementById('archiveList');
+  if(!list)return;
+  try{
+    const profiles=await dbGetAll();
+    if(!profiles.length){
+      list.innerHTML='<div class="save-archives-empty">还没有保存的命盘<br>点击「保存命盘」即可添加</div>';
+      return;
+    }
+    list.innerHTML=profiles.map(p=>{
+      const city=CD[p.bp]||{n:'未知'};
+      const d=new Date(p.updatedAt);
+      const dateStr=`${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+      return `<div class="save-archive-card" onclick="loadProfileFromArchive(${Number(p.id)})">
+        <div class="sa-ava">${profileEscape(String(p.name||'未').charAt(0))}</div>
+        <div class="sa-info">
+          <div class="sa-name">${profileEscape(p.name||'未命名')}</div>
+          <div class="sa-meta">${profileEscape(p.bd||'')} · ${city.n} · ${p.gen==='male'?'男':'女'} · ${dateStr}</div>
+        </div>
+        <div class="sa-actions">
+          <button type="button" class="sa-del" onclick="event.stopPropagation();deleteProfileFromArchive(${Number(p.id)})" title="删除">×</button>
+        </div>
+      </div>`;
+    }).join('');
+  }catch(e){console.log('renderArchiveList',e);}
+}
+function loadProfileFromArchive(id){
+  loadProfile(id);
+  closeArchiveModal();
+}
+async function deleteProfileFromArchive(id){
+  try{
+    await dbDel(id);
+    renderArchiveList();
+    renderProfiles();
+    showToast('已删除');
+  }catch(e){console.log('deleteProfileFromArchive',e);}
+}
+function updateSaveNameCount(){
+  const n=document.getElementById('saveName');
+  const c=document.getElementById('saveNameCount');
+  if(!n||!c)return;
+  c.textContent=n.value.length;
+  c.parentElement?.classList.toggle('has-text',n.value.length>0);
+}
+function quickSaveName(name){
+  const n=document.getElementById('saveName');
+  if(!n)return;
+  n.value=name;
+  updateSaveNameCount();
+  n.focus();
+  n.setSelectionRange(name.length,name.length);
+}
+function confirmSaveProfile(){const name=document.getElementById('saveName').value.trim();if(!name){showToast('请输入档案名称');return;}saveCurrentProfile(name).then(()=>{closeSaveModal();renderProfiles();showToast('已保存到档案库');}).catch(e=>showToast('保存失败：'+e));}
+async function exportProfiles(){try{const list=await dbGetAll();const blob=new Blob([JSON.stringify(list,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='问问大师档案_'+new Date().toISOString().slice(0,10)+'.json';a.click();URL.revokeObjectURL(a.href);}catch(e){showToast('导出失败');}}
+async function handleImport(input){const file=input.files[0];if(!file)return;try{const text=await file.text();const arr=JSON.parse(text);if(!Array.isArray(arr))throw new Error('格式错误');let count=0;for(const p of arr){if(p && typeof p === 'object' && typeof p.bd === 'string' && /^\d{1,4}-\d{1,2}-\d{1,2}$/.test(p.bd) && typeof p.bp === 'string' && Object.prototype.hasOwnProperty.call(CD,p.bp) && (p.gen === 'male' || p.gen === 'female')){const rec={bd:p.bd,bp:p.bp,gen:p.gen,timeStr:typeof p.timeStr==='string'?p.timeStr.slice(0,16):'',q:typeof p.q==='string'?p.q.slice(0,500):'',name:typeof p.name==='string'?p.name.slice(0,100):'',useTrueSolar:p.useTrueSolar===true,resultStyle:typeof p.resultStyle==='string'?p.resultStyle.slice(0,40):'companion',createdAt:Date.now(),updatedAt:Date.now()};await dbPut(rec);count++;}}renderProfiles();renderArchiveList();showToast(`成功导入 ${count} 条档案`);}catch(e){showToast('导入失败：'+e.message);}input.value='';}
+
+(function(){
+  const inp=document.getElementById('cInp'),hid=document.getElementById('bPlace'),dd=document.getElementById('cDD');
+  if(!inp||!hid||!dd)return;
+  let ai=-1,blurTimer=null;
+  // Escape overflow clipping, while keeping the list anchored to the input.
+  document.body.appendChild(dd);dd.classList.add('cdd-floating');
+  function placeDropdown(){
+    const r=inp.getBoundingClientRect(),viewport=window.visualViewport;
+    const top=viewport?.offsetTop||0;
+    const bottom=top+(viewport?.height||window.innerHeight);
+    const submit=document.querySelector('#formModal .character-form-submit')?.getBoundingClientRect();
+    const error=document.getElementById('formError');
+    const feedback=!error?.hidden?error?.getBoundingClientRect():null;
+    // Keep the submit button and any validation feedback tappable and visible.
+    const lowerEdge=Math.min(bottom-8,
+      submit&&submit.top>r.bottom?submit.top-8:bottom-8,
+      feedback&&feedback.top>r.bottom?feedback.top-8:bottom-8);
+    const spaceBelow=Math.max(0,lowerEdge-r.bottom-4);
+    const spaceAbove=Math.max(0,r.top-top-8);
+    const below=spaceBelow>=120||spaceBelow>=spaceAbove;
+    const maxHeight=Math.min(260,below?spaceBelow:spaceAbove);
+    dd.style.left=Math.round(r.left)+'px';
+    dd.style.width=Math.round(r.width)+'px';
+    dd.style.bottom='auto';
+    dd.style.maxHeight=Math.round(maxHeight)+'px';
+    if(below){dd.style.top=Math.round(r.bottom+4)+'px';}
+    else{
+      // A short list should touch the input instead of floating maxHeight away.
+      const height=dd.getBoundingClientRect().height;
+      dd.style.top=Math.round(Math.max(top+4,r.top-4-height))+'px';
+    }
+  }
+  function rdd(f){
+    let h='',n=0;const q=(f||'').trim().toLowerCase();
+    CG.forEach(g=>{
+      const m=g.c.filter(c=>!q||c.n.includes(q)||c.i.includes(q)||g.g.includes(q)||(c.p&&c.p.toLowerCase().includes(q)));
+      if(!m.length)return;
+      h+=`<div class="cg" role="presentation">${g.g}</div>`;
+      m.forEach(c=>{h+=`<button type="button" class="co" role="option" aria-selected="false" tabindex="-1" id="city-option-${c.i}" data-i="${c.i}"><span>${c.n}</span><span class="cp">${g.g}</span></button>`;n++;});
+    });
+    if(!n)h='<div class="cg" role="presentation">未找到城市，请选择附近城市</div>';
+    dd.innerHTML=h;ai=-1;inp.removeAttribute('aria-activedescendant');
+  }
+  function openDD(){
+    if(!document.getElementById('formModal')?.classList.contains('open'))return;
+    dd.classList.add('show');inp.setAttribute('aria-expanded','true');placeDropdown();
+  }
+  function updateActive(opts){
+    opts.forEach((option,index)=>{
+      const active=index===ai;option.classList.toggle('act',active);
+      option.setAttribute('aria-selected',String(active));
+    });
+    if(opts[ai]){
+      inp.setAttribute('aria-activedescendant',opts[ai].id);
+      opts[ai].scrollIntoView({block:'nearest'});
+    }else inp.removeAttribute('aria-activedescendant');
+  }
+  inp.addEventListener('focus',()=>{clearTimeout(blurTimer);rdd(inp.value===(CD[hid.value]||{}).n?'':inp.value);openDD();});
+  inp.addEventListener('input',()=>{hid.value='';rdd(inp.value);openDD();});
+  inp.addEventListener('blur',()=>{blurTimer=setTimeout(closeCityDropdown,200);});
+  // mousedown prevents an early blur; click also fires reliably for touch and
+  // assistive technology on the semantic button, including older iOS Safari.
+  dd.addEventListener('mousedown',e=>{if(e.target.closest('.co'))e.preventDefault();});
+  dd.addEventListener('click',e=>{const option=e.target.closest('.co');if(option){clearTimeout(blurTimer);selectBirthCity(option.dataset.i);}});
+  const reposition=()=>{
+    if(!dd.classList.contains('show'))return;
+    const r=inp.getBoundingClientRect(),sheet=document.querySelector('#formModal .form-modal-sheet')?.getBoundingClientRect();
+    const viewport=window.visualViewport,top=viewport?.offsetTop||0,bottom=top+(viewport?.height||window.innerHeight);
+    if(r.bottom<=Math.max(top,sheet?.top??top)||r.top>=Math.min(bottom,sheet?.bottom??bottom))closeCityDropdown();
+    else placeDropdown();
+  };
+  window.addEventListener('resize',reposition);
+  window.addEventListener('scroll',reposition,true);
+  window.visualViewport?.addEventListener('resize',reposition);
+  window.visualViewport?.addEventListener('scroll',reposition);
+  inp.addEventListener('keydown',e=>{
+    // Enter/Escape may belong to the Chinese input method, not the picker.
+    if(e.isComposing||e.keyCode===229)return;
+    const opts=dd.querySelectorAll('.co');
+    if(e.key==='ArrowDown'){e.preventDefault();if(!dd.classList.contains('show'))openDD();ai=Math.min(ai+1,opts.length-1);updateActive(opts);}
+    else if(e.key==='ArrowUp'){e.preventDefault();ai=Math.max(ai-1,0);updateActive(opts);}
+    else if(e.key==='Enter'){
+      e.preventDefault();
+      if(ai>=0&&opts[ai])selectBirthCity(opts[ai].dataset.i);
+      else{
+        const match=resolveBirthCity();
+        if(match)selectBirthCity(match.id);
+        else showFormError(CITY_SELECTION_MESSAGE,inp);
+      }
+    }
+    else if(e.key==='Escape'&&dd.classList.contains('show')){e.stopPropagation();closeCityDropdown();}
+  });
+  window.rdd=rdd;window.sel=selectBirthCity;
+})();
+
+/* 首页汉堡菜单 */
+function toggleHomeMenu(force){
+  const btn=document.getElementById('homeMenuBtn');
+  const ov=document.getElementById('homeMenuOverlay');
+  const dw=document.getElementById('homeMenuDrawer');
+  if(!btn||!ov||!dw)return;
+  let open;
+  if(force===false)open=false;
+  else if(force===true)open=true;
+  else open=!btn.classList.contains('active');
+  btn.classList.toggle('active',open);
+  btn.setAttribute('aria-expanded',String(open));
+  btn.setAttribute('aria-label',open?'关闭菜单':'打开菜单');
+  ov.classList.toggle('open',open);
+  dw.classList.toggle('open',open);
+  dw.inert=!open;
+  dw.setAttribute('aria-hidden',String(!open));
+  if(open)focusSafely(dw.querySelector('.home-menu-close'));
+  else if(dw.contains(document.activeElement))focusSafely(window.__wenFlow?.focusTarget?.()||btn);
+  document.body.style.overflow=open?'hidden':'';
+  window.__wenFlow?.onMenuToggle?.(open);
+}
+window.toggleHomeMenu=toggleHomeMenu;
+
+/* 推演结果页汉堡菜单 */
+function toggleP2Menu(force){
+  const btn=document.getElementById('p2MenuBtn');
+  const ov=document.getElementById('p2MenuOverlay');
+  const dw=document.getElementById('p2MenuDrawer');
+  if(!btn||!ov||!dw)return;
+  let open;
+  if(force===false)open=false;
+  else if(force===true)open=true;
+  else open=!btn.classList.contains('active');
+  btn.classList.toggle('active',open);
+  ov.classList.toggle('open',open);
+  dw.classList.toggle('open',open);
+  document.body.style.overflow=open?'hidden':'';
+  /* 打开时同步浅色、深色与跟随系统设置。 */
+  if(open)_syncP2ThemeSeg();
+}
+window.toggleP2Menu=toggleP2Menu;
+
+/* P2 菜单内联主题切换 */
+let _p2ThemeBound=false;
+function _syncP2ThemeSeg(){
+  const seg=document.getElementById('p2ThemeSeg');
+  if(!seg)return;
+  const pref=getThemePref();
+  seg.querySelectorAll('.gs-seg-opt').forEach(b=>b.classList.toggle('active',b.dataset.val===pref));
+  if(!_p2ThemeBound){
+    _p2ThemeBound=true;
+    seg.addEventListener('click',e=>{
+      const btn=e.target.closest('.gs-seg-opt');
+      if(!btn)return;
+      applyThemePref(btn.dataset.val);
+      seg.querySelectorAll('.gs-seg-opt').forEach(b=>b.classList.toggle('active',b===btn));
+    });
+  }
+}
+
+/* 离开报告页时自动关闭 p2 菜单 */
+(function(){
+  const _goBack=window.goBack;
+  if(typeof _goBack==='function'){
+    window.goBack=function(){toggleP2Menu(false);return _goBack.apply(this,arguments);};
+  }
+})();
+
+/* ============================================================
+   全局设置弹窗
+   ============================================================ */
+function _buildGlobalSettingsPanel(){
+  const panel=document.getElementById('globalSettingsPanel');
+  if(!panel||panel.children.length)return panel;
+
+  panel.innerHTML='<div id="gsAIContainer"></div>';
+
+  /* AI 设置面板嵌入 */
+  const aiContainer=panel.querySelector('#gsAIContainer');
+  if(aiContainer && typeof buildAISettingsPanel==='function'){
+    buildAISettingsPanel(aiContainer);
+  }
+
+  return panel;
+}
+
+function openGlobalSettings(){
+  const modal=document.getElementById('globalSettingsModal');
+  if(!modal)return;
+  _buildGlobalSettingsPanel();
+  modal.classList.add('open');
+  const dock=document.querySelector('.ig-dock.tab-bar');
+  if(dock)dock.style.display='none';
+}
+window.openGlobalSettings=openGlobalSettings;
+
+function closeGlobalSettings(){
+  const modal=document.getElementById('globalSettingsModal');
+  if(!modal)return;
+  modal.classList.remove('open');
+  const dock=document.querySelector('.ig-dock.tab-bar');
+  if(dock)dock.style.display='';
+}
+window.closeGlobalSettings=closeGlobalSettings;
+
+/* 离开首页时自动关闭菜单 */
+(function(){
+  const _goBack=window.goBack;
+  if(typeof _goBack==='function'){
+    window.goBack=function(){toggleHomeMenu(false);return _goBack.apply(this,arguments);};
+  }
+  const _loadProfile=window.loadProfile;
+  if(typeof _loadProfile==='function'){
+    window.loadProfile=function(){toggleHomeMenu(false);return _loadProfile.apply(this,arguments);};
+  }
+})();
+
+onDomReady(()=>{
+  initOnboarding();
+  const about=document.getElementById('aboutModal');
+  about?.addEventListener('keydown',e=>{
+    e.stopPropagation();
+    if(e.key==='Escape'){e.preventDefault();window.closeAboutModal();return;}
+    if(e.key==='Tab'){
+      const controls=[...about.querySelectorAll('button:not(:disabled), [tabindex="0"]')].filter(el=>el.getClientRects().length);
+      const i=controls.indexOf(document.activeElement);
+      if(controls.length&&(i<0||(!e.shiftKey&&i===controls.length-1)||(e.shiftKey&&i===0))){e.preventDefault();controls[e.shiftKey?controls.length-1:0].focus();}
+    }
+  });
+  window.__wenProfilesReady=initDB().then(()=>renderProfiles()).catch(e=>console.log('DB init',e));
+  const ai=document.getElementById('askInput');
+  if(ai){
+    ai.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();doAskCustom()}});
+    ai.addEventListener('input',aiOnInputSuggest);
+    ai.addEventListener('focus',aiOnInputSuggest);
+    ai.addEventListener('blur',()=>setTimeout(()=>{const s=document.getElementById('aiSuggest');if(s)s.classList.remove('show');},200));
+  }
+  document.addEventListener('keydown',e=>{
+    if(document.getElementById('funnelTeaser'))return; // 预告罩层独占键盘
+    if(e.key==='Escape'){
+      const aiSettings=document.getElementById('aiSettingsModal');if(aiSettings&&aiSettings.classList.contains('open')){window.closeAISettingsModal();return;}
+      const ask=document.getElementById('aiSheet');if(ask&&ask.classList.contains('open')){closeAsk();return;}
+      const save=document.getElementById('saveModal');if(save&&save.classList.contains('open')){closeSaveModal();return;}
+      const arch=document.getElementById('archiveModal');if(arch&&arch.classList.contains('open')){closeArchiveModal();return;}
+      const fm=document.getElementById('formModal');if(fm&&fm.classList.contains('open')){window.TJCloseForm&&window.TJCloseForm();return;}
+      const rq=document.getElementById('rqModal');if(rq&&rq.classList.contains('open')){closeRq();return;}
+      const p2=document.getElementById('page2');if(p2&&(p2.classList.contains('active')||!p2.classList.contains('hidden'))){window.goBack();return;}
+    }
+    if((e.ctrlKey||e.metaKey)&&e.key==='p'){e.preventDefault();window.print();return;}
+    if((e.ctrlKey||e.metaKey)&&e.key==='c'){
+      // 用户正在选中文本或在输入框里时，不劫持系统复制
+      const sel=window.getSelection?window.getSelection().toString():'';
+      const ae=document.activeElement;
+      if(sel||(ae&&(ae.tagName==='INPUT'||ae.tagName==='TEXTAREA'||ae.isContentEditable)))return;
+      const p2=document.getElementById('page2');if(p2&&p2.classList.contains('active')){e.preventDefault();copyReport();return;}
+    }
+    const p2=document.getElementById('page2');
+    if(p2&&p2.classList.contains('active')){if(e.key>='1'&&e.key<='4'){const tabs=document.querySelectorAll('.tab-item');const idx=parseInt(e.key,10)-1;if(tabs[idx]){tabs[idx].click();return;}}}
+  });
+});
+
+/* ====== 卡片常开 ======
+   分区标签一次只显示一张卡片，折叠按钮与折叠态已无意义。
+   不再注入折叠按钮；进入报告时清理历史会话可能残留的
+   折叠按钮/折叠态标记，保证卡片始终完整展开。 */
+(function(){
+  function injectToggles(){
+    document.querySelectorAll('#page2 .glass[data-card]').forEach(el=>{
+      el.classList.remove('collapsed');
+      el.removeAttribute('data-collapsible');
+      const hd=el.querySelector('.card-hd');
+      const btn=el.querySelector('.card-toggle');
+      if(btn){btn.remove();if(hd){hd.style.cursor='';const clone=hd.cloneNode(true);hd.replaceWith(clone);}}
+    });
+  }
+  window._injectCardToggles=injectToggles;
+})();
+
+/* ====== 合并卡：当下关注 子 tab 切换 ====== */
+function focusSwitchTab(btn){
+  const card=btn.closest('.focus-card');
+  if(!card)return;
+  const sub=btn.dataset.sub;
+  card.querySelectorAll('.focus-tab').forEach(t=>t.classList.toggle('active',t===btn));
+  card.querySelectorAll('.focus-pane').forEach(p=>p.classList.toggle('active',p.dataset.sub===sub));
+}
+
+/* ====== 信息密度：紧凑/详细 切换 + 返回顶部 ====== */
+(function(){
+  // 还原上次设置
+  try{if(localStorage.getItem('tj_density')==='1')document.body.classList.add('density-compact');}catch(e){}
+  // 滚动监听显示返回顶部
+  onWindowLoad(()=>{
+    const sc=document.getElementById('p2Scroll');
+    const btn=document.getElementById('backToTop');
+    if(!sc||!btn)return;
+    let ticking=false;
+    sc.addEventListener('scroll',()=>{
+      if(ticking)return;
+      ticking=true;
+      requestAnimationFrame(()=>{
+        btn.classList.toggle('show',sc.scrollTop>200);
+        ticking=false;
+      });
+    },{passive:true});
+    if(document.getElementById('densityToggle')&&document.body.classList.contains('density-compact')){
+      document.getElementById('densityToggle').classList.add('on');
+    }
+  });
+})();
+
+/* =========================================================
+   首页：粒子 + 鼠标跟随 + 卡片视差 + body.home 自动切换
+   ========================================================= */
+(function(){
+  const isMobile=window.matchMedia('(hover:none)').matches;
+
+  // ---- body.home 状态管理（page1 显示时启用首页特效）----
+  function applyHomeState(){
+    const p1=document.getElementById('page1');
+    const p2=document.getElementById('page2');
+    const onHome=p1&&!p1.classList.contains('hidden')&&(!p2||p2.classList.contains('hidden')||!p2.classList.contains('active'));
+    document.body.classList.toggle('home',onHome);
+  }
+  // 初始
+  onDomReady(applyHomeState);
+  // 监听 page1/page2 class 改动
+  const obs=new MutationObserver(()=>applyHomeState());
+  onWindowLoad(()=>{
+    const p1=document.getElementById('page1'),p2=document.getElementById('page2');
+    if(p1)obs.observe(p1,{attributes:true,attributeFilter:['class']});
+    if(p2)obs.observe(p2,{attributes:true,attributeFilter:['class']});
+    applyHomeState();
+  });
+
+  // ---- 鼠标光球：只在可见时运动，静止后停止调度帧 ----
+  // Older WebViews may reject a media query even when matchMedia exists.
+  let reducedMotion={matches:false};
+  try{reducedMotion=window.matchMedia('(prefers-reduced-motion: reduce)');}catch(e){}
+  const onMotionChange=(callback)=>{
+    if(reducedMotion.addEventListener)reducedMotion.addEventListener('change',callback);
+    else if(reducedMotion.addListener)reducedMotion.addListener(callback);
+  };
+  if(!isMobile){
+    const dot=document.getElementById('tjCursorDot');
+    const ring=document.getElementById('tjCursorRing');
+    if(dot&&ring){
+      let mx=window.innerWidth/2,my=window.innerHeight/2;
+      let dx=mx,dy=my,rx=mx,ry=my,frame=0,hasPointer=false;
+      const visible=()=>!document.hidden&&!document.body.classList.contains('home');
+      const position=()=>{
+        dot.style.transform='translate3d('+dx+'px,'+dy+'px,0) translate(-50%,-50%)';
+        ring.style.transform='translate3d('+rx+'px,'+ry+'px,0) translate(-50%,-50%)';
+      };
+      const cancel=()=>{if(frame)cancelAnimationFrame(frame);frame=0;};
+      function tick(){
+        frame=0;
+        if(!visible()||!hasPointer)return;
+        dx+=(mx-dx)*0.4;dy+=(my-dy)*0.4;
+        rx+=(mx-rx)*0.18;ry+=(my-ry)*0.18;
+        if(Math.max(Math.abs(mx-dx),Math.abs(my-dy),Math.abs(mx-rx),Math.abs(my-ry))<0.15){
+          dx=rx=mx;dy=ry=my;
+          position();
+          return;
+        }
+        position();frame=requestAnimationFrame(tick);
+      }
+      function sync(){
+        if(!visible()||!hasPointer){cancel();return;}
+        if(reducedMotion.matches){cancel();dx=rx=mx;dy=ry=my;position();}
+        else if(!frame)frame=requestAnimationFrame(tick);
+      }
+      window.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;hasPointer=true;dot.classList.remove('hide');ring.classList.remove('hide');sync();},{passive:true});
+      window.addEventListener('mouseleave',()=>{hasPointer=false;cancel();dot.classList.add('hide');ring.classList.add('hide');});
+      window.addEventListener('mousedown',()=>ring.classList.add('active'));
+      window.addEventListener('mouseup',()=>ring.classList.remove('active'));
+      document.addEventListener('mouseover',e=>{
+        const t=e.target;
+        if(t&&t.closest&&t.closest('button,a,input,select,textarea,.chip,.cta,.tab-item,.r-card,.pf-card,.ai-chip,.ai-cat,.ai-route-btn,.tl-card,.lym-item,[onclick],[data-q]')){
+          dot.classList.add('hover');ring.classList.add('hover');
+        }
+      });
+      document.addEventListener('mouseout',e=>{
+        const t=e.target;
+        if(t&&t.closest&&t.closest('button,a,input,select,textarea,.chip,.cta,.tab-item,.r-card,.pf-card,.ai-chip,.ai-cat,.ai-route-btn,.tl-card,.lym-item,[onclick],[data-q]')){
+          dot.classList.remove('hover');ring.classList.remove('hover');
+        }
+      });
+      new MutationObserver(sync).observe(document.body,{attributes:true,attributeFilter:['class']});
+      document.addEventListener('visibilitychange',sync);
+      onMotionChange(sync);
+    }
+  }
+
+  // ---- 粒子：仅在报告可见时初始化和绘制；减少动态效果时保留静态星点 ----
+  const cv=document.getElementById('tjParticles');
+  if(cv){
+    let ctx=null,W=0,H=0,DPR=1,parts=[],frame=0,lastDraw=0,needsResize=true;
+    let mouseX=-9999,mouseY=-9999;
+    let accentH='38',accentS='55%';
+    const visible=()=>!document.hidden&&document.body.classList.contains('report-active');
+    function readAccent(){
+      const st=getComputedStyle(document.documentElement);
+      accentH=st.getPropertyValue('--accent-h').trim()||'38';
+      accentS=st.getPropertyValue('--accent-s').trim()||'55%';
+    }
+    function resize(){
+      DPR=Math.min(window.devicePixelRatio||1,2);
+      W=window.innerWidth;H=window.innerHeight;
+      cv.width=W*DPR;cv.height=H*DPR;
+      cv.style.width=W+'px';cv.style.height=H+'px';
+      ctx.setTransform(DPR,0,0,DPR,0,0);
+      const target=Math.min(130,Math.max(55,Math.floor(W*H/13000)));
+      parts=Array.from({length:target},()=>{
+        const bright=Math.random()<0.12;
+        return {x:Math.random()*W,y:Math.random()*H,
+          vx:(Math.random()-0.5)*0.18,vy:(Math.random()-0.5)*0.18,
+          r:bright?(Math.random()*1.4+1.0):(Math.random()*1.0+0.3),
+          a:bright?(Math.random()*0.3+0.55):(Math.random()*0.5+0.2),
+          twinkle:Math.random()*Math.PI*2,tspd:0.02+Math.random()*0.05};
+      });
+      needsResize=false;
+    }
+    function draw(){
+      ctx.clearRect(0,0,W,H);
+      for(const p of parts){
+        if(!reducedMotion.matches){
+          p.x+=p.vx;p.y+=p.vy;p.twinkle+=p.tspd;
+          if(p.x<0)p.x=W;else if(p.x>W)p.x=0;
+          if(p.y<0)p.y=H;else if(p.y>H)p.y=0;
+          const dx=p.x-mouseX,dy=p.y-mouseY,d2=dx*dx+dy*dy;
+          if(d2<14400){const f=(1-d2/14400)*0.6;p.x+=dx*f*0.04;p.y+=dy*f*0.04;}
+        }
+        const tw=0.7+Math.sin(p.twinkle)*0.3;
+        ctx.fillStyle='hsla('+accentH+','+accentS+',75%,'+(p.a*tw)+')';
+        ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fill();
+      }
+    }
+    function tick(now){
+      frame=0;
+      if(!visible()||reducedMotion.matches)return;
+      if(now-lastDraw>=33){lastDraw=now;draw();}
+      frame=requestAnimationFrame(tick);
+    }
+    function sync(){
+      if(!visible()){
+        if(frame)cancelAnimationFrame(frame);
+        frame=0;
+        return;
+      }
+      if(!ctx)ctx=cv.getContext('2d');
+      if(!ctx)return;
+      if(needsResize)resize();
+      if(reducedMotion.matches){
+        if(frame)cancelAnimationFrame(frame);
+        frame=0;draw();
+      }else if(!frame){
+        lastDraw=0;frame=requestAnimationFrame(tick);
+      }
+    }
+    function updateAccent(){readAccent();if(visible()&&reducedMotion.matches&&ctx)draw();}
+    window.addEventListener('mousemove',e=>{mouseX=e.clientX;mouseY=e.clientY;},{passive:true});
+    window.addEventListener('mouseleave',()=>{mouseX=-9999;mouseY=-9999;});
+    window.addEventListener('resize',()=>{needsResize=true;readAccent();sync();},{passive:true});
+    document.addEventListener('visibilitychange',sync);
+    new MutationObserver(sync).observe(document.body,{attributes:true,attributeFilter:['class']});
+    new MutationObserver(updateAccent).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','data-home-theme']});
+    onMotionChange(sync);
+    readAccent();sync();
+  }
+
+  // ---- 表单与独立卡片 3D 视差倾斜 (自动跳过 3D 轮播卡片避免矩阵冲突) ----
+  function bindTilt(el){
+    if(!el||isMobile)return;
+    if(el.closest('.tool-hub, .tool-ring-stage, .tool-row-stage, .tool-card-portrait, .tool-card-ring'))return;
+    let raf=null;
+    el.addEventListener('mousemove',e=>{
+      const r=el.getBoundingClientRect();
+      const x=e.clientX-r.left,y=e.clientY-r.top;
+      const px=x/r.width,py=y/r.height;
+      // 光点位置（CSS 变量驱动 ::before 径向光）
+      el.style.setProperty('--mx',(px*100).toFixed(1)+'%');
+      el.style.setProperty('--my',(py*100).toFixed(1)+'%');
+      if(raf)cancelAnimationFrame(raf);
+      raf=requestAnimationFrame(()=>{
+        const rx=(0.5-py)*8,ry=(px-0.5)*8;
+        el.style.setProperty('--rx', rx.toFixed(2)+'deg');
+        el.style.setProperty('--ry', ry.toFixed(2)+'deg');
+        el.style.transform='perspective(1000px) rotateX('+rx.toFixed(2)+'deg) rotateY('+ry.toFixed(2)+'deg) translateY(-4px) scale3d(1.02, 1.02, 1.02)';
+      });
+    });
+    el.addEventListener('mouseleave',()=>{
+      el.style.transform='perspective(1000px) rotateX(0deg) rotateY(0deg) translateY(0) scale3d(1, 1, 1)';
+      el.style.setProperty('--mx','50%');el.style.setProperty('--my','50%');
+      el.style.setProperty('--rx','0deg');el.style.setProperty('--ry','0deg');
+    });
+  }
+  // —— 全局：绑定到 .home-card 与 page2 内的独立 .glass 卡片 ——
+  function bindAllTilt(){
+    document.querySelectorAll('.home-card:not([data-tilted])').forEach(el=>{bindTilt(el);el.setAttribute('data-tilted','1');});
+    document.querySelectorAll('#page2 .glass:not(.tool-hub):not([data-tilted])').forEach(el=>{bindTilt(el);el.setAttribute('data-tilted','1');});
+  }
+  onWindowLoad(bindAllTilt);
+  // 推算完成后 page2 内容会被重渲染，提供一个全局钩子
+  window._rebindTilt=bindAllTilt;
+
+  // ---- CTA 按钮涟漪 ----
+  document.addEventListener('click',e=>{
+    const btn=e.target&&e.target.closest&&e.target.closest('.cta');
+    if(!btn||btn.disabled)return;
+    const r=btn.getBoundingClientRect();
+    const x=e.clientX-r.left,y=e.clientY-r.top;
+    const size=Math.max(r.width,r.height);
+    const rip=document.createElement('span');
+    rip.className='cta-ripple';
+    rip.style.width=rip.style.height=size+'px';
+    rip.style.left=(x-size/2)+'px';rip.style.top=(y-size/2)+'px';
+    btn.appendChild(rip);
+    setTimeout(()=>rip.remove(),700);
+  });
+})();
+
+/* ===== iOS 27 Liquid Glass：强度切换 + 标签栏指示条液化滑动 ===== */
+/* ===== 新手版 / 大师版：术语解释 + 专业数据折叠 ===== */
+const GLOSSARY={
+  '八字':'把出生的年、月、日、时分别换算成天干地支，一共八个字，是这套命理分析的基础坐标。',
+  '四柱':'年柱、月柱、日柱、时柱，八字按这四组"柱"排列，分别对应人生不同阶段的信息。',
+  '天干':'甲乙丙丁戊己庚辛壬癸十个符号，用来纪年月日时，也各自对应一种五行属性。',
+  '地支':'子丑寅卯辰巳午未申酉戌亥十二个符号，同样用于纪年月日时，也对应生肖和五行。',
+  '十神':'把"我"和干支之间的五行生克关系归纳成十种角色（如正官、正财等），代表事业、财富、人际等不同人生面向。',
+  '正官':'十神之一，通常关联规则、责任与稳定的事业发展，也象征约束力。',
+  '七杀':'十神之一，代表压力、竞争与魄力，处理得当可转化为闯劲。',
+  '正财':'十神之一，代表稳定、按部就班获得的财富与务实的物质基础。',
+  '偏财':'十神之一，代表意外之财、投资机会或更灵活的赚钱方式。',
+  '食神':'十神之一，代表才华的自然流露、口福与松弛的生活状态。',
+  '伤官':'十神之一，代表表达欲、创造力，也可能意味着不按常理出牌。',
+  '比肩':'十神之一，代表同辈助力、竞争对手，也象征自我意志。',
+  '劫财':'十神之一，与比肩类似但更偏"争夺"，常和破财、合伙纠纷相关联。',
+  '正印':'十神之一，代表长辈庇护、名誉、学识，是"被照顾"的力量。',
+  '偏印':'十神之一，代表独立钻研、偏门技能，也可能显得孤僻。',
+  '五行':'木、火、土、金、水五种基本属性，中国传统理论认为万物都由它们生克循环构成。',
+  '大运':'每十年左右更换一次的运势阶段，用来观察人生不同十年的整体走势。',
+  '流年':'具体到某一年的运势，比大运更细颗粒度，常和大运叠加分析。',
+  '用神':'八字里最需要被"补强"的那个五行，找到它是判断吉凶的关键钥匙。',
+  '忌神':'和用神相反，是命局里需要克制、避免过旺的五行。',
+  '身强身弱':'用来判断一个人的基础能量是偏充足还是偏需要支持；它不代表好坏，只决定更适合主动发力还是先补足资源。',
+  '身强':'指日主（代表自己的那个天干）力量偏旺，通常更适合"泄"或"克"来平衡。',
+  '身弱':'指日主力量偏弱，通常更需要"生"或"扶"来补强。',
+  '空亡':'某些干支组合在特定情况下力量被削弱的说法，常用来解释"该发生却没发生"的现象。',
+  '三合':'三个地支组合在一起会增强某种五行力量，是命理里常见的"加成"关系。',
+  '六冲':'两个地支相冲，代表变动、矛盾或需要主动化解的张力。',
+  '刑冲破害':'几种地支之间的负向作用关系统称，通常提示需要留意的摩擦点。',
+  '纳音':'干支组合对应的一种五行别称体系，常用于婚配、流年等辅助判断。',
+  '月令':'出生月份对应的地支与季节能量，是判断命局强弱和环境影响的重要依据。',
+  '藏干':'地支内部所包含的天干信息，可理解为不直接显露、但仍会发挥作用的能量。',
+  '神煞':'命理中用于补充观察的特殊符号体系，常作为辅助参考，不单独决定结论。',
+  '日主':'日柱天干，也就是代表你自己的那个字，是整张命盘的核心参照点。',
+  '喜用':'对命局有帮助、值得借力的五行或十神，方向大致等同于"扬长"。',
+  '十二长生':'把人生比作植物从萌芽到衰亡的十二个阶段，用来描述某个五行在不同地支上的强弱状态。',
+
+  /* —— 补齐：以下词此前在报告中出现但没有解释入口 —— */
+  '命盘':'把出生时间换算成干支后排出的那张表，是后面所有分析的原始依据。',
+  '命局':'你这张命盘的整体格局与结构，可以理解为「你这盘牌大致是什么样」。',
+  '格局':'命盘的整体类型，用来概括你这个人最突出的能量走向。它只描述特点，不分高低好坏。',
+  '旺衰':'衡量日主（代表你自己的那个字）力量是偏强还是偏弱，决定你更适合主动发力，还是先补足资源。',
+  '身旺':'代表你自己的那个字力量偏强，通常更适合主动出击、承担事情，也要注意别把担子全揽在自己身上。',
+  '喜神':'仅次于用神、同样对你有帮助的五行，可以理解为「第二顺位的助力方向」。',
+  '印绶':'十神中「正印 + 偏印」的合称，代表支持、学习与被照顾的力量。',
+  '食神格':'格局的一种：擅长把想法变成具体作品或成果，通常表达顺畅、生活节奏偏松弛。',
+  '伤官格':'格局的一种：表达欲和创造力强，不太受既有规则束缚，容易带来新意也容易带来摩擦。',
+  '正官格':'格局的一种：重视规则与责任，适合在有秩序的环境里稳定发展。',
+  '七杀格':'格局的一种：抗压能力强、有闯劲，适合啃硬骨头，但需要注意节奏和恢复。',
+  '正财格':'格局的一种：务实、按部就班积累，重视可控和稳定的回报。',
+  '偏财格':'格局的一种：机会敏感、路子灵活，适合对外拓展，但要留意别把摊子铺太大。',
+  '印绶格':'格局的一种：善于学习吸收，容易获得他人支持，适合需要专业积累的方向。',
+  '比肩格':'格局的一种：自我意志强、独立性高，适合自己主导的事，也要留意与人合作时的边界。',
+  '劫财格':'格局的一种：行动力强、敢争取，涉及分配与合作时建议提前把规则讲清楚。',
+  '建禄格':'格局的一种：自身根基扎实，靠自己的力量推进事情，独立性较强。',
+  '三式':'紫微斗数、奇门遁甲、梅花易数三种传统术数的合称，在这里作为八字之外的补充参考。',
+  '紫微':'紫微斗数，另一套用十二宫位描述人生不同面向的传统体系，可与八字互相印证。',
+  '奇门':'奇门遁甲，传统上用于观察「当下局势」和行动时机的一套体系。',
+  '梅花':'梅花易数，一种针对具体某件事起卦、看变化趋势的传统方法。',
+
+  /* —— 神煞（引擎会算出并出现在报告中）—— */
+  '桃花':'代表异性缘与人缘的星，命局带桃花通常魅力强、社交机会多，但也要留意"烂桃花"。',
+  '驿马':'代表变动、远行与奔波的星，命局带驿马常与迁移、出差、换环境的机会相关。',
+  '天乙贵人':'最著名的吉星之一，主逢凶化吉、遇事有人帮，命局带它常被解读为贵人缘好。',
+  '文昌':'代表学业、功名与文艺的星，与考试、文书、创意表达相关的能量。',
+  '将星':'代表权威与领导力的星，多出现在有统御欲、适合带队的人身上。',
+  '华盖':'代表孤独、艺术与玄学气质的星，常与钻研精神、独立思考和宗教艺术缘分相关。',
+  '天医':'代表健康、医学与疗愈的星，与身体恢复能力、医药缘分相关。',
+  '红艳':'代表情感丰富、容易动情的星，人缘好但感情上需要多分辨。',
+  '魁罡':'庚辰、庚戌、壬辰、戊戌四日出生的格局，传统认为这类人刚烈、聪明、果断。',
+  '羊刃':'代表刚强、锐利与胆大的星，行动力强，搭配得当可以转化为魄力。',
+
+  /* —— 紫微斗数（紫微卡片）—— */
+  '紫微斗数':'另一套传统命理体系，把人生分成十二个宫位，用星曜组合观察不同领域的特点。',
+  '命宫':'① 紫微盘中看一个人性格底色的宫位；② 八字里按出生月日时推算的辅助宫位，传统上用于补充看性格与根基。',
+  '身宫':'紫微盘中看后天努力方向与人生着力点的宫位，代表"更用力经营"的领域。',
+  '十二宫':'紫微盘把人生划分的十二个领域（命宫、财帛、夫妻、事业等），各管一段人生面向。',
+  '十四主星':'紫微盘中最核心的十四颗星（紫微、天机、太阳、武曲等），主星看性格与运势底色。',
+  '事业宫':'紫微盘中看事业发展、职场状态的宫位，对应工作方式与职业际遇。',
+  '财帛宫':'紫微盘中看财富格局、赚钱与理财方式的宫位。',
+  '夫妻宫':'紫微盘中看感情模式、婚姻与伴侣关系的宫位。',
+  '迁移宫':'紫微盘中看外出、远行、人际往来的宫位，也看在外发展的机遇。',
+  '福德宫':'紫微盘中看精神世界、心态与福气的宫位，常关联幸福感来源。',
+  '疾厄宫':'紫微盘中看健康体质与易感部位的宫位。',
+  '田宅宫':'紫微盘中看不动产、家庭与居住环境的宫位。',
+  '交友宫':'紫微盘中看朋友、同事与人脉质量的宫位，也作"仆役宫"。',
+
+  /* —— 奇门遁甲（奇门卡片）—— */
+  '九宫':'奇门遁甲把时间空间划分成的九个格子，是判断"当下局势"的坐标底盘。',
+  '八门':'奇门中开门、休门、生门等八种"门"，分别代表不同的行动方向与性质。',
+  '开门':'八门之一，代表开启与顺利，传统认为求前景、开创的事宜看开门。',
+  '生门':'八门之一，代表生机与收益，传统认为求财、求增长的事宜看生门。',
+  '休门':'八门之一，代表休整与修复，需要缓一缓、补一补的时候对应它。',
+  '值符':'奇门盘中统领全局的核心符号，代表当下最强势的时空能量。',
+
+  /* —— 梅花易数（梅花卡片）—— */
+  '卦象':'八卦符号呈现出的整体状态，梅花易数用卦象来观察一件事的当前与走势。',
+  '本卦':'起卦得到的初始卦，代表事情的当前状态。',
+  '变卦':'动爻变化后形成的新卦，代表事情后续可能的走向。',
+  '动爻':'卦中发生阴阳变化的那一爻，是"事情正在变化"的线索。',
+
+  /* —— 五行十神组合词 —— */
+  '比劫':'比肩与劫财的合称，代表同辈、竞争者与自我意志相关的那股力量。',
+  '食伤':'食神与伤官的合称，代表才华输出、表达与创造力的能量。',
+  '财星':'正财与偏财的合称，代表财富相关的人事物与机会。',
+  '官星':'正官与七杀的合称，在传统婚恋语境里也常指女命的夫缘。',
+  '印星':'正印与偏印的合称，代表学习、庇护与"被支持"的力量。',
+  '枭神':'偏印的另一种叫法，代表偏门钻研与独立学习的能力。',
+  '透干':'某个五行直接显现在天干上，比藏在地支里更"明面、主动"。',
+  '通根':'地支里有与天干同五行的根基，说明这个天干的力量更扎实。',
+  '墓库':'五行能量收敛、收藏的状态，常用来解释"机会攒着、暂时没显形"。',
+  '伏吟':'干支在原地重复，主事情反复、原地打转、进展缓慢的感觉。',
+  '反吟':'干支两两相冲，主变动、反复、计划赶不上变化。',
+  '长生':'十二长生之一，代表事物萌芽起步、生命力刚生发出来的阶段。',
+  '帝旺':'十二长生之一，代表能量最旺盛、最得力的阶段。',
+  '胎':'十二长生之一，代表事物还未显形、刚刚孕育的阶段。',
+  '养':'十二长生之一，代表孕育完成、蓄势待发的阶段。',
+
+  /* —— 常用实务词 —— */
+  '真太阳时':'按出生地时区、经度和均时差估算的太阳时间，可作为时辰参考。',
+  '本命年':'流年地支与自己出生年地支相同的年份，传统认为该年宜守稳、少折腾。',
+  '冲太岁':'流年地支与出生年地支相冲的年份，主变动、迁移、计划调整较多。',
+  '犯太岁':'流年与出生年地支之间存在冲、刑、害、破关系的统称，提醒当年多留意人际与决策。',
+  '流月':'每个月的干支组合，比流年更细的短期运势颗粒度。',
+  '节气':'二十四节气，农历月份的分界依据，也是排大运、定流月的基准点。',
+  '正缘':'命理语境里指向"正经、可长期发展"的姻缘对象，区别于短暂桃花。',
+  '八字合婚':'把两个人的八字放在一起比较五行、十神与宫位的匹配度，作为关系参考。',
+  '排盘':'把出生时间按规则换算成干支命盘的过程，是后续一切分析的第一步。',
+  '六十甲子':'天干十个与地支十二个两两组合成的六十个干支单位，纪年纪月纪日都用它。',
+
+  /* —— 合冲刑害具体关系 —— */
+  '六合':'十二地支中两两相合的组合（如子丑合），主关系融洽、合作顺利，是命理里的"合好"关系。',
+  '三刑':'地支之间互相刑克的组合（如寅巳申、丑戌未），主是非、矛盾与纠葛。',
+  '自刑':'同一个地支自我刑克的情形，如辰辰、午午，主自我较劲、内耗。',
+  '相害':'地支之间暗中损耗的关系，也称六害，主表面无事、实际互相消耗。',
+  '天干五合':'十个天干中两两相合的五组关系（如甲己合、乙庚合），主亲合与借力。',
+  '半合':'三合局中只出现两个地支的组合，力量比完整三合弱，但仍有一定加成。',
+  '拱合':'三合局缺中间一字、两头相夹的情形，主暗中扶持或隐而未显的助力。',
+
+  /* —— 格局组合（两神搭配的经典论断）—— */
+  '官印相生':'正官与正印搭配，主稳定升迁、以德服人，传统视为事业顺遂的组合。',
+  '杀印相生':'七杀得印星化解，主压力转化为魄力，闯劲与格局并存。',
+  '伤官配印':'伤官与印星搭配，主才华有约束、能成事，是文采与章法兼备的组合。',
+  '食神制杀':'食神克制七杀，主以柔克刚、化险为夷，适合处理棘手局面。',
+  '伤官见官':'伤官与正官相遇，主不受管束、易起冲突，传统上视为需要谨慎的配置。',
+  '枭神夺食':'偏印克食神，主"眼看要到手的机会被截胡"，提醒留一手。',
+  '比劫夺财':'比肩劫财分走财星，主合伙破财、竞争分利，财务上宜早立规则。',
+  '财官双美':'财星与官星皆旺，主富贵兼备、事业财富两顺的组合。',
+  '食伤生财':'食神伤官生助财星，主靠才华与输出赚钱，越表达越有财。',
+
+  /* —— 长生十二宫补全 —— */
+  '沐浴':'十二长生之一，主事物初显但根基未稳，像刚洗完澡的状态，经验尚浅。',
+  '冠带':'十二长生之一，主事物成形、开始有名分与位置的阶段。',
+  '临官':'十二长生之一，主事物到了能自立门户、独当一面的阶段。',
+  '衰':'十二长生之一，主能量开始由盛转弱，需要控制节奏。',
+  '病':'十二长生之一，主能量疲惫、容易出错，宜休整不宜硬扛。',
+  '死':'十二长生之一，主旧有状态终结，也意味着新的循环即将开始。',
+  '墓':'十二长生之一，主能量收藏入库，机会"攒着但暂时不显形"。',
+  '绝':'十二长生之一，主能量近乎归零，但绝处常是新一轮生机的起点。',
+
+  /* —— 六亲宫位 —— */
+  '年柱':'四柱中的第一柱，代表早年、祖辈与根基，也常关联成长环境。',
+  '月柱':'四柱中的第二柱，代表青年时期、父母兄弟与事业根基（月令所在）。',
+  '日柱':'四柱中的第三柱，天干是日主本人，地支是配偶宫，代表中年与核心自我。',
+  '时柱':'四柱中的第四柱，代表晚年、子女与人生收尾阶段的运势。',
+  '六亲':'命理中对父母、兄弟姐妹、配偶、子女等亲属关系的统称，按十神映射。',
+  '配偶宫':'日柱地支，代表婚姻伴侣的位置，看感情质量常从这里入手。',
+  '财库':'财星入墓库的状态，主攒钱能力强，但需要时机打开才见收益。',
+  '官杀':'正官与七杀的合称，代表事业、责任与约束，女命语境也关联夫缘。',
+
+  /* —— 婚恋 —— */
+  '红鸾':'传统婚恋吉星之一，主喜事、姻缘与嫁娶信号。',
+  '天喜':'与红鸾常并称的吉星，主喜庆之事，婚恋语境里也是好信号。',
+  '烂桃花':'看似热闹但消耗感情的缘分，主短暂、暧昧或带来麻烦的关系。',
+  '正桃花':'正经、可长期发展的异性缘分，区别于烂桃花。',
+  '孤辰寡宿':'一组主孤独感的星神，传统上认为缘分较晚或较淡，需主动经营关系。',
+
+  /* —— 大运流年细节 —— */
+  '起运':'大运开始运行的年龄与时间点，不同人起运早晚不同。',
+  '交运':'从一个十年大运切换到下一个大运的节点，传统认为前后会有状态变化。',
+  '岁运':'流年与大运的合称，分析某一年运势时二者叠加判断。',
+  '月建':'当月地支的当值状态，是判断当月能量环境的基础。',
+  '太岁':'流年的干支化身，传统上视为当年"当值的主宰"，冲犯多提示变动。',
+
+  /* —— 其他常用 —— */
+  '从格':'日主极弱、顺势跟随旺方五行的特殊格局，与传统扶抑思路相反。',
+  '专旺格':'某种五行极旺、日主专一的格局，顺势而为则顺。',
+  '化气格':'天干五合后化出另一种五行的特殊格局，少见但特征鲜明。',
+  '假从':'表面顺从旺方、实际仍有牵制的从格状态，比纯从更灵活。',
+  '胎元':'按出生月份推算的一个辅助干支，代表"先天受气"的环境底色。',
+  '小限':'紫微斗数中按年龄逐年轮转的宫位，比流年更细的年度观察角度。'
+};
+// 供 AI 术语检索复用，避免 GLOSSARY 与 KB.terms 两份词表各自漂移
+try{ window.__TJ_GLOSSARY__=GLOSSARY; }catch(e){}
+let _glossKeys=null;
+function _getGlossKeys(){
+  if(_glossKeys)return _glossKeys;
+  _glossKeys=Object.keys(GLOSSARY).sort((a,b)=>b.length-a.length);
+  return _glossKeys;
+}
+/* ---- 选中文字解释（右键/长按菜单 + 选区浮动解释） ---- */
+function matchGlossText(text){
+  if(!text)return null;
+  const t=String(text).trim().replace(/\s+/g,' ');
+  if(!t||t.length>40)return null;
+  if(GLOSSARY[t])return t;
+  let best=null;
+  const keys=_getGlossKeys();
+  for(let i=0;i<keys.length;i++){
+    const k=keys[i];
+    if(t.includes(k)&&(!best||k.length>best.length))best=k;
+  }
+  return best;
+}
+function openGlossAt(term,x,y){
+  const def=GLOSSARY[term];if(!def)return;
+  let pop=document.getElementById('glossPop');
+  if(!pop){
+    pop=document.createElement('div');pop.className='gloss-pop';pop.id='glossPop';
+    pop.innerHTML='<div class="gloss-pop-tt" id="glossPopTt"></div><div class="gloss-pop-bd" id="glossPopBd"></div>'+
+      '<button type="button" class="gloss-pop-ai" id="glossPopAi" aria-label="问问大师深度解读"></button>';
+    pop.querySelector('#glossPopAi').addEventListener('click',()=>{
+      const t=document.getElementById('glossPopTt').textContent;
+      pop.classList.remove('open');
+      askMasterGloss(t);
+    });
+    document.body.appendChild(pop);
+  }
+  document.getElementById('glossPopTt').textContent=term;
+  document.getElementById('glossPopBd').textContent=def;
+  const aiBtn=document.getElementById('glossPopAi');
+  aiBtn.innerHTML=GLOSS_AI_ICON+'<span class="gloss-pop-ai-txt">问问大师</span>';
+  aiBtn.setAttribute('aria-label','问问大师深度解读「'+term+'」');
+  aiBtn.title='问问大师深度解读「'+term+'」';
+  const vw=window.innerWidth,vh=window.innerHeight;
+  let left=Math.min(Math.max(12,x),vw-272);
+  let top=y+10;
+  if(top+170>vh)top=Math.max(12,y-170);
+  pop.style.left=left+'px';pop.style.top=top+'px';
+  pop.classList.add('open');
+}
+/* 选中术语 → 跳转问问大师聊天界面并提问 */
+const GLOSS_AI_ICON='<svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor" aria-hidden="true"><path d="M12 2l2.9 6.6 7.1.6-5.4 4.7 1.6 7L12 17.3 5.8 20.9l1.6-7L2 9.2l7.1-.6L12 2z"/><path d="M18.5 3l.7 1.6 1.6.7-1.6.7-.7 1.6-.7-1.6-1.6-.7 1.6-.7.7-1.6z" opacity=".75"/></svg>';
+function askMasterGloss(term){
+  const q='「'+term+'」是什么意思？能用大白话给我讲讲吗，最好结合我的命盘说说它对我是利是弊。';
+  if(typeof window.openAsk==='function')window.openAsk();
+  setTimeout(()=>{ if(typeof window.doAsk==='function')window.doAsk(q); },260);
+}
+/* 清除所有选中解释 UI（胶囊/底部条/ Dock 临时操作条） */
+function hideGlossUI(){
+  document.getElementById('glossChip')?.remove();
+  restoreDockGloss();
+}
+/* 恢复 Dock 原始内容 */
+function restoreDockGloss(){
+  const inner=document.getElementById('tabBar')?.querySelector('.tab-bar-inner');
+  if(inner&&inner.dataset.dockOriginal){
+    inner.innerHTML=inner.dataset.dockOriginal;
+    delete inner.dataset.dockOriginal;
+    inner.classList.remove('dock-gloss-mode');
+  }
+}
+/* 移动端：选中术语后，操作按钮融入底部 Dock 栏（临时替换 Dock 内容） */
+let _glossRect=null;          // 当前选区的视口坐标，解释弹窗据此定位到文字旁
+let _dockArmAt=0;             // Dock 操作按钮防误触冷却截止时间
+function showDockGloss(term,rect){
+  _glossRect=rect||null;
+  const inner=document.getElementById('tabBar')?.querySelector('.tab-bar-inner');
+  if(!inner)return;
+  if(!inner.dataset.dockOriginal)inner.dataset.dockOriginal=inner.innerHTML;
+  inner.classList.add('dock-gloss-mode');
+  inner.innerHTML=
+    '<button type="button" class="dock-gloss dock-gloss-x" data-act="explain">解释「'+term+'」</button>'+
+    '<button type="button" class="dock-gloss dock-gloss-ai" data-act="ask" aria-label="问问大师深度解读「'+term+'」">'+GLOSS_AI_ICON+'<span>问问大师</span></button>'+
+    '<button type="button" class="dock-gloss-close" data-act="dismiss" aria-label="关闭">×</button>';
+  // 防底部误触：操作按钮先进入 500ms 冷却（置灰不可点），防止滑选后抬手误触
+  _dockArmAt=Date.now()+500;
+  inner.classList.add('dock-gloss-arm');
+  setTimeout(()=>inner.classList.remove('dock-gloss-arm'),520);
+  const explain=inner.querySelector('[data-act="explain"]');
+  explain.dataset.term=term;
+  explain.addEventListener('click',function(e){
+    e.stopPropagation();
+    if(Date.now()<_dockArmAt)return;
+    const t=this.dataset.term||'';
+    restoreDockGloss();
+    const r=_glossRect;
+    if(r)openGlossAt(t,Math.min(r.left,window.innerWidth-160),r.bottom+8);
+    else openGlossAt(t,Math.min(window.innerWidth-150,window.innerWidth/2),Math.max(12,window.innerHeight-230));
+  });
+  const ask=inner.querySelector('[data-act="ask"]');
+  ask.dataset.term=term;
+  ask.addEventListener('click',function(e){
+    e.stopPropagation();
+    if(Date.now()<_dockArmAt)return;
+    const t=this.dataset.term||'';
+    restoreDockGloss();
+    askMasterGloss(t);
+  });
+  inner.querySelector('[data-act="dismiss"]').addEventListener('click',function(e){
+    e.stopPropagation();
+    if(Date.now()<_dockArmAt)return;
+    restoreDockGloss();
+  });
+}
+function installSelectionGloss(){
+  /* 1) 右键 / Android 长按：命中术语 → 自定义菜单（解释/问问大师/复制/取消） */
+  document.addEventListener('contextmenu',function(e){
+    const sel=window.getSelection();
+    const text=(sel&&sel.toString)?sel.toString():'';
+    const term=matchGlossText(text);
+    document.getElementById('glossCtx')?.remove();
+    if(!term)return;
+    e.preventDefault();
+    const menu=document.createElement('div');
+    menu.className='gloss-ctx';menu.id='glossCtx';
+    menu.innerHTML=
+      '<button type="button" class="gloss-ctx-item" data-act="explain">解释「'+term+'」</button>'+
+      '<button type="button" class="gloss-ctx-item ai" data-act="ask" aria-label="问问大师解读「'+term+'」" title="问问大师解读「'+term+'」">'+GLOSS_AI_ICON+'</button>'+
+      '<button type="button" class="gloss-ctx-item" data-act="copy">复制选中文字</button>'+
+      '<button type="button" class="gloss-ctx-item" data-act="dismiss">取消</button>';
+    const vw=window.innerWidth,vh=window.innerHeight;
+    let left=Math.min(e.clientX,vw-176),top=e.clientY;
+    if(top+170>vh)top=Math.max(8,e.clientY-170);
+    menu.style.left=left+'px';menu.style.top=top+'px';
+    document.body.appendChild(menu);
+    const cleanup=()=>menu.remove();
+    menu.querySelector('[data-act="explain"]').addEventListener('click',()=>{cleanup();openGlossAt(term,left,top);});
+    menu.querySelector('[data-act="ask"]').addEventListener('click',()=>{cleanup();askMasterGloss(term);});
+    menu.querySelector('[data-act="copy"]').addEventListener('click',()=>{
+      try{navigator.clipboard?.writeText(text);}catch(err){}
+      cleanup();
+    });
+    menu.querySelector('[data-act="dismiss"]').addEventListener('click',cleanup);
+    setTimeout(()=>document.addEventListener('click',function once(){cleanup();document.removeEventListener('click',once);},{once:true}),0);
+  },true);
+
+  /* 2) 选区浮动单胶囊（左解释 + 右问问大师图标，颜色区分） */
+  let t=null;
+  document.addEventListener('selectionchange',function(){
+    clearTimeout(t);
+    t=setTimeout(()=>{
+      const sel=window.getSelection();
+      const text=(sel&&sel.toString)?sel.toString():'';
+      const term=matchGlossText(text);
+      if(!term||!sel||!sel.rangeCount){
+        hideGlossUI();return;
+      }
+      const rect=sel.getRangeAt(0).getBoundingClientRect();
+      if(rect.width===0&&rect.height===0){
+        hideGlossUI();return;
+      }
+      // 移动端：操作按钮融入底部 Dock 栏；桌面端：悬浮胶囊
+      const isTouch=('ontouchstart' in window)||(navigator.maxTouchPoints>0);
+      if(isTouch){ showDockGloss(term,rect); return; }
+      let chip=document.getElementById('glossChip');
+      if(!chip){
+        chip=document.createElement('button');
+        chip.type='button';chip.id='glossChip';chip.className='gloss-chip';
+        chip.innerHTML='<span class="gloss-chip-x"></span><span class="gloss-chip-ai" aria-hidden="true">'+GLOSS_AI_ICON+'</span>';
+        chip.addEventListener('click',function(e){
+          const t=this.dataset.term||'';
+          const r=this.getBoundingClientRect();
+          hideGlossUI();
+          if(e.target.closest('.gloss-chip-ai')){ askMasterGloss(t); }
+          else { openGlossAt(t,r.left,r.bottom+6); }
+        });
+        document.body.appendChild(chip);
+      }
+      chip.dataset.term=term;
+      chip.querySelector('.gloss-chip-x').textContent='解释「'+term+'」';
+      chip.setAttribute('aria-label','解释「'+term+'」；右侧星标可问问问大师');
+      chip.title='解释「'+term+'」 · 右侧星标问问大师';
+      const xW=14+chip.querySelector('.gloss-chip-x').textContent.length*13;
+      const chipW=Math.min(210,Math.max(132,xW+46));
+      let top=rect.top-42;
+      if(top<12)top=rect.bottom+8;
+      let cx=Math.max(12,Math.min(rect.left+rect.width/2-chipW/2,window.innerWidth-chipW-12));
+      chip.style.left=cx+'px';chip.style.top=top+'px';
+    },220);
+  });
+
+  /* 点击任意处关闭右键菜单并恢复 Dock */
+  document.addEventListener('click',function(){
+    document.getElementById('glossCtx')?.remove();
+    restoreDockGloss();
+  });
+}
+document.addEventListener('click',function(e){
+  const pop=document.getElementById('glossPop');
+  if(pop&&pop.classList.contains('open')&&!e.target.closest('.glossary-term,.gloss-ctx,.gloss-chip,.gloss-bar,.dock-gloss')){pop.classList.remove('open');}
+});
+
+let proWrapCounter=0;
+function wrapProCollapsibles(root){
+  if(!root)return;
+  root.querySelectorAll('.pls, .qr-grid, table').forEach(el=>{
+    if(el.dataset.proWrapped || !el.parentNode)return;
+    el.dataset.proWrapped='1';
+    const wrap=document.createElement('div');
+    wrap.className='pro-wrap collapsed';
+    wrap.id=`tj-pro-wrap-${++proWrapCounter}`;
+    el.parentNode.insertBefore(wrap,el);
+    wrap.appendChild(el);
+    const btn=document.createElement('button');
+    btn.type='button';
+    btn.className='pro-toggle';
+    btn.setAttribute('aria-controls',wrap.id);
+    btn.setAttribute('aria-expanded','false');
+    btn.textContent='查看专业数值 ▾';
+    btn.addEventListener('click',()=>{
+      const collapsed=wrap.classList.toggle('collapsed');
+      btn.setAttribute('aria-expanded',String(!collapsed));
+      btn.textContent=collapsed?'查看专业数值 ▾':'收起专业数值 ▴';
+    });
+    if(wrap.parentNode)wrap.parentNode.insertBefore(btn,wrap);
+  });
+}
+
+function enrichBeginnerContent(root){wrapProCollapsibles(root);}
+
+function setSystemMode(mode){
+  const isWestern=mode==='western';
+  const sysMode=isWestern?'western':'eastern';
+  document.body.setAttribute('data-system-mode',sysMode);
+  document.documentElement.setAttribute('data-system-mode',sysMode);
+  try{localStorage.setItem('tj_system_mode',sysMode);}catch(e){}
+  const easternBtn=document.getElementById('modeEastern');
+  const westernBtn=document.getElementById('modeWestern');
+  if(easternBtn&&westernBtn){
+    easternBtn.classList.toggle('active',!isWestern);
+    westernBtn.classList.toggle('active',isWestern);
+    easternBtn.setAttribute('aria-selected',!isWestern?'true':'false');
+    westernBtn.setAttribute('aria-selected',isWestern?'true':'false');
+  }
+
+  // 底部 Dock 标签文案与图标切换
+  const labelMing=document.getElementById('tabLabelMing');
+  const labelYun=document.getElementById('tabLabelYun');
+  const labelRel=document.getElementById('tabLabelRel');
+  if(labelMing)labelMing.textContent=isWestern?'占星术':'命盘';
+  if(labelYun)labelYun.textContent=isWestern?'星座全览':'运势';
+  if(labelRel)labelRel.textContent=isWestern?'生命灵术':'关系';
+
+  document.querySelectorAll('.ig-nav-icon-eastern').forEach(el=>{
+    el.style.setProperty('display',isWestern?'none':'block','important');
+  });
+  document.querySelectorAll('.ig-nav-icon-western').forEach(el=>{
+    el.style.setProperty('display',isWestern?'block':'none','important');
+  });
+
+  const pop=document.getElementById('glossPop');if(pop)pop.classList.remove('open');
+
+  // 重构标签页
+  if(typeof window.TJBuildSectionTabs==='function'){
+    window.TJBuildSectionTabs();
+  }
+
+  // 触发 indicator 居中重算
+  const activeTab=document.querySelector('.tab-item.active');
+  if(activeTab&&typeof moveTabIndicator==='function'){
+    moveTabIndicator(activeTab);
+  }
+}
+/* 顶部右侧圆形按钮：打开日历模式 */
+let calendarOpening = false;
+async function openCalendarMode(){
+  if(calendarOpening)return;
+  calendarOpening=true;
+  const fab=document.getElementById('calFab');
+  const button=document.getElementById('homeCtaCal');
+  const label=button?.querySelector(':scope > span:last-child');
+  const original=label?.textContent;
+  if(fab)fab.classList.add('active');
+  if(!window._tools2Ready){
+    button?.setAttribute('aria-busy','true');
+    if(label)label.textContent='加载中…';
+  }
+  try{
+    await ensureTools2();
+    window.openToolPage('calendar');
+  }catch(e){
+    console.error('[openCalendarMode] 日历加载失败',e);
+    showToast('日历暂时无法加载，请检查网络后重试。');
+    fab?.classList.remove('active');
+  }finally{
+    button?.removeAttribute('aria-busy');
+    if(label)label.textContent=original;
+    calendarOpening=false;
+  }
+}
+function toggleUserMode(){
+  const cur=document.body.getAttribute('data-system-mode')||'eastern';
+  setSystemMode(cur==='eastern'?'western':'eastern');
+}
+(function initSystemMode(){
+  let mode='eastern';
+  try{mode=localStorage.getItem('tj_system_mode')||'eastern';}catch(e){}
+  setSystemMode(mode);
+})();
+(function observeReportContent(){
+  const target=document.getElementById('p2Inner');
+  if(!target||typeof MutationObserver==='undefined')return;
+  let t=null;
+  const obs=new MutationObserver(()=>{
+    clearTimeout(t);
+    t=setTimeout(()=>enrichBeginnerContent(target),120);
+  });
+  obs.observe(target,{childList:true,subtree:true});
+})();
+
+/* 工具中心 3D 环形轮播初始化 */
+(function(){
+  function mount(){
+    const hub=document.querySelector('#s-adv .tool-hub');
+    if(!hub)return;
+    if(!window._tools3DRing || !window._tools3DRing.stage?.isConnected){
+      initTools3DRingCarousel(hub);
+    }
+  }
+  const oldSwitch=window.switchTab;
+  window.switchTab=function(el){
+    if(oldSwitch)oldSwitch(el);
+    if(el&&el.dataset.sec==='s-adv'){
+      setTimeout(()=>{
+        mount();
+        if(window._tools3DRing) window._tools3DRing.onTabShow();
+      },50);
+    }
+  };
+  onDomReady(mount);
+  new MutationObserver(mount).observe(document.body,{childList:true,subtree:true});
+})();
+
+/* ============================================================
+   tools2 · 非首屏功能在首页素材完成后加载；点日历时立即按需加载。
+   bootstrap 必须位于所有旧 IIFE 之后，避免旧入口覆盖新入口。
+   ============================================================ */
+let tools2Promise;
+function ensureTools2(){
+  if(!tools2Promise){
+    tools2Promise=import('./tools2/index.js')
+      .then(m=>{m.bootstrap();})
+      .catch(e=>{tools2Promise=null;throw e;});
+  }
+  return tools2Promise;
+}
+function scheduleTools2(){
+  const start=()=>ensureTools2().catch(e=>console.error('[tools2] 加载失败，继续使用旧版工具页',e));
+  if('requestIdleCallback' in window)window.requestIdleCallback(start,{timeout:1500});
+  else setTimeout(start,100);
+}
+if(document.readyState==='complete')scheduleTools2();
+else window.addEventListener('load',scheduleTools2,{once:true});
+
+/* 术语解释：选中文字 → 右键/长按菜单（取消自动下划线标注） */
+installSelectionGloss();
+
+/* ============================================================
+   表单未推演保护：修改输入后未推演，点击「重新推演」弹窗确认
+   ============================================================ */
+(function(){
+  /* 轻量确认弹窗（移动端友好，非原生 confirm） */
+  window.showConfirm=function(opts){
+    document.getElementById('tjConfirm')?.remove();
+    const box=document.createElement('div');
+    box.className='tj-confirm';box.id='tjConfirm';
+    box.innerHTML=
+      '<div class="tj-confirm-bg"></div>'+
+      '<div class="tj-confirm-card" role="alertdialog" aria-modal="true" aria-label="'+(opts.title||'提示')+'">'+
+        '<div class="tt">'+(opts.title||'提示')+'</div>'+
+        '<div class="tx">'+(opts.text||'')+'</div>'+
+        '<div class="acts">'+
+          '<button type="button" class="ghost" data-act="cancel">'+(opts.cancelText||'取消')+'</button>'+
+          '<button type="button" class="primary" data-act="ok">'+(opts.okText||'确定')+'</button>'+
+        '</div>'+
+      '</div>';
+    document.body.appendChild(box);
+    const done=(act)=>{box.remove();if(act==='ok'&&opts.onOk)opts.onOk();if(act==='cancel'&&opts.onCancel)opts.onCancel();};
+    box.querySelector('[data-act="ok"]').addEventListener('click',()=>done('ok'));
+    box.querySelector('[data-act="cancel"]').addEventListener('click',()=>done('cancel'));
+    box.querySelector('.tj-confirm-bg').addEventListener('click',()=>done('cancel'));
+    return box;
+  };
+
+  /* 表单字段变化 → 标记「已修改未推演」 */
+  window._formDirty=false;
+  ['bDate','bTime','cInp','bGen','bResultStyle'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(!el)return;
+    el.addEventListener('input',()=>{window._formDirty=true;});
+    el.addEventListener('change',()=>{window._formDirty=true;});
+  });
+  const styleSelect=document.getElementById('bResultStyle'),styleHint=document.getElementById('resultStyleHint');
+  const styleButtons=document.querySelectorAll('.result-style-option');
+  styleButtons.forEach(btn=>btn.addEventListener('click',()=>{
+    const value=btn.dataset.style;
+    if(styleSelect)styleSelect.value=value;
+    styleButtons.forEach(x=>{const on=x===btn;x.classList.toggle('active',on);x.setAttribute('aria-checked',on?'true':'false');});
+    if(styleHint)styleHint.textContent=getResultStyle(value).intro;
+    window._formDirty=true;
+  }));
+  const sw=document.getElementById('swTrueSolar');
+  if(sw)sw.addEventListener('click',()=>{window._formDirty=true;});
+
+  /* 拦截「重新推演」：有未推演修改时弹窗确认 */
+  const _origGoBack=window.goBack;
+  window.goBack=function(){
+    if(window._formDirty&&window._ctx){
+      window.showConfirm({
+        title:'尚未推演',
+        text:'你修改了出生信息，但还没有重新推演。返回后修改会保留在表单里，下次打开即可继续。',
+        okText:'继续返回',cancelText:'取消',
+        onOk:()=>{window._formDirty=false;_origGoBack();},
+      });
+      return;
+    }
+    _origGoBack();
+  };
+})();
+
+/* ============================================================
+   彩蛋：长按「关于问问大师」播放图标绘制动画
+   ============================================================ */
+(function(){
+  const HOLD_MS=600;
+  let timer=null,triggered=false;
+
+  function playIconDraw(){
+    const ov=document.getElementById('iconDrawOverlay');
+    if(!ov)return;
+    ov.classList.remove('show');
+    void ov.offsetWidth;
+    ov.classList.add('show');
+    setTimeout(()=>{ov.classList.remove('show');},3600);
+  }
+
+  function bind(){
+    const btn=document.getElementById('aboutBtnP2');
+    if(!btn)return;
+    btn.addEventListener('pointerdown',function(){
+      triggered=false;
+      timer=setTimeout(function(){
+        triggered=true;timer=null;
+        toggleP2Menu(false);
+        playIconDraw();
+      },HOLD_MS);
+    });
+    function cancel(){if(timer){clearTimeout(timer);timer=null;}}
+    btn.addEventListener('pointerup',cancel);
+    btn.addEventListener('pointerleave',cancel);
+    btn.addEventListener('pointercancel',cancel);
+    btn.addEventListener('click',function(e){
+      if(triggered){e.preventDefault();e.stopImmediatePropagation();triggered=false;}
+    },true);
+  }
+
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',bind);
+  }else{bind();}
+})();
+
+// Replay a home action made while the larger application modules were loading.
+window.__wenAppReady=true;
+queueMicrotask(()=>window.dispatchEvent(new Event('tj:app-ready')));
