@@ -1132,7 +1132,7 @@ function focusSwitchTab(btn){
 })();
 
 /* ===== iOS 27 Liquid Glass：强度切换 + 标签栏指示条液化滑动 ===== */
-/* ===== 新手版 / 大师版：术语解释 + 专业数据折叠 ===== */
+/* ===== 分层阅读：术语解释 + 专业数据折叠 ===== */
 
 let proWrapCounter=0;
 function wrapProCollapsibles(root){

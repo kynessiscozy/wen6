@@ -677,7 +677,7 @@ export function organizeMasterReportLayout(ctx){
     if(persona.parentNode)persona.parentNode.insertBefore(structure,persona);
     else ming.appendChild(structure);
   }
-  // 推理依据链：让大师版的结论有可回看的推导路径。
+  // 推理依据链：让报告结论有可回看的推导路径。
   if(persona&&!ming.querySelector('[data-card="reasoning"]')){
     const engine=ctx.tjx||{},strength=engine.strength||{},yong=engine.yongShen||{},pattern=engine.pattern||{};
     const adjust=engine.tiaoHou||{},ints=engine.interactions||{};
@@ -703,7 +703,7 @@ export function organizeMasterReportLayout(ctx){
     const threeStyles=ming.querySelector('[data-card=\"three-styles\"]');
     if(threeStyles)threeStyles.insertAdjacentElement('afterend',chain);else persona.insertAdjacentElement('afterend',chain);
   }
-  // 运势页已按 年/月/周/日 档位组织（.yun-pane），大师模式不再重排卡片，
+  // 运势页已按 年/月/周/日 档位组织（.yun-pane），分区标签模式不再重排卡片，
   // 只保留标题改写与"当前时段"注入；兜底：若有卡片跑出档位面再收回。
   const trend=yun.querySelector('[data-card="trend"]'),timeline=yun.querySelector('[data-card="timeline"]'),focus=yun.querySelector('[data-card="todayAdv"]'),months=yun.querySelector('[data-card="liuyue"]');
   if(trend){const title=trend.querySelector('.card-tt');if(title)title.textContent='当年运势';}
