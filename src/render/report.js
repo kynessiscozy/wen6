@@ -265,12 +265,20 @@ export function renderAll(b,wx,ss,dy,ln,zw,qm,mh,si,gen,q,city,by,shensha,liuyue
 
   H+=`<div class="glass card-2" data-card="bazi"><div class="card-hd"><div><div class="card-tt">四柱八字</div><div class="card-st">${gl} · ${city.n} · ${b.sx}年 · ${b.ny}${b._meta&&b._meta.useTrueSolar?' · 真太阳时':''}</div></div></div>`;
   H+=`<div class="pls">${[{l:'年柱',p:b.Y,s:ss.yg},{l:'月柱',p:b.M,s:ss.mg},{l:'日柱',p:b.D,s:'日元',dm:1},{l:'时柱',p:b.H,s:ss.hg}].map(x=>`<div class="pl ${x.dm?'dm':''}" onclick="this.classList.toggle('open')"><div class="pl-l">${x.l}</div><div class="pl-g">${x.p.g}</div><div class="pl-z" style="color:${WC[ZW[x.p.z]]}">${x.p.z}</div><div class="pl-i"><span class="wdot" style="background:${WC[GW[x.p.g]]}"></span>${GW[x.p.g]} · ${x.s}</div><div class="pl-xd"><div style="padding-top:6px;font-size:.62em;color:var(--c-text-2);line-height:1.7;border-top:1px solid var(--c-border);margin-top:4px">${ZC[x.p.z].map((g,idx)=>`<div style="display:flex;align-items:center;gap:4px"><span class="wdot" style="background:${WC[GW[g]]}"></span><span style="color:var(--c-text-2)">${g}</span><span style="color:var(--ac-dim)">${SS[b.D.g][g]}</span><span style="font-size:.85em;color:var(--c-text-3)">${['主气','中气','余气'][idx]}</span></div>`).join('')}</div></div></div>`).join('')}</div>`;
-  H+=`<div class="ig">${[['日主',`${dg}${dw}·${wx.st?'身旺':'身弱'}`],['命格',pa.join('、')],['用神',`<span style="color:${WC[wx.ys]}">${wx.ys}</span>`],['喜神',`<span style="color:${WX.includes(wx.xs)?WC[wx.xs]:'#fff'}">${wx.xs}</span>`],['纳音',b.ny],['四时',`${si.s}令·${siS}`]].map(x=>`<div class="ii"><div class="il">${x[0]}</div><div class="iv">${x[1]}</div></div>`).join('')}</div>`;
+  H+=`<div class="ig">${[
+    ['日主',`${dg}${dw}·<span data-report-value="strength">${wx.st?'身旺':'身弱'}</span>`,'day-master'],
+    ['命格',pa.join('、'),'pattern'],
+    ['用神',`<span style="color:${WC[wx.ys]}">${wx.ys}</span>`,'useful-element'],
+    ['喜神',`<span style="color:${WX.includes(wx.xs)?WC[wx.xs]:'#fff'}">${wx.xs}</span>`,'favorable-element'],
+    ['纳音',b.ny,'nayin'],
+    ['四时',`${si.s}令·${siS}`,'season'],
+  ].map(x=>`<div class="ii"><div class="il">${x[0]}</div><div class="iv" data-report-value="${x[2]}">${x[1]}</div></div>`).join('')}</div>`;
   H+=`<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px">${getShenShaLabels(b).map(l=>`<span class="sstag" style="background:${l.bg};color:${l.co};border:1px solid ${l.bd}">${l.t}</span>`).join('')}</div>`;
   H+=`</div>`;
 
   H+=`<div class="glass card-2" data-card="wuxing"><div class="card-hd"><div><div class="card-tt">五行能量模型</div></div></div>`;
-  H+=`${WX.map(w=>{const pc=Math.round(wx.c[w]/wx.t*100);const label=pc>=70?'极强':pc>=55?'偏强':pc>=40?'一般':pc>=25?'偏弱':'不足';return`<div class="wxr"><div class="wxl" style="color:${WC[w]}">${w}</div><div class="wxt"><div class="wxf" style="width:0%;background:${WC[w]}" data-w="${pc}%">${pc}%</div></div><div class="wxv">${pc}% ${label}</div></div>`}).join('')}`;
+  H+=`${WX.map(w=>{const pc=Math.round(wx.c[w]/wx.t*100);const label=pc>=70?'极强':pc>=55?'偏强':pc>=40?'一般':pc>=25?'偏弱':'不足';return`<div class="wxr" data-report-value="element-${w}"><div class="wxl" style="color:${WC[w]}">${w}</div><div class="wxt"><div class="wxf" style="width:0%;background:${WC[w]}" data-w="${pc}%">${pc}%</div></div><div class="wxv">${pc}% ${label}</div></div>`}).join('')}`;
+  H+=`<div class="card-st" style="margin-top:4px">用神：<b data-report-value="useful-element" style="color:${WC[wx.ys]}">${wx.ys}</b> · 喜神：<b data-report-value="favorable-element" style="color:${WX.includes(wx.xs)?WC[wx.xs]:'var(--c-text)'}">${wx.xs}</b></div>`;
   H+=`<div class="at" style="margin-top:6px"><p>你属于典型的「<span class="hl">${wx.s}旺型人格</span>」${wx.s==='木'?'，行动力强，但容易精神内耗':wx.s==='火'?'，热情有感染力，但容易急躁':wx.s==='土'?'，稳重可靠，但容易固执':wx.s==='金'?'，果断锐利，但容易冷漠':''}。需要增强<span class="tg">${wx.w}</span>属性以平衡。</p></div></div>`;
 
   const persona=getPersona(dg,wx,wx.st,ss);
@@ -375,8 +383,8 @@ export function renderAll(b,wx,ss,dy,ln,zw,qm,mh,si,gen,q,city,by,shensha,liuyue
   H+=`<div class="yun-panes">`;
 
   // ===== 年档：当年核心趋势 + 人生时间线（合并掉原"大运时间轴"，十年只呈现一次）=====
-  yYear=`<div class="glass card-1" data-card="trend"><div class="card-hd"><div><div class="card-tt">${CURR_YEAR}年核心趋势</div><div class="card-st">${cLn.g}${cLn.z} ${cLn.sx}年 · ${lnSS}</div></div><button class="card-share" type="button" onclick="TJShareReport()" title="分享当年海报" aria-label="分享当年海报"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7"/><path d="M12 3v12M8 7l4-4 4 4"/></svg></button></div>
-<div class="y-hero">${[{l:'事业',v:cs,c:'var(--c-yellow)'},{l:'财运',v:ws,c:'var(--c-orange)'},{l:'感情',v:ls,c:'var(--c-red)'},{l:'健康',v:hs,c:'var(--c-green)'}].map(x=>`<div class="y-hero-item"><div class="y-hero-label">${x.l}</div><div class="y-hero-stars">${'★★★★★'.split('').map((s,i)=>`<span style="color:${i<Math.round(x.v/20)?x.c:'var(--c-border-2)'}">${s}</span>`).join('')}</div><div class="y-hero-score">${x.v}分</div></div>`).join('')}</div>
+  yYear=`<div class="glass card-1" data-card="trend"><div class="card-hd"><div><div class="card-tt">${CURR_YEAR}年核心趋势</div><div class="card-st" data-report-value="year">${cLn.g}${cLn.z} ${cLn.sx}年 · <span data-report-value="year-god">${lnSS}</span></div></div><button class="card-share" type="button" onclick="TJShareReport()" title="分享当年海报" aria-label="分享当年海报"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7"/><path d="M12 3v12M8 7l4-4 4 4"/></svg></button></div>
+<div class="y-hero">${[{l:'事业',k:'career',v:cs,c:'var(--c-yellow)'},{l:'财运',k:'wealth',v:ws,c:'var(--c-orange)'},{l:'感情',k:'love',v:ls,c:'var(--c-red)'},{l:'健康',k:'health',v:hs,c:'var(--c-green)'}].map(x=>`<div class="y-hero-item" data-report-value="${x.k}"><div class="y-hero-label">${x.l}</div><div class="y-hero-stars">${'★★★★★'.split('').map((s,i)=>`<span style="color:${i<Math.round(x.v/20)?x.c:'var(--c-border-2)'}">${s}</span>`).join('')}</div><div class="y-hero-score">${x.v}分</div></div>`).join('')}</div>
 <div class="at"><p>今年<span class="hl">${cLn.g}${cLn.z}</span>年，流年十神为「<span class="tg">${lnSS}</span>」。${cs>72?'整体势能向上，适合主动进取。':'整体以稳为主，厚积薄发。'}当前<span class="hl">${cDy.g}${cDy.z}</span>大运，${dySS.includes('官')?'事业压力与机遇并存':dySS.includes('财')?'财运通道打开':dySS.includes('印')?'适合学习沉淀':''}。</p></div></div>`+yYear;
 
   // ===== 月档：流月 =====
@@ -460,7 +468,7 @@ export function renderAll(b,wx,ss,dy,ln,zw,qm,mh,si,gen,q,city,by,shensha,liuyue
   H+=renderQuickRead('rel',ctx);
   H+=renderBeginnerBrief('rel',ctx);
   H+=`<div class="glass card-1" data-card="loveMode"><div class="card-hd"><div><div class="card-tt">感情模式</div></div></div>`;
-  H+=`<div class="rel-mode"><div class="rel-mode-item hl">${rmode}</div></div>`;
+  H+=`<div class="rel-mode"><div class="rel-mode-item hl" data-report-value="relation-mode">${rmode}</div></div>`;
   H+=`<div class="at"><p>你的感情底色带有「<span class="hl">${rmode}</span>」的特质。${P[dg].love}。在亲密关系中，${wx.st?'你习惯主导节奏，需注意给对方留出表达空间':'你习惯配合与迁就，需建立清晰的自我边界'}。</p></div></div>`;
 
   H+=`<div class="glass card-2" data-card="loveMatch"><div class="card-hd"><div><div class="card-tt">适合对象</div></div></div>`;
@@ -723,7 +731,7 @@ export function organizeMasterReportLayout(ctx){
     const labels=(ctx.shensha||[]).map(x=>x.n||x.t||x).join('、');
     const peach=/(桃花|红艳|天喜|咸池)/.test(labels)?'有桃花类辅助信息':'未见明显桃花类辅助信息';
     const profile=document.createElement('section');profile.className='glass card-1 relation-profile';profile.dataset.card='intimacy';
-    profile.innerHTML='<div class="card-hd"><div><div class="card-tt">亲密关系画像</div><div class="card-st">你的表达方式、关系需求与相处建议</div></div></div><div class="relation-block"><div><span>关系模式</span><b>'+style+'</b></div><p>'+((p.love)||'重视真实回应与长期陪伴，希望在关系中获得理解与安全感。')+'</p></div><div class="relation-grid"><div><span>你的倾向</span><p>'+strong+'。</p></div><div><span>更适合的关系</span><p>尊重节奏、愿意沟通，也能把承诺落实到行动。</p></div></div><div class="relation-data"><span>命盘依据</span><b>'+partnerLabel+'：'+partnerPos+'</b><b>关系辅助：'+peach+'</b><b>当前感情评分：'+ctx.ls+' / 100</b></div><div class="relation-tip">相处建议：先表达感受与需求，再讨论解决方案；不要用猜测代替沟通。</div>';
+    profile.innerHTML='<div class="card-hd"><div><div class="card-tt">亲密关系画像</div><div class="card-st">你的表达方式、关系需求与相处建议</div></div></div><div class="relation-block"><div><span>关系模式</span><b data-report-value="relation-mode">'+style+'</b></div><p>'+((p.love)||'重视真实回应与长期陪伴，希望在关系中获得理解与安全感。')+'</p></div><div class="relation-grid"><div><span>你的倾向</span><p>'+strong+'。</p></div><div><span>更适合的关系</span><p>尊重节奏、愿意沟通，也能把承诺落实到行动。</p></div></div><div class="relation-data"><span>命盘依据</span><b data-report-value="partner-star">'+partnerLabel+'：'+partnerPos+'</b><b data-report-value="peach">关系辅助：'+peach+'</b><b data-report-value="year-god">流年十神：'+ctx.cLnSS+'</b><b>当前感情评分：'+ctx.ls+' / 100</b></div><div class="relation-tip">相处建议：先表达感受与需求，再讨论解决方案；不要用猜测代替沟通。</div>';
     const friends=document.createElement('section');friends.className='glass card-1 relation-profile';friends.dataset.card='friends';
     friends.innerHTML='<div class="card-hd"><div><div class="card-tt">朋友关系</div><div class="card-st">社交风格、合作边界与值得经营的人际连接</div></div></div><div class="relation-block"><div><span>社交底色</span><b>'+((p.social)||'重视可靠和长期互信，倾向在熟悉的人群中建立深度连接。')+'</b></div></div><div class="relation-grid"><div><span>你的优势</span><p>'+((ctx.wx.st)?'愿意出面承担、在团队中有推动力。':'善于倾听和协调，能照顾不同人的感受。')+'</p></div><div><span>需要留意</span><p>'+((ctx.wx.st)?'别把所有事都扛下来，合作前先明确分工。':'别因不想拒绝而透支自己，边界清晰反而更长久。')+'</p></div></div><div class="relation-data"><span>命盘依据</span><b>比劫（同辈 / 合作）：'+friendPos+'</b><b>五行状态：'+(ctx.wx.st?'自身能量偏强，合作中易主导':'自身能量偏弱，更适合借力协作')+'</b><b>当前事业评分：'+ctx.cs+' / 100</b></div><div class="relation-tip">经营建议：优先维系能互相支持、价值观接近的朋友；金钱与合作事项提前说清规则。</div>';
     const family=document.createElement('section');family.className='glass card-1 relation-profile';family.dataset.card='family';
@@ -805,45 +813,51 @@ export function renderQuickRead(secKey,d){
   const dg=d.dg,wx=d.wx,cDy=d.cDy,cLn=d.cLn;
   const items=[];
   if(secKey==='ming'){
-    items.push({l:'日主',v:dg+wx.dw,c:wx.dw,f:'day-master'});
-    items.push({l:'强弱',v:wx.st?'身旺':'身弱'});
-    items.push({l:'用神',v:wx.ys,c:wx.ys,f:'useful-element'});
-    items.push({l:'格局',v:(d.pa&&d.pa[0])||'平和'});
+    items.push({l:'日主',v:dg+wx.dw,c:wx.dw,f:'day-master',e:{card:'bazi',field:'day-master'}});
+    items.push({l:'强弱',v:wx.st?'身旺':'身弱',e:{card:'bazi',field:'strength'}});
+    items.push({l:'用神',v:wx.ys,c:wx.ys,f:'useful-element',e:{card:'wuxing',field:'useful-element'}});
+    items.push({l:'格局',v:(d.pa&&d.pa[0])||'平和',e:{card:'bazi',field:'pattern'}});
     // Keep the calculated reading, but avoid repeating the four values above.
     const persona=getPersona(dg,wx,wx.st,d.ss||{});
     const direction=wx.st?'可以从主动推进与节奏平衡入手。':'可以从积累支持与保持节奏入手。';
     const summary=persona.思维.replace(/（[^）]*）/g,'')+'。'+direction;
     return _qrCard('命盘速读',items,summary,[
       {k:'bazi',t:'查看四柱→'},{k:'wuxing',t:'五行结构→'},{k:'ziwei',t:'三式合参→'}
-    ]);
+    ],'ming');
   }
   if(secKey==='yun'){
-    items.push({l:'流年',v:cLn?cLn.g+cLn.z:'-',c:cLn?GW[cLn.g]:''});
-    items.push({l:'十神',v:d.cLnSS||'-'});
-    items.push({l:'事业',v:d.cs+'分'});
-    items.push({l:'财运',v:d.ws+'分'});
+    items.push({l:'流年',v:cLn?cLn.g+cLn.z:'-',c:cLn?GW[cLn.g]:'',e:{card:'trend',field:'year'}});
+    items.push({l:'十神',v:d.cLnSS||'-',e:{card:'trend',field:'year-god'}});
+    items.push({l:'事业',v:d.cs+'分',e:{card:'trend',field:'career'}});
+    items.push({l:'财运',v:d.ws+'分',e:{card:'trend',field:'wealth'}});
     const tone=d.cs>72?'势能向上':d.cs>55?'平稳推进':'守势为主';
     const summary='今年「<b>'+(cLn?cLn.g+cLn.z:'-')+'</b>」流年十神「<b>'+d.cLnSS+'</b>」，整体'+tone+'。当前大运「<b>'+cDy.g+cDy.z+'</b>」（'+cDy.as+'~'+cDy.ae+'岁）'+(d.cDySS.includes('财')?'，财路已开':d.cDySS.includes('官')?'，仕途明朗':d.cDySS.includes('印')?'，宜学养沉淀':'，宜稳中求进')+'。';
     return _qrCard('收起',items,summary,[
       {k:'trend',t:'四维评分→'},{k:'dayun',t:'大运时间轴→'},{k:'liuyue',t:'本月详解→'}
-    ]);
+    ],'yun');
   }
   if(secKey==='rel'){
     const star=d.gen==='male'?'财星(妻)':'官星(夫)';
     const hasPeach=d.shensha&&d.shensha.some(x=>x.n==='桃花'||x.n==='红艳');
-    items.push({l:'配偶星',v:star});
-    items.push({l:'桃花',v:hasPeach?'命带':'不显'});
-    items.push({l:'感情节奏',v:wx.st?'主导型':'迁就型'});
-    items.push({l:'流年合婚',v:d.cLnSS.includes(d.gen==='male'?'财':'官')?'利结合':'宜深耕'});
+    items.push({l:'配偶星',v:star,e:{card:'intimacy',field:'partner-star'}});
+    items.push({l:'桃花',v:hasPeach?'命带':'不显',e:{card:'intimacy',field:'peach'}});
+    items.push({l:'感情节奏',v:wx.st?'主导型':'迁就型',e:{card:'intimacy',field:'relation-mode'}});
+    items.push({l:'流年合婚',v:d.cLnSS.includes(d.gen==='male'?'财':'官')?'利结合':'宜深耕',e:{card:'intimacy',field:'year-god'}});
     const summary='你的'+star+'代表伴侣特质，性格上属于「<b>'+(wx.st?'主导型':'迁就型')+'</b>」。'+(hasPeach?'命带桃花，异性缘充足但需筛选；':'桃花不显，缘分多来自熟人介绍；')+(d.cLnSS.includes(d.gen==='male'?'财':'官')?'今年配偶星到位，未婚利结合。':'今年感情节奏偏稳，宜深耕已有关系。');
     return _qrCard('收起',items,summary,[
       {k:'loveMode',t:'相处模式→'},{k:'loveMatch',t:'适合对象→'}
-    ]);
+    ],'rel');
   }
   return '';
 }
-export function _qrCard(title,items,summary,actions){
-  const itemsHtml=items.map(it=>`<div class="qr-item"><div class="qr-l">${it.l}</div><div class="qr-v"${it.f?' data-report-value="'+it.f+'"':''}${it.c&&WC[it.c]?' style="color:'+WC[it.c]+'"':''}>${it.v}</div></div>`).join('');
+export function _qrCard(title,items,summary,actions,secKey='ming'){
+  const sid=({ming:'s-ming',yun:'s-yun',rel:'s-rel'})[secKey]||'s-ming';
+  const itemsHtml=items.map(it=>{
+    const value=`<div class="qr-v"${it.f?' data-report-value="'+it.f+'"':''}${it.c&&WC[it.c]?' style="color:'+WC[it.c]+'"':''}>${it.v}</div>`;
+    if(!it.e)return `<div class="qr-item">`+`<div class="qr-l">${it.l}</div>`+value+`</div>`;
+    const inner=`<span class="qr-l">${it.l}</span><span class="qr-v"${it.f?' data-report-value="'+it.f+'"':''}${it.c&&WC[it.c]?' style="color:'+WC[it.c]+'"':''}>${it.v}</span>`;
+    return `<button type="button" class="qr-item qr-item--evidence" onclick="TJTraceEvidence('${sid}','${it.e.card}','${it.e.field||''}')" aria-label="查看${it.l}的计算依据">${inner}</button>`;
+  }).join('');
   const actsHtml=(actions||[]).map(a=>`<button class="qr-act" onclick="jumpTo(null,'${a.k}')">${a.t}</button>`).join('');
   // 速读卡可折叠：头部整行可点，右侧箭头指示状态
   return `<div class="qr-card"><button type="button" class="qr-head" onclick="TJToggleQuickRead(this)" aria-expanded="true"><span class="qr-badge">速读</span><span class="qr-title">${title}</span><span class="qr-toggle" aria-hidden="true"></span></button><div class="qr-body"><div class="qr-body-inner"><div class="qr-grid">${itemsHtml}</div><div class="qr-summary">${summary}</div><div class="qr-acts">${actsHtml}</div></div></div></div>`;
