@@ -84,7 +84,7 @@ assert.ok(provenance, '关于页应包含计算口径与版本');
 assert.match(provenance.paragraphs.join(' '), /真太阳时/);
 assert.match(provenance.paragraphs.join(' '), /AI 不参与排盘/);
 const funnel = readFileSync(new URL('../public/funnel.html', import.meta.url), 'utf8');
-assert.doesNotMatch(funnel, /比别家/);
+assert.doesNotMatch(funnel, /比别家|最准|最灵|独家|领先|更准|更细/);
 assert.match(funnel, /用于真太阳时校正，让时柱更贴近出生地/);
 const baseCss = readFileSync(new URL('../src/styles/00-base.css', import.meta.url), 'utf8');
 assert.match(baseCss, /button\.qr-item\.qr-item--evidence:focus-visible/);
