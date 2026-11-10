@@ -375,6 +375,7 @@ npm run verify:algo:quick       # 算法验证抽样；去掉 :quick 运行全�
 ## 版本与变更
 
 - **产品版本**：`wen6.0`（正式版）；npm 包版本为 `6.0.0`。
+- **项目代号**：**WEN**。历史遗留的 `wendi` / `WENWEN` 品牌标识已统一为 WEN；角色 id、素材文件名与 CSS 选择器仍保留 `wenwen` 兼容标识，不影响功能与旧数据。
 - **唯一版本源**：`src/product-copy.js` 中的 `PRODUCT.version`；`package.json` 的 `productVersion` 必须与之一致，由 `npm run check:copy` 校验。
 - **文案同步**：「新手入门与使用指南 / 关于问问大师 / 免责声明」由 `src/product-copy.js` 统一生成到 `README.md`、`index.html` 与 `public/funnel.html`。修改文案请先改数据源，再执行：
 

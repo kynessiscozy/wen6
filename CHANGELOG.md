@@ -15,6 +15,15 @@
 - **修正过时表述**：移除文档中已下线的「新手版 / 大师版」切换描述，统一为当前的分层阅读：「新手解读」速读 + 分区标签 + 默认收起的「查看专业数值」。
 - 验证：`npm run sync:copy` 三份产物一致，`npm run check:copy` / `npm run build` / `npm run test:unit` 通过。
 
+### 变更（历史品牌标识统一为 WEN）
+
+- **包名**：`package.json` 与 `package-lock.json` 的 npm 包名由 `wendi` 改为 `wen`（npm 包名不允许大写）；产品名、版本号与私有发布配置不变。
+- **分享海报**：海报底部水印由 `WENWEN` 改为 `WEN`，与统一品牌标识一致。
+- **AI 请求标识**：OpenAI 兼容请求的 `X-Title` 由 `Wenwen Dashi` / `Wenwen Dashi Tool` 改为 `WEN` / `WEN Tool`；内置模型与 OpenRouter 的服务端点不变。
+- **文档**：README 增加项目代号 WEN；历史更新日志中的 `wendi 时期` 标题改为 `WEN 时期`。
+- **兼容范围**：本次仅调整品牌层。角色 id `wenwen`、`src/character/wenwen.js`、`public/art/wenwen-*.webp`、CSS 选择器与 Service Worker 缓存路径保持不变，旧档案与离线缓存不受影响。
+- 验证：`npm run check:copy` / `npm run build` / `npm run test:unit` 通过。
+
 ## [wenV6] - 2026-11-06（正式版）
 
 > 本条目为 6.0 正式版的发布记录，当时对外标识为 wenV6；自 wen6.0 起统一写作 `wen6.0`，历史内容保留不改。
@@ -163,7 +172,7 @@
 - **4.3.1** — 三分区统一标签排版、今日建议卡重设计、Dock 纯光球入口、暗色可读性与背景光球优化
 - **4.3.0** — 工具环形导航(`tools-ring`)、西方星盘 3D 浑仪(`armillary-western`)、长报告分享卡、新手引导流程、西方占星引擎升级、星座运势工具增强、能量穿搭工具;Claude 风格 CSS 体系(claude-refine / claude-ui / enhance)
 
-## [V2.x–V4.x] - wendi 时期(内部版本)
+## [V2.x–V4.x] - WEN 时期(内部版本)
 
 - 东方命理核心:四柱八字、节气历法(真太阳时)、紫微、奇门、梅花、双人合盘、流日流周
 - AI 智能问答(DeepSeek / OpenRouter 双提供方、结构化命盘上下文、意图识别与工具路由)

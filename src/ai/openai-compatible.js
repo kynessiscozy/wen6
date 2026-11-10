@@ -138,7 +138,7 @@ export function createOpenAICompatibleProvider(cfg) {
         onModelSwitch?.(model);
         const resp = await fetchWithTimeout(cfg.base + '/chat/completions', {
           method: 'POST',
-          headers: cfg.buildHeaders(apiKey, 'Wenwen Dashi'),
+          headers: cfg.buildHeaders(apiKey, 'WEN'),
           body: JSON.stringify({
             model,
             stream: true,
@@ -226,7 +226,7 @@ export function createOpenAICompatibleProvider(cfg) {
       try {
         const resp = await fetchWithTimeout(cfg.base + '/chat/completions', {
           method: 'POST',
-          headers: cfg.buildHeaders(apiKey, 'Wenwen Dashi Tool'),
+          headers: cfg.buildHeaders(apiKey, 'WEN Tool'),
           body: JSON.stringify({
             model,
             temperature: 0.65,
