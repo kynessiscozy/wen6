@@ -151,6 +151,6 @@ export async function renderTraitPoster({ theme, ctx, western, system = 'eastern
   }
   g.fillStyle = 'rgba(255,248,236,.46)'; g.font = `400 19px ${SANS}`;
   g.fillText('仅供自我探索与生活参考', 76, height - 65);
-  g.textAlign = 'right'; g.fillText('问问大师  ·  WENWEN', WIDTH - 76, height - 65); g.textAlign = 'left';
+  g.textAlign = 'right'; g.fillText('问问大师  ·  WEN', WIDTH - 76, height - 65); g.textAlign = 'left';
   return { canvas, facts };
 }
