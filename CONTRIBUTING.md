@@ -59,4 +59,4 @@ npm run test:a11y    # WCAG AA 对比度审计
 
 本项目输出的命理/占星内容仅供文化研究与娱乐参考。贡献代码时请勿添加医疗、投资等严肃领域的断言性文案(单测中有恐吓词/吉凶断言扫描,见 `tools/test-liuri.mjs`)。
 
-应用内的「使用指南 / 关于问问大师 / 免责声明」全文以 `src/product-copy.js` 为唯一数据源，README 与两个页面的弹窗均由其生成；改动请先改数据源，再执行 `npm run sync:copy` 同步、`npm run check:copy` 校验。产品正式版本号 `wenV6` 同样以该文件为准。
+应用内的「使用指南 / 关于问问大师 / 免责声明」全文以 `src/product-copy.js` 为唯一数据源，README 与两个页面的弹窗均由其生成；改动请先改数据源，再执行 `npm run sync:copy` 同步、`npm run check:copy` 校验。产品正式版本号 `wen6.0` 同样以该文件为准。

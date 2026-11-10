@@ -2,7 +2,7 @@
    把 src/product-copy.js 的唯一文案同步到三个出口：
      · index.html          关于 / 免责声明弹窗
      · public/funnel.html  关于 / 免责声明弹窗 + 使用指南数据
-     · README.md           使用指南 / 关于问问大师 / 免责声明
+     · README.md           新手入门与使用指南 / 关于问问大师 / 免责声明
 
    用法：
      npm run sync:copy          生成
@@ -70,9 +70,9 @@ function funnelGuideJs() {
 
 function readmeMd() {
   const L = [
-    '## 使用指南',
+    '## 新手入门与使用指南',
     '',
-    `> 以下「使用指南 / 关于问问大师 / 免责声明」三节与应用内弹窗同源，均由 \`${PRODUCT.source}\` 统一生成；改文案请先改数据源，再执行 \`npm run sync:copy\`。应用内可在菜单底部打开同样内容。`,
+    `> 第一次使用，建议按「开始 → 东方 → 西方 → 术语 → 问答」的顺序阅读。本节与「关于问问大师」「免责声明」三章和应用内弹窗同源，均由 \`${PRODUCT.source}\` 统一生成；改文案请先改数据源，再执行 \`npm run sync:copy\`。应用内可在菜单底部打开同样内容。`,
     '',
   ];
   for (const [key, label] of GUIDE_TABS) {
@@ -148,10 +148,10 @@ for (const [file, blocks] of targets) {
 
 /* 版本号与过时口径的全局一致性校验（只查对外文案，不改历史文档）。 */
 const checks = [
-  ['index.html', ['wenV6'], ['V5.0', '同行特质']],
-  ['public/funnel.html', ['wenV6', GUIDE_SUBTITLE], ['V5.0', '同行特质']],
-  ['README.md', ['wenV6'], ['V5.0']],
-  ['src/product-copy.js', ['wenV6'], ['V5.0']],
+  ['index.html', ['wen6.0'], ['wenV6', 'V5.0', '同行特质']],
+  ['public/funnel.html', ['wen6.0', GUIDE_SUBTITLE], ['wenV6', 'V5.0', '同行特质']],
+  ['README.md', ['wen6.0'], ['wenV6', 'V5.0']],
+  ['src/product-copy.js', ['wen6.0'], ['wenV6', 'V5.0']],
   ['src/onboarding.js', ['GUIDE_SUBTITLE'], []],
   ['src/share/long-report.js', ['PRODUCT.version'], ['V5.0']],
   ['src/share/poster.js', [], ['同行特质']],

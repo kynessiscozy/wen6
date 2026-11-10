@@ -4,7 +4,19 @@
 
 格式参照 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)。产品正式版本号以 `src/product-copy.js` 的 `PRODUCT.version` 为准；npm 包版本遵循[语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [wen6.0] - 2026-11-10
+
+### 文档（README 重写与产品定位统一）
+
+- **README 重写**：按「项目简介 / 核心特性 / 体验流程 / 快速开始 / 新手入门 / 技术架构 / 质量保障 / 隐私与外部服务 / 版本 / 贡献」重新组织，补齐沉浸式体验分层、双密度报告、设计原则，以及本地开发、构建、部署与测试验证说明；在线体验、仓库与 CI 链接更新为 `kynessiscozy/wen6`。
+- **产品定位统一为「沉浸式命理推演应用」**：README、应用内「关于问问大师」、`public/manifest.webmanifest`、页面 description 与复制报告水印统一口径，明确「计算与叙事分离、引路人不参与排盘、AI 不改写命盘数据」。
+- **版本标识统一为 wen6.0**：`src/product-copy.js` 的 `PRODUCT.version` 与 `package.json` 的 `productVersion` 同步改为 `wen6.0`；`npm run check:copy` 增加旧标识 `wenV6` 的反向校验；2026-11-06 的发布条目保留为当时记录并加注说明。
+- **新手入门重写**：使用指南 5 个标签统一更新，新增「新手版 / 大师版」说明与术语条目；常见问题补充双密度报告与阅读建议；关于与免责声明补充沉浸式体验、引路人叙事及 AI 内容的边界说明。
+- 验证：`npm run sync:copy` 三份产物一致，`npm run check:copy` / `npm run build` / `npm run test:unit` 通过。
+
 ## [wenV6] - 2026-11-06（正式版）
+
+> 本条目为 6.0 正式版的发布记录，当时对外标识为 wenV6；自 wen6.0 起统一写作 `wen6.0`，历史内容保留不改。
 
 ### 重构（清理 + 拆分成多个模块）
 
@@ -161,4 +173,4 @@
 [5.1.0-beta.1]: https://github.com/kynessiscozy/wenV5/compare/v5.0.0-beta.1...v5.1.0-beta.1
 [5.0.0-beta.1]: https://github.com/kynessiscozy/wenV5/releases/tag/v5.0.0-beta.1
 
-> 历史版本条目、compare / release 链接与 `docs/` 下的 wenV5 时期验证报告均为当时的记录，保留不改；当前产品正式版本号为 wenV6。
+> 历史版本条目、compare / release 链接与 `docs/` 下的 wenV5 时期验证报告均为当时的记录，保留不改；当前产品正式版本号为 wen6.0（原发布标识 wenV6）。

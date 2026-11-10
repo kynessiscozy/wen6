@@ -114,7 +114,7 @@ function nearJie(ms, hours = 36) {
   return jieMsSorted.some((v, i) => i >= lo - 1 && i <= lo + 1 && Math.abs(v - ms) < w);
 }
 
-console.log(`\n🔬 wenV6 全局数据深度审计 ${QUICK ? '(quick 抽样)' : '(全量)'}\n${'='.repeat(60)}`);
+console.log(`\n🔬 wen6.0 全局数据深度审计 ${QUICK ? '(quick 抽样)' : '(全量)'}\n${'='.repeat(60)}`);
 const t0 = Date.now();
 
 /* ============================================================
@@ -875,7 +875,7 @@ await safe('K', async () => {
    ============================================================ */
 const secs = [...new Set(results.map((r) => r.sec))];
 const lines = [];
-lines.push(`# wenV6 全局数据深度审计报告`, '');
+lines.push(`# wen6.0 全局数据深度审计报告`, '');
 lines.push(`- 日期:${new Date().toISOString().slice(0, 10)}(UTC) · 模式:${QUICK ? 'quick 抽样' : '全量'} · 耗时:${((Date.now() - t0) / 1000).toFixed(1)}s`);
 lines.push(`- 工具:\`tools/audit-deep-v1.mjs\` · oracle:lunar-javascript(MIT)· 天文锚点:J2000/二分二至/亮星标准坐标`, '');
 const counts = { PASS: 0, INFO: 0, WARN: 0, FAIL: 0 };
