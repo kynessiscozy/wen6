@@ -1,6 +1,6 @@
 import { KB } from '../ai/kb.js';
 
-export function jumpTo(secId,cardKey){
+export function jumpTo(secId,cardKey,fieldKey){
   // 关 AI 面板
   if(typeof window.closeAsk==='function')window.closeAsk();
   // 若 secId 为空，从 KB.routes 推断；同时取 sub（合并卡子区）
@@ -26,6 +26,8 @@ export function jumpTo(secId,cardKey){
       el=document.getElementById(secId);
     }
     if(!el)return;
+    // 卡片本身折叠时先展开，字段才有可滚动的位置
+    if(el.classList.contains('collapsed'))el.classList.remove('collapsed');
     // 档位面板（年/月/周/日）里的卡片：先唤醒所在档位再滚动
     const yunPane=el.closest&&el.closest('.yun-pane');
     if(yunPane&&typeof window.TJActivateYunTab==='function')window.TJActivateYunTab(yunPane.dataset.yun);
@@ -45,16 +47,23 @@ export function jumpTo(secId,cardKey){
       const structureTab=structure&&structure.querySelector('.structure-tab[data-structure="'+structurePane.dataset.structure+'"]');
       if(structureTab&&typeof window.switchStructureTab==='function')window.switchStructureTab(structureTab);
     }
-    el.scrollIntoView({behavior:'smooth',block:'center'});
-    el.classList.add('tj-flash');
-    setTimeout(()=>el.classList.remove('tj-flash'),1800);
+    // 依据字段：定位到卡片内具体的 data-report-value，而不是整张卡片
+    const target=(fieldKey&&el.querySelector('[data-report-value="'+fieldKey+'"]'))||el;
+    // 速读项可能触发默认收起的专业数值区；先展开，保证字段真的可见
+    const pro=target.closest&&target.closest('.pro-wrap.collapsed');
+    if(pro){
+      pro.classList.remove('collapsed');
+      const proToggle=pro.previousElementSibling;
+      if(proToggle&&proToggle.classList.contains('pro-toggle'))proToggle.setAttribute('aria-expanded','true');
+    }
+    target.scrollIntoView({behavior:'smooth',block:'center'});
+    target.classList.add('tj-flash');
+    setTimeout(()=>target.classList.remove('tj-flash'),1800);
     // 如果是合并卡的子区跳转，自动激活对应子 tab
     if(subKey){
       const sub=el.querySelector('.focus-tab[data-sub="'+subKey+'"]');
       if(sub)sub.click();
     }
-    // 如果卡片是折叠状态，自动展开
-    if(el.classList.contains('collapsed'))el.classList.remove('collapsed');
   },280);
 }
 
@@ -125,3 +134,6 @@ export function initNavigationUI(){
   try{mode=localStorage.getItem('tj_glass_mode')||'standard';}catch(e){}
   setGlassMode(mode);
 }
+
+// 速读项 → 依据字段：复用 jumpTo 的唤醒 / 滚动 / 高亮，仅多传一个字段键
+if(typeof window!=='undefined')window.TJTraceEvidence=(sec,card,field)=>jumpTo(sec,card,field);

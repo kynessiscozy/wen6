@@ -769,3 +769,11 @@ button,input,select,textarea{font:inherit;-webkit-tap-highlight-color:transparen
 @media(max-width:480px){.tj-toast{bottom:calc(84px + env(safe-area-inset-bottom));font-size:.78em;padding:11px 16px}}
 .ai-session-clear.confirming{color:rgba(212,101,74,.92);font-weight:600}
 .ai-typing-hint{margin-top:8px;font-size:.72em;color:var(--c-text-3);letter-spacing:.3px}
+/* 速读项 → 依据字段：整块可点、可 Tab，视觉上仍保持原有四格布局 */
+button.qr-item.qr-item--evidence{display:block;width:100%;font:inherit;color:inherit;appearance:none;-webkit-appearance:none;cursor:pointer;transition:background .18s ease,border-color .18s ease}
+button.qr-item.qr-item--evidence .qr-l,button.qr-item.qr-item--evidence .qr-v{display:block}
+button.qr-item.qr-item--evidence .qr-l::after{content:' · 依据';font-weight:400;color:var(--ac-text);opacity:.7;letter-spacing:0}
+button.qr-item.qr-item--evidence:hover{background:var(--c-surface-3)!important;border-color:var(--ac4)!important}
+button.qr-item.qr-item--evidence:focus-visible{outline:2px solid var(--ac-text)!important;outline-offset:2px}
+@media(prefers-reduced-motion:reduce){button.qr-item.qr-item--evidence{transition:none}}
+.tj-flash{background:hsla(45,80%,60%,.16)!important;outline:2px solid var(--ac-text);outline-offset:2px;border-radius:4px}
