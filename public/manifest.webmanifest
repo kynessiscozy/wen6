@@ -1,8 +1,8 @@
 {
   "id": "./",
-  "name": "问问大师 · 东方人生决策系统",
+  "name": "问问大师 · 沉浸式命理推演",
   "short_name": "问问大师",
-  "description": "八字推演与决策工具：把命理提示转化为当下可执行的选择。",
+  "description": "沉浸式命理推演应用：东方命理 × 西方星象，结合引路人叙事、可交互星盘与问问对话。",
   "start_url": "./funnel.html?sharecode=GLG66364RT",
   "scope": "./",
   "display": "standalone",

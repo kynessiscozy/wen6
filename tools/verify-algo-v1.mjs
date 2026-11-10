@@ -108,7 +108,7 @@ const jieMs = [];
 }
 const nearJie = (ms, hours = 48) => jieMs.some((v) => Math.abs(v - ms) < hours * 3600000);
 
-console.log(`\n🧮 wenV6 全局算法验证 ${BASELINE ? '(baseline 基线记录)' : QUICK ? '(quick 抽样)' : '(全量)'}\n${'='.repeat(60)}`);
+console.log(`\n🧮 wen6.0 全局算法验证 ${BASELINE ? '(baseline 基线记录)' : QUICK ? '(quick 抽样)' : '(全量)'}\n${'='.repeat(60)}`);
 const t0 = Date.now();
 
 /* ============================================================
@@ -812,7 +812,7 @@ add('K 覆盖索引', 'INFO', 'K5', '四季旺衰:sizhi.js 12 月支 × 10 日�
    ============================================================ */
 const secs = [...new Set(results.map((r) => r.sec))];
 const lines = [];
-lines.push('# wenV6 全局算法验证报告', '');
+lines.push('# wen6.0 全局算法验证报告', '');
 lines.push(`- 日期:${new Date().toISOString().slice(0, 10)}(UTC) · 模式:${BASELINE ? 'baseline 基线' : QUICK ? 'quick 抽样' : '全量'} · 耗时:${((Date.now() - t0) / 1000).toFixed(1)}s`);
 lines.push('- 工具:`tools/verify-algo-v1.mjs` · 参照:独立重实现 / lunar-javascript / astronomy-engine / 手工 KAT / 数学不变量', '');
 const counts = { PASS: 0, INFO: 0, WARN: 0, FAIL: 0 };

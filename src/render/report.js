@@ -945,7 +945,7 @@ export function copyReport(){
     d.P&&d.P[d.dg]?`性格：${d.P[d.dg].core}`:'',
     d.P&&d.P[d.dg]?`事业：${d.P[d.dg].career}`:'',
     '',
-    '— 由问问大师·东方人生决策系统生成'
+    '— 由问问大师 wen6.0 · 沉浸式命理推演生成'
   ].filter(Boolean).join('\n');
   navigator.clipboard.writeText(lines).then(()=>showToast('报告摘要已复制'),()=>showToast('复制失败，请手动选择文本'));
 }
