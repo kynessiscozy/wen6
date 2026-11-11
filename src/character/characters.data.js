@@ -156,3 +156,15 @@ export const ZHIYA = defineCharacter({
     crane: { src: './art/zhiya-crane.webp', alt: '', width: 260, height: 218 },
   },
 });
+
+/** V6.1 新增引路人：西方占星师。定妆为候选版（待用户验脸确认），
+ *  暂不提供与肖像对齐的表情层，与全身像角色同例。 */
+export const XINGLUO = defineCharacter({
+  id: 'xingluo',
+  name: '星罗',
+  camera: { closeScale: 1.5, safeX: .5, safeInset: .05 },
+  assets: {
+    portrait: { src: './art/xingluo-cinema3d.webp', alt: '星罗身穿哑光黑长大衣，站在圆形观星窗与银色轨道环装置前', width: 768, height: 1376 },
+    avatar: { src: './art/xingluo-cinema3d-avatar.webp', alt: '', width: 192, height: 192 },
+  },
+});

@@ -4,7 +4,7 @@ import { themeForPersona } from './entry-personas.js';
 import { JIANGJIANG } from '../character/wenwen.js';
 import {
   MOON_FOX, EARTHFIRE_SOVEREIGN, JADE_EMPRESS, QINGLAN, XINGLING,
-  LUYE, SUYAN, RONGRONG, ZHIYA, LEIZI, MUSE,
+  LUYE, SUYAN, RONGRONG, ZHIYA, LEIZI, MUSE, XINGLUO,
 } from '../character/characters.data.js';
 
 // One registry supplies the reel, scenes and report styling.
@@ -53,10 +53,17 @@ export const HOME_THEMES = Object.freeze({
     backdrop: Object.freeze({ wide: './art/qinglan-room-wide.webp', mobile: './art/qinglan-room-mobile.webp' }),
   }),
   xingling: Object.freeze({
-    trait: Object.freeze({ label: '魅惑', description: '自有吸引力，懂得欣赏生活。', mark: '魅', color: '#d4b7f2' }),
+    trait: Object.freeze({ label: '魅惑', description: '自有吸引力，懂得欣赏生活。', mark: '魅', color: '#f2a7c3' }),
     reportLead: '细看，线索藏在这里。',
     character: XINGLING,
     backdrop: Object.freeze({ wide: './art/xingling-room-wide.webp', mobile: './art/xingling-room-mobile.webp' }),
+  }),
+  xingluo: Object.freeze({
+    trait: Object.freeze({ label: '占星', description: '看星盘定底色，观行运知进退。', mark: '星', color: '#a9bcf5' }),
+    reportLead: '星盘之上，自有答案。',
+    character: XINGLUO,
+    // 星罗专属场景图待定妆确认后补；暂借絮羽星空大厅占位。
+    backdrop: Object.freeze({ wide: './art/muse-hall-wide.webp', mobile: './art/muse-hall-mobile.webp' }),
   }),
   luye: Object.freeze({
     trait: Object.freeze({ label: '好奇', description: '对新鲜事物，总想多看一眼。', mark: '奇', color: '#e8c595' }),

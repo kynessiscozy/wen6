@@ -1,0 +1,46 @@
+{
+ "body": {
+  "file": "xuyu-body.webp",
+  "size": [
+   1120,
+   2240
+  ],
+  "eyeCenter": [
+   560,
+   291
+  ],
+  "eyeSpan": 74,
+  "mouth": [
+   560,
+   367
+  ]
+ },
+ "patches": {
+  "blink": {
+   "file": "xuyu-patch-blink.webp",
+   "size": [
+    400,
+    210
+   ],
+   "place": {
+    "left": 0.4429,
+    "top": 0.1135,
+    "width": 0.1143
+   },
+   "note": "scale=74/231=0.320 by eye span"
+  },
+  "talk": {
+   "file": "xuyu-patch-talk.webp",
+   "size": [
+    240,
+    140
+   ],
+   "place": {
+    "left": 0.4619,
+    "top": 0.1527,
+    "width": 0.0763
+   },
+   "note": "scale=74/208=0.356 by eye span, anchored at mouth"
+  }
+ }
+}

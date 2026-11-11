@@ -1,0 +1,55 @@
+{
+ "body": {
+  "file": "yuebai-body.webp",
+  "size": [
+   1120,
+   2240
+  ],
+  "eyeCenter": [
+   559,
+   329
+  ],
+  "eyeSpan": 60,
+  "mouth": [
+   561,
+   381
+  ],
+  "crown": [
+   549,
+   210
+  ],
+  "chin": [
+   565,
+   405
+  ]
+ },
+ "patches": {
+  "blink": {
+   "file": "yuebai-patch-blink.webp",
+   "size": [
+    320,
+    175
+   ],
+   "place": {
+    "left": 0.4392,
+    "top": 0.1255,
+    "width": 0.1199
+   },
+   "note": "scale=eye span 60/143=0.42, anchor eye center, nudged up 8px"
+  },
+  "talk": {
+   "file": "yuebai-patch-talk.webp",
+   "size": [
+    240,
+    140
+   ],
+   "place": {
+    "left": 0.4518,
+    "top": 0.1558,
+    "width": 0.0981
+   },
+   "note": "scale=eye span 60/131=0.458, anchor mouth center"
+  }
+ },
+ "oldHeadsDeprecated": "bust overlays measured 30-50% too tall vs body head (face W/H 0.46 vs 0.61); kept on disk, unused"
+}

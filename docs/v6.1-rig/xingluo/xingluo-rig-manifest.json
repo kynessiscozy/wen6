@@ -1,0 +1,46 @@
+{
+ "body": {
+  "file": "xingluo-body.webp",
+  "size": [
+   1120,
+   2240
+  ],
+  "eyeCenter": [
+   552,
+   258
+  ],
+  "eyeSpan": 74,
+  "mouth": [
+   552,
+   329
+  ]
+ },
+ "patches": {
+  "blink": {
+   "file": "xingluo-patch-blink.webp",
+   "size": [
+    350,
+    180
+   ],
+   "place": {
+    "left": 0.421,
+    "top": 0.0957,
+    "width": 0.1438
+   },
+   "note": "scale=74/161=0.460 by eye span"
+  },
+  "talk": {
+   "file": "xingluo-patch-talk.webp",
+   "size": [
+    240,
+    140
+   ],
+   "place": {
+    "left": 0.4468,
+    "top": 0.1334,
+    "width": 0.0921
+   },
+   "note": "scale=74/172=0.430 by eye span, anchored at mouth"
+  }
+ }
+}
