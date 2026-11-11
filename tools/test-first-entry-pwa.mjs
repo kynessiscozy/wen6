@@ -189,7 +189,7 @@ try {
   assert.ok(await page.$eval('#characterResultHero [data-report-value="day-master"]', el => el.textContent.trim()));
   assert.equal(await page.evaluate(() => JSON.parse(localStorage.getItem('wen_funnel_v1')).trait), 'moonfox');
   assert.equal(await page.$eval('html', el => el.dataset.homeTheme), 'moonfox');
-  assert.equal(await page.$eval('.guide-perspective-title', el => el.textContent), '线索与依据');
+  assert.equal(await page.$eval('.guide-perspective-title', el => el.textContent), '全能推演');
   assert.ok((await page.$eval('.guide-perspective-facts.sys-eastern', el => el.textContent)).includes('日柱'));
   assert.ok((await page.$eval('.guide-perspective-note', el => el.textContent)).includes('不改变排盘或评分'));
   assert.deepEqual(errors, []);

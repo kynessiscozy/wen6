@@ -14,9 +14,33 @@
 .guide-perspective-facts, .guide-perspective-prompt { margin: 0 0 7px; font-size: 13px; line-height: 1.65; }
 .guide-perspective-facts { color: var(--c-text-2, #666); }
 .guide-perspective-note { margin: 9px 0 0; color: var(--c-text-2, #666); font-size: 11px; line-height: 1.5; }
+
+/* 引路人指引：同一张路线表在报告页也做成可点按钮，只改阅读顺序。 */
+.guide-route-title { margin: 14px 0 8px; color: var(--c-text-hi, #262624); font-size: 12px; font-weight: 700; letter-spacing: .12em; }
+.guide-route { display: grid; gap: 7px; margin: 0; }
+.guide-route-btn { display: grid; grid-template-columns: 24px 1fr 14px; gap: 9px; align-items: center;
+  width: 100%; padding: 9px 10px; border: 1px solid var(--c-border, #dedbd4); border-radius: 10px;
+  background: var(--c-surface-2, #faf8f4); color: var(--c-text, #3d3b37);
+  font: inherit; text-align: left; cursor: pointer;
+  transition: border-color .2s ease, background .2s ease, transform .16s ease; }
+.guide-route-btn:hover { border-color: var(--c-accent, #d97757); }
+.guide-route-btn:active { transform: scale(.99); }
+.guide-route-btn:focus-visible { outline: 2px solid var(--c-accent, #d97757); outline-offset: 2px; }
+.guide-route-num { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%;
+  background: var(--c-accent, #d97757); color: #fff; font-size: 10px; font-weight: 700; }
+.guide-route-copy b { display: block; font-size: 12.5px; line-height: 1.45; }
+.guide-route-copy small { display: block; margin-top: 2px; color: var(--c-text-2, #666); font-size: 11px; line-height: 1.5; }
+.guide-route-go { color: var(--c-accent, #b6533a); font-size: 16px; }
+@media (max-width: 420px) {
+  .guide-route-btn { grid-template-columns: 22px 1fr 12px; gap: 7px; padding: 8px; }
+}
+
 @media (forced-colors: active) {
   #page2 .guide-perspective { color: CanvasText; background: Canvas; border-color: CanvasText; }
   #page2 .guide-perspective :is(.guide-perspective-kicker, .guide-perspective-title, .guide-perspective-facts, .guide-perspective-prompt, .guide-perspective-note) { color: CanvasText; }
+  #page2 .guide-route :is(.guide-route-title, .guide-route-btn, .guide-route-copy b, .guide-route-copy small, .guide-route-go) { color: CanvasText; }
+  #page2 .guide-route-btn { border-color: CanvasText; background: Canvas; }
+  #page2 .guide-route-num { background: CanvasText; color: Canvas; }
 }
 
 /* One continuous overview: the selected figure accompanies the actual chart. */

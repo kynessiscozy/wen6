@@ -14,6 +14,7 @@ import { focusSafely } from './focus.js';
 import { personaFor, paletteFor } from './entry-personas.js';
 import { getApiKey } from './ai-settings.js';
 import { generateTeaserCopy } from './teaser-copy.js';
+import { guideRouteFor, buildGuideHooks, runGuideAction } from './guide-route.js';
 
 const DAY_MASTER_TONE = {
   甲: '甲木参天，认准方向便不轻易回头，做事讲原则、有担当。',
@@ -28,11 +29,11 @@ const DAY_MASTER_TONE = {
   癸: '癸水如雨，温润聪慧，洞察人心，常常一句话点中要害。',
 };
 
-const CONCERN_SCORE = {
-  career: ['cs', '事业'],
-  love: ['ls', '感情'],
-  health: ['hs', '健康'],
-};
+/* 姓名、报告标题等来自档案 / DOM 的文本统一转义；钩子里的 <b> 是
+   guide-route.js 自己拼好的受控标记，不在这里二次转义。 */
+const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, ch => ({
+  '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+}[ch]));
 
 const STYLE_ID = 'funnel-teaser-style';
 const OVERLAY_ID = 'funnelTeaser';
@@ -158,11 +159,35 @@ function ensureStyle() {
   #${OVERLAY_ID} .ft-hook b{color:var(--ft-accent);}
 
   #${OVERLAY_ID} .ft-toc{list-style:none;margin:0;padding:0;}
-  #${OVERLAY_ID} .ft-toc li{display:grid;grid-template-columns:52px 1fr auto;gap:10px;align-items:baseline;
-    padding:11px 0;font-size:14.5px;line-height:1.65;color:var(--ft-ink);}
-  #${OVERLAY_ID} .ft-toc li + li{border-top:1px solid rgba(255,255,255,.07);}
+  #${OVERLAY_ID} .ft-toc li{border-top:1px solid rgba(255,255,255,.07);color:var(--ft-ink);}
+  #${OVERLAY_ID} .ft-toc li:first-child{border-top:0;}
+  #${OVERLAY_ID} .ft-toc-btn{display:grid;grid-template-columns:52px 1fr auto;gap:10px;align-items:baseline;
+    width:100%;padding:11px 0;appearance:none;border:0;background:none;color:inherit;font:inherit;
+    font-size:14.5px;line-height:1.65;text-align:left;cursor:pointer;}
+  #${OVERLAY_ID} .ft-toc-btn:hover{color:var(--ft-accent-soft);}
+  #${OVERLAY_ID} .ft-toc-btn:active{opacity:.72;}
+  #${OVERLAY_ID} .ft-toc-btn:focus-visible{outline:2px solid var(--ft-accent-soft);outline-offset:2px;}
   #${OVERLAY_ID} .ft-toc .tk{font-size:11px;letter-spacing:.16em;color:var(--ft-accent-soft);}
   #${OVERLAY_ID} .ft-toc .tv{font-size:12px;color:var(--ft-accent);white-space:nowrap;}
+  #${OVERLAY_ID} .ft-toc-first{display:inline-block;margin-left:8px;padding:1px 7px;border-radius:999px;
+    font-style:normal;font-size:10px;letter-spacing:.12em;color:var(--ft-bg);background:var(--ft-accent);vertical-align:1px;}
+
+  /* ---------- 引路人阅读路线：四步都真的可点 ---------- */
+  #${OVERLAY_ID} .ft-route-intro{margin:0 0 14px;font-size:13px;line-height:1.8;color:var(--ft-ink-dim);}
+  #${OVERLAY_ID} .ft-route{list-style:none;margin:0;padding:0;display:grid;gap:9px;}
+  #${OVERLAY_ID} .ft-route-btn{display:grid;grid-template-columns:26px 1fr 16px;gap:10px;align-items:center;
+    width:100%;padding:11px 12px;appearance:none;text-align:left;cursor:pointer;
+    border:1px solid rgba(var(--ft-accent-rgb),.22);border-radius:12px;
+    background:rgba(var(--ft-accent-rgb),.055);color:var(--ft-ink);font:inherit;
+    transition:border-color .2s ease,background .2s ease,transform .16s ease;}
+  #${OVERLAY_ID} .ft-route-btn:hover{border-color:rgba(var(--ft-accent-rgb),.55);background:rgba(var(--ft-accent-rgb),.1);}
+  #${OVERLAY_ID} .ft-route-btn:active{transform:scale(.99);}
+  #${OVERLAY_ID} .ft-route-btn:focus-visible{outline:2px solid var(--ft-accent-soft);outline-offset:2px;}
+  #${OVERLAY_ID} .ft-route-num{display:grid;place-items:center;width:26px;height:26px;border-radius:50%;
+    font-size:11px;color:var(--ft-bg);background:var(--ft-accent);}
+  #${OVERLAY_ID} .ft-route-btn b{display:block;font-size:14px;letter-spacing:.06em;font-weight:600;}
+  #${OVERLAY_ID} .ft-route-btn small{display:block;margin-top:3px;font-size:11.5px;line-height:1.6;color:var(--ft-ink-dim);}
+  #${OVERLAY_ID} .ft-route-go{font-size:18px;color:var(--ft-accent);}
 
   #${OVERLAY_ID} .ft-note{margin:12px 2px 0;font-size:12.5px;line-height:1.8;color:var(--ft-ink-dim);}
   #${OVERLAY_ID} .ft-skip{display:block;width:100%;margin:18px 0 0;padding:12px;appearance:none;
@@ -246,22 +271,22 @@ function pillarCells(b) {
   }).join('');
 }
 
-function reportToc() {
-  /* 目录取报告本人的三个分区：分区名 + 该区速读标题 + 评分，全部是真内容。 */
-  const secs = [
-    ['s-ming', '命盘'],
-    ['s-yun', '运势'],
-    ['s-rel', '关系'],
-  ];
+function reportToc(route) {
+  /* 目录仍取报告本人的三个分区，但按引路人路线重排：第一站标「路线起点」，
+     工具行改成这位引路人真正会打开的那一款，而不是笼统的工具箱。 */
+  const labels = { 's-ming': '命盘', 's-yun': '运势', 's-rel': '关系' };
   const out = [];
-  for (const [id, label] of secs) {
+  for (const id of route.toc) {
     const sec = document.getElementById(id);
     if (!sec) continue;
     const head = (sec.querySelector('.bb-title')?.textContent || '').trim().replace(/\s+/g, ' ');
     const score = (sec.querySelector('.bs-head')?.textContent || '').trim().replace(/\s+/g, ' ');
-    out.push({ label, head, score });
+    out.push({ id, label: labels[id] || id, head, score, first: id === route.entry.sec });
   }
-  if (out.length) out.push({ label: '工具', head: '十二位大师工具箱：合盘、择日、塔罗、风水都在这一页', score: '' });
+  if (out.length) out.push({
+    id: 's-adv', tool: route.tool, label: '工具',
+    head: `${route.toolName}：${route.name}会直接带你打开这一款`, score: '',
+  });
   return out;
 }
 
@@ -275,46 +300,20 @@ export function showFunnelTeaserIfNeeded() {
   const yearNow = ctx.cLn && ctx.cLn.y ? ctx.cLn.y : new Date().getFullYear();
   const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 
-  /* 钩子一：下一次大运换柱 */
-  let hookDayun = '';
-  const ds = (ctx.dy && ctx.dy.ds) || [];
-  const next = ds[ctx.cDyIdx + 1];
-  if (next) {
-    hookDayun = `<b>${next.ys} 年</b>（${next.as} 岁）起，大运换柱为「${next.g}${next.z}」（${ctx.ssOf(next.g) || '新运'}）——人生节奏换挡的年份，报告里逐年为你拆。`;
-  } else if (ctx.cDy) {
-    hookDayun = `你正走在「${ctx.cDy.g}${ctx.cDy.z}」大运的深处（${ctx.cDy.ys}–${ctx.cDy.ye}），这一步运的得失，报告里已经算清。`;
-  }
-
-  /* 钩子二：今年评分（优先回应用户在问卷里选的烦恼） */
-  const scoreRows = [
-    ['cs', '事业', ctx.cs], ['ws', '财运', ctx.ws], ['ls', '感情', ctx.ls], ['hs', '健康', ctx.hs],
-  ].filter(r => typeof r[2] === 'number');
-  let hookScore = '';
-  let focus = null;
-  let fromConcern = false;
-  for (const c of (payload.concerns || [])) {
-    if (CONCERN_SCORE[c]) { focus = scoreRows.find(r => r[0] === CONCERN_SCORE[c][0]); if (focus) { fromConcern = true; break; } }
-  }
-  if (!focus && scoreRows.length) focus = scoreRows.reduce((a, r) => (r[2] > a[2] ? r : a), scoreRows[0]);
-  if (focus) {
-    const lowest = scoreRows.reduce((a, r) => (r[2] < a[2] ? r : a), scoreRows[0]);
-    const lead = fromConcern ? `你问的<b>${focus[1]}</b>` : `${yearNow} 年四项里最旺的是<b>${focus[1]}</b>`;
-    hookScore = `${lead}，评分为 <b>${focus[2]} 分</b>${lowest && lowest[0] !== focus[0] ? `；最要留心的是${lowest[1]}（${lowest[2]} 分）` : ''}。分数背后的时间点，都在完整报告里。`;
-  }
-
-  /* 钩子三：明年流年 */
-  let hookNextYear = '';
-  const lnNext = (ctx.ln || []).find(e => e.y === yearNow + 1);
-  if (lnNext) {
-    hookNextYear = `明年（${lnNext.y}）流年「${lnNext.g}${lnNext.z}」，十神为<b>${ctx.ssOf(lnNext.g) || '—'}</b>——这一年的主题词，已经替你标在报告里。`;
-  }
-
   const PERSONA = personaFor(payload.trait);
-  const hooks = [hookDayun, hookScore, hookNextYear].filter(Boolean);
-  const toc = reportToc();
+  const route = guideRouteFor(payload.trait);
+  /* 三句钩子改由引路人路线挑：玉宸只圈大运 / 事业评分 / 流年，
+     絮羽只圈月亮水星 / 月柱流年 / 问卷关注点，不再六人共用一套。 */
+  const hooks = buildGuideHooks(PERSONA.key, {
+    ctx,
+    western: window.__w3dData || {},
+    concerns: payload.concerns || [],
+    yearNow,
+  });
+  const toc = reportToc(route);
   const tone = DAY_MASTER_TONE[ctx.dg] || '';
   /* 本地兜底文案：首帧先显示它，云端文案不可用或请求中断时恢复它。 */
-  const localOpenHtml = `${PERSONA.lead}${tone ? `日主<b class="hl">${ctx.dg}（${ctx.dw || ''}）</b>——${tone}` : ''}下面这几处，${PERSONA.circle}。`;
+  const localOpenHtml = `${route.opening}${tone ? `日主<b class="hl">${escapeHtml(ctx.dg)}（${escapeHtml(ctx.dw || '')}）</b>——${tone}` : ''}${PERSONA.lead}下面三处，${PERSONA.circle}。`;
   const dayunText = ctx.cDy ? `${ctx.cDy.g}${ctx.cDy.z}（${ctx.cDy.ys}–${ctx.cDy.ye}）` : '—';
 
   ensureStyle();
@@ -348,12 +347,12 @@ export function showFunnelTeaserIfNeeded() {
         <img src="${PERSONA.poster}" alt="">
         <div>
           <div class="ft-kicker">${PERSONA.name} · 命盘预告</div>
-          <div class="ft-name">${name ? `${name}，` : ''}你的盘，拆完了第一层</div>
+          <div class="ft-name">${name ? `${escapeHtml(name)}，` : ''}${escapeHtml(route.heroLine)}</div>
         </div>
       </div>
       <div class="ft-hero-copy">
         <p class="ft-open">${localOpenHtml}</p>
-        <div class="ft-hint"><span>向下滑 · 看你的盘</span><i></i></div>
+        <div class="ft-hint"><span>向下滑 · 看${PERSONA.name}的路线</span><i></i></div>
       </div>
     </section>
     <div class="ft-sheet">
@@ -361,19 +360,25 @@ export function showFunnelTeaserIfNeeded() {
         <h3>四 柱 排 盘</h3>
         <div class="ft-pillars">${pillarCells(b)}</div>
         <dl class="ft-rows">
-          <div><dt>日主</dt><dd>${ctx.dg || '—'}${ctx.dw ? ` · ${ctx.dw}` : ''}</dd></div>
-          <div><dt>格局</dt><dd>${(ctx.pa || []).join('、') || '—'}</dd></div>
-          <div><dt>当前大运</dt><dd>${dayunText}</dd></div>
+          <div><dt>日主</dt><dd>${escapeHtml(ctx.dg || '—')}${ctx.dw ? ` · ${escapeHtml(ctx.dw)}` : ''}</dd></div>
+          <div><dt>格局</dt><dd>${escapeHtml((ctx.pa || []).join('、') || '—')}</dd></div>
+          <div><dt>当前大运</dt><dd>${escapeHtml(dayunText)}</dd></div>
         </dl>
         ${payload.timeStr ? '' : '<p class="ft-note">你跳过了出生时间，时柱按默认时刻起；若之后想起准确时辰，在报告页改表单重推即可。</p>'}
       </div>
-      ${hooks.length ? `<div class="ft-card ft-reveal"><h3>${PERSONA.hooksTitle}</h3><ol class="ft-hooks">${hooks.map(h => `<li class="ft-hook">${h}</li>`).join('')}</ol></div>` : ''}
-      ${toc.length ? `<div class="ft-card ft-reveal"><h3>完 整 报 告 目 录</h3><ul class="ft-toc">${toc.map(t => `<li><span class="tk">${t.label}</span><span>${t.head}</span><span class="tv">${t.score || ''}</span></li>`).join('')}</ul></div>` : ''}
+      ${hooks.length ? `<div class="ft-card ft-reveal"><h3>${escapeHtml(route.hookTitle)}</h3><ol class="ft-hooks">${hooks.map(h => `<li class="ft-hook">${h}</li>`).join('')}</ol></div>` : ''}
+      <div class="ft-card ft-reveal">
+        <h3>${PERSONA.name} 的 阅 读 路 线</h3>
+        <p class="ft-route-intro">${escapeHtml(route.role)}</p>
+        <ol class="ft-route">${route.steps.map((step, i) => `<li><button class="ft-route-btn" type="button" data-guide-step="${i}" data-guide-key="${route.key}"><span class="ft-route-num">${String(i + 1).padStart(2, '0')}</span><span><b>${escapeHtml(step.label)}</b><small>${escapeHtml(step.detail)}</small></span><span class="ft-route-go" aria-hidden="true">›</span></button></li>`).join('')}</ol>
+        <p class="ft-note">点任一步会关掉预告并直接带到对应卡片 / 工具 / 问问；只改阅读顺序，不改排盘或评分。</p>
+      </div>
+      ${toc.length ? `<div class="ft-card ft-reveal"><h3>完 整 报 告 目 录</h3><ul class="ft-toc">${toc.map(t => `<li><button class="ft-toc-btn" type="button" data-guide-toc="${t.id}" ${t.tool ? `data-guide-tool="${t.tool}"` : ''}><span class="tk">${escapeHtml(t.label)}</span><span>${escapeHtml(t.head)}${t.first ? '<i class="ft-toc-first">路线起点</i>' : ''}</span><span class="tv">${escapeHtml(t.score || '')}</span></button></li>`).join('')}</ul></div>` : ''}
       <button class="ft-skip ft-reveal" type="button">跳过预告，直接看报告</button>
       <p class="ft-free ft-reveal">全程免费 · 无隐藏收费 · 报告已在下方备好</p>
     </div>
   </div>
-  <div class="ft-bar"><button class="ft-cta" type="button">继续看完整报告</button></div>`;
+  <div class="ft-bar"><button class="ft-cta" type="button">${escapeHtml(route.cta)}</button></div>`;
   document.body.appendChild(el);
   document.body.style.overflow = 'hidden';
 
@@ -451,6 +456,7 @@ export function showFunnelTeaserIfNeeded() {
     try {
       await generateTeaserCopy({
         persona: PERSONA,
+        guideRoute: route,
         dayMaster: ctx.dg,
         concerns: payload.concerns || [],
         apiKey: getApiKey(),
@@ -490,7 +496,7 @@ export function showFunnelTeaserIfNeeded() {
     cleanups.forEach(fn => { try { fn(); } catch (e) {} });
     if (raf) cancelAnimationFrame(raf);
     try { video.pause?.(); video.removeAttribute('src'); } catch (e) {}
-    bumpStat(reason === 'continue' ? 'report_open' : 'teaser_skip');
+    bumpStat(reason === 'continue' || reason === 'route' ? 'report_open' : 'teaser_skip');
     markTeasered(payload);
     background.forEach(({ node, inert, aria }) => {
       if (!inert) node.removeAttribute('inert');
@@ -508,7 +514,27 @@ export function showFunnelTeaserIfNeeded() {
     focusSafely(restore);
   }
 
-  el.querySelector('.ft-cta').addEventListener('click', () => dismiss('continue'));
+  el.querySelector('.ft-cta').addEventListener('click', () => {
+    dismiss('continue');
+    runGuideAction(route.entry); // 主按钮直接落到这位引路人的第一站
+  });
+  el.querySelectorAll('.ft-route-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const step = route.steps[Number(btn.dataset.guideStep)];
+      if (!step) return;
+      dismiss('route');
+      runGuideAction(step.action);
+    });
+  });
+  el.querySelectorAll('.ft-toc-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const toolId = btn.dataset.guideTool;
+      const sec = btn.dataset.guideToc;
+      dismiss('route');
+      if (toolId) runGuideAction({ kind: 'tool', tool: toolId });
+      else runGuideAction({ kind: 'card', sec });
+    });
+  });
   el.querySelector('.ft-skip').addEventListener('click', () => dismiss('skip'));
   el.querySelector('.ft-close').addEventListener('click', () => dismiss('skip'));
   el.addEventListener('keydown', event => {
