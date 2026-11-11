@@ -18,11 +18,13 @@
 
 export const DEFAULT_PERSONA = 'moonfox';
 
-/* 视频缓存版本：与 public/sw.js 的缓存版本同步，换素材时统一失效。
-   URL 查询串按站点既有写法用 v=75；SW 缓存名用 v75。两者只差一个等号，
-   分开定义，避免 videoFor() 拼出 ?v75 这种无效参数。 */
+/* 视频素材版本：24 段 MP4 仍是 v75，URL 查询串按站点既有写法用 ?v=75。
+   应用离线缓存另走 APP_CACHE_VERSION：只改代码 / 文案时升缓存，不误伤
+   videoFor() 拼出的 ?v75 这类无效参数，也不强迫视频 URL 跟着变。 */
 export const GUIDE_VIDEO_VERSION = 'v75';
 export const GUIDE_VIDEO_QUERY = '?v=75';
+/* 引路人阅读路线上线后，funnel.html / 预告页 / 报告指引都需要刷新离线副本。 */
+export const APP_CACHE_VERSION = 'v76';
 
 /**
  * 六位引路人的完整定义。color 是跨页唯一的主题色：

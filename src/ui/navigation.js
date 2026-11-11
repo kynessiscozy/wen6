@@ -31,14 +31,24 @@ export function jumpTo(secId,cardKey,fieldKey){
     // 档位面板（年/月/周/日）里的卡片：先唤醒所在档位再滚动
     const yunPane=el.closest&&el.closest('.yun-pane');
     if(yunPane&&typeof window.TJActivateYunTab==='function')window.TJActivateYunTab(yunPane.dataset.yun);
-    // 命盘/关系分区标签里的卡片：先唤醒所在面板，避免滚动到隐藏内容
-    const secPane=el.closest&&el.closest('.ming-pane,.rel-pane');
-    if(secPane){
-      const paneKey=secPane.dataset.ming||secPane.dataset.rel;
-      if(paneKey&&typeof window.TJActivateMingTab==='function'){
-        if(secPane.dataset.ming)window.TJActivateMingTab(paneKey);
-        else window.TJActivateRelTab(paneKey);
-      }
+    // 东方 / 西方分区标签里的卡片：先唤醒所在面板，避免滚动到隐藏内容。
+    // 引路人路线会跳 astro-core / astro-planets 等西方卡片，这里必须一并覆盖。
+    const groupedPane=el.closest&&el.closest('.ming-pane,.rel-pane,.wastro-pane,.whoro-pane,.wnum-pane');
+    if(groupedPane){
+      const activate=[['ming','TJActivateMingTab'],['rel','TJActivateRelTab'],
+        ['wastro','TJActivateWastroTab'],['whoro','TJActivateWhoroTab'],['wnum','TJActivateWnumTab']]
+        .find(([kind])=>groupedPane.classList.contains(kind+'-pane'));
+      const paneKey=activate&&groupedPane.dataset[activate[0]];
+      if(paneKey&&typeof window[activate[1]]==='function')window[activate[1]](paneKey);
+    }
+    // 新版分区标签把卡片收进 .sec-pane；不点对应 .sec-tab 目标仍是隐藏的。
+    const secTabPane=el.closest&&el.closest('.sec-pane');
+    if(secTabPane){
+      const wrap=secTabPane.closest('.sec-tabs-wrap');
+      const panes=wrap?[...wrap.querySelectorAll(':scope > .sec-panes > .sec-pane')]:[];
+      const idx=panes.indexOf(secTabPane);
+      const tab=idx>=0&&wrap?wrap.querySelector('.sec-tab[data-idx="'+idx+'"]'):null;
+      if(tab&&!tab.classList.contains('active'))tab.click();
     }
     // “命盘结构”将四柱、五行等收进分栏；跳转前先唤醒所在分栏，避免滚动到隐藏内容。
     const structurePane=el.closest&&el.closest('.structure-pane');

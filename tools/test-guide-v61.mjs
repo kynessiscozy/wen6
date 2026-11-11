@@ -6,6 +6,7 @@ import { readFile, stat } from 'node:fs/promises';
 import {
   GUIDE_V61, GUIDE_KEYS, FUNNEL_PERSONAS, DEFAULT_PERSONA,
   themeForPersona, paletteFor, videoFor, GUIDE_VIDEO_VERSION, GUIDE_VIDEO_QUERY,
+  APP_CACHE_VERSION,
 } from '../src/ui/entry-personas.js';
 import { HOME_THEMES } from '../src/ui/home-theme.js';
 import { buildGuidePerspective } from '../src/ui/guide-perspective.js';
@@ -119,7 +120,7 @@ for (const key of GUIDE_KEYS) {
   assert.ok(funnel.includes(`./art/${videos.entry}`), `${key} 入口段接入 funnel.html`);
   assert.ok(funnel.includes(`./art/${videos.quiz}`), `${key} 问卷段接入 funnel.html`);
   assert.ok(funnel.includes(`./art/${videos.ritual}`), `${key} 仪式段接入 funnel.html`);
-  assert.equal(GUIDE_VIDEO_VERSION, 'v75', 'SW 缓存版本标记为 v75');
+  assert.equal(GUIDE_VIDEO_VERSION, 'v75', '视频素材版本保持 v75');
   assert.equal(GUIDE_VIDEO_QUERY, '?v=75', '视频 URL 查询串写法为 v=75');
   assert.equal(videoFor(key, 'invite'), `./art/${videos.invite}${GUIDE_VIDEO_QUERY}`,
     `${key} 邀约段视频带统一缓存版本`);
@@ -134,8 +135,8 @@ ok(sw.includes(`'art/xingluo-observatory-wide.webp'`) &&
 /* ---- 4. 版本、缓存与入口文案 ---- */
 const pkg = JSON.parse(await read('package.json'));
 const indexHtml = await read('index.html');
-ok(sw.includes(`const CACHE = 'wenda-cache-${GUIDE_VIDEO_VERSION}';`),
-  'Service Worker 缓存版本与视频版本同步升级');
+ok(APP_CACHE_VERSION === 'v76' && sw.includes(`const CACHE = 'wenda-cache-${APP_CACHE_VERSION}';`),
+  'Service Worker 缓存版本与应用构建同步升级，不再绑死视频素材版本');
 ok(!funnel.includes('?v=73') && (funnel.match(/\?v=75/g) || []).length === 23,
   '漏斗 23 处视频引用全部换到 v=75，旧 v=73 已清零');
 ok(PRODUCT.version === 'wen6.0' && pkg.productVersion === 'wen6.0' && pkg.version === '6.0.0',

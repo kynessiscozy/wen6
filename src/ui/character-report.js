@@ -1,5 +1,6 @@
 import { HOME_THEMES } from './home-theme.js';
 import { buildGuidePerspective } from './guide-perspective.js';
+import { guideRouteFor, runGuideAction } from './guide-route.js';
 import { createGuideVideo, mountGuideVideo, syncGuideVideos } from './guide-video.js';
 
 // The report uses the same page-lifetime choice as the home and calculation
@@ -308,9 +309,11 @@ function makeChapter(id, theme, section, westernText, theatreContainer, overview
 function makeGuidePerspective(id, ctx, western, isDemo) {
   const perspective = buildGuidePerspective(id, ctx, western);
   if (!perspective) return null;
+  const route = guideRouteFor(id);
   const card = element('aside', 'guide-perspective');
   card.dataset.guidePerspective = id;
-  card.setAttribute('aria-label', `${perspective.name}的阅读视角`);
+  card.dataset.guideRoute = route.key;
+  card.setAttribute('aria-label', `${perspective.name}的阅读路线`);
   card.append(element('p', 'guide-perspective-kicker', `${perspective.name} · ${perspective.title} · 引路人视角${isDemo ? ' · 示例' : ''}`));
   card.append(element('h2', 'guide-perspective-title', perspective.focus));
   const easternEl = element('p', 'guide-perspective-facts sys-eastern',
@@ -321,7 +324,26 @@ function makeGuidePerspective(id, ctx, western, isDemo) {
   if (id === 'xingluo' || id === 'muse') card.append(westernEl, easternEl);
   else card.append(easternEl, westernEl);
   card.append(element('p', 'guide-perspective-prompt', perspective.prompt));
-  card.append(element('p', 'guide-perspective-note', '引路人只改变阅读角度，不改变排盘或评分。'));
+
+  // 之前这张卡只有一句反思问题；现在四步都能真的跳卡片 / 开工具 / 预填追问。
+  const routeNav = element('nav', 'guide-route');
+  routeNav.setAttribute('aria-label', `${perspective.name}的阅读路线`);
+  route.steps.forEach((step, i) => {
+    const btn = element('button', 'guide-route-btn');
+    btn.type = 'button';
+    btn.dataset.guideStep = String(i);
+    btn.dataset.guideKey = route.key;
+    const copy = element('span', 'guide-route-copy');
+    copy.append(element('b', '', step.label), element('small', '', step.detail));
+    const go = element('span', 'guide-route-go', '›');
+    go.setAttribute('aria-hidden', 'true');
+    btn.append(element('span', 'guide-route-num', String(i + 1).padStart(2, '0')), copy, go);
+    btn.addEventListener('click', () => runGuideAction(step.action));
+    routeNav.append(btn);
+  });
+  card.append(element('h3', 'guide-route-title', `${perspective.name}会带你这样读`));
+  card.append(routeNav);
+  card.append(element('p', 'guide-perspective-note', '引路人只决定先看哪张卡、用哪个体系、打开哪款工具与追问方向，不改变排盘或评分。'));
   return card;
 }
 
