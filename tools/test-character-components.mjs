@@ -66,7 +66,8 @@ assert.equal(HOME_THEMES.wenwen.character, JIANGJIANG);
 assert.equal(CHAT_MASTER.name, '问问');
 assert.equal(CHAT_MASTER.twins.length, 2);
 assert.ok(CHAT_MASTER.twins.every(twin => masterAvatarMarkup().includes(twin.avatar)));
-assert.deepEqual(Object.values(HOME_THEMES).map(theme => theme.trait.label), ['温柔', '神秘', '威严', '从容', '洒脱', '魅惑', '好奇', '自信', '可爱', '天真']);
+assert.deepEqual(Object.values(HOME_THEMES).map(theme => theme.trait.label),
+  ['温柔', '神秘', '决断', '灵感', '威严', '从容', '洒脱', '魅惑', '占星', '好奇', '自信', '可爱', '天真']);
 assert.equal(HOME_THEMES.rongrong.character.assets.pawbell.src, './art/rongrong-pawbell.webp');
 assert.equal(HOME_THEMES.zhiya.character.assets.crane.src, './art/zhiya-crane.webp');
 assert.equal(new Set(Object.values(HOME_THEMES).map(theme => theme.trait.label)).size, Object.keys(HOME_THEMES).length, '每个角色应有可扩展的代表特质');
@@ -163,11 +164,13 @@ assert.equal(blink.hidden, true, '尺寸相同但不是同一画面时也不能�
 applyCharacterAssets({ querySelectorAll: () => [blink] }, WENWEN);
 assert.equal(blink.hidden, false, '匹配人物时应恢复可选表情');
 assert.equal(blink.src, WENWEN.assets.blink.src);
-applyCharacterAssets({ querySelectorAll: () => [blink] }, JADE_EMPRESS);
+// V6.1 的玉宸等六位引路人改用 2D 全身立绘，不再有表情层；这里仍用
+// 保留旧表达层的青岚验证「同源表情」契约。
+applyCharacterAssets({ querySelectorAll: () => [blink] }, QINGLAN);
 assert.equal(blink.hidden, false);
-assert.equal(blink.src, JADE_EMPRESS.assets.blink.src, '神后使用自己的同源眨眼素材');
-assert.equal(JADE_EMPRESS.assets.blink.forPortrait, JADE_EMPRESS.assets.portrait.src);
-assert.equal(JADE_EMPRESS.assets.speaking.forPortrait, JADE_EMPRESS.assets.portrait.src);
+assert.equal(blink.src, QINGLAN.assets.blink.src, '青岚使用自己的同源眨眼素材');
+assert.equal(QINGLAN.assets.blink.forPortrait, QINGLAN.assets.portrait.src);
+assert.equal(QINGLAN.assets.speaking.forPortrait, QINGLAN.assets.portrait.src);
 applyCharacterAssets({ querySelectorAll: () => [blink] }, { ...custom, assets: { portrait: custom.assets.portrait } });
 assert.equal(blink.hidden, true, '没有表情素材的角色应保持静止');
 
@@ -193,10 +196,10 @@ const fireHolder = new Element('div');
 fire.dataset.characterAsset = 'fireThrone';
 fire.dataset.characterSceneOptional = '';
 fire.closest = () => fireHolder;
+// V6.1 焱绒改为黑金掌柜，火焰王座 / 符文整套旧道具退场。
 applyCharacterAssets({ querySelectorAll: () => [fire] }, EARTHFIRE_SOVEREIGN);
-assert.equal(fire.hidden, false);
-assert.equal(fireHolder.hidden, false);
-assert.equal(fire.src, EARTHFIRE_SOVEREIGN.assets.fireThrone.src, '火焰王座应作为独立的可替换配景');
+assert.equal(fire.hidden, true, 'V6.1 焱绒不再使用火焰王座');
+assert.equal(fireHolder.hidden, true);
 applyCharacterAssets({ querySelectorAll: () => [fire] }, MOON_FOX);
 assert.equal(fire.hidden, true);
 assert.equal(fireHolder.hidden, true, '其他角色不能继承火焰王座');
@@ -206,9 +209,8 @@ rune.dataset.characterAsset = 'runes';
 rune.dataset.characterSceneOptional = '';
 rune.closest = () => runeHolder;
 applyCharacterAssets({ querySelectorAll: () => [rune] }, EARTHFIRE_SOVEREIGN);
-assert.equal(rune.hidden, false);
-assert.equal(runeHolder.hidden, false);
-assert.equal(rune.src, EARTHFIRE_SOVEREIGN.assets.runes.src, '地炎符文应是角色独立的可选配景');
+assert.equal(rune.hidden, true, 'V6.1 焱绒不再使用地炎符文');
+assert.equal(runeHolder.hidden, true);
 applyCharacterAssets({ querySelectorAll: () => [rune] }, WENWEN);
 assert.equal(rune.hidden, true);
 assert.equal(runeHolder.hidden, true, '切回姜姜时不得继承地炎符文');
@@ -271,32 +273,33 @@ const homeRoot = {
   },
 };
 nodes.set('page1', homeRoot);
+// V6.1 六位引路人改用 2D 全身立绘：无表情层、统一 1000×1800、全身取景。
 adapter.setHomeCharacter(MOON_FOX);
 assert.equal(homePortrait.src, MOON_FOX.assets.portrait.src);
-assert.equal(homeBlink.src, MOON_FOX.assets.blink.src);
-assert.equal(homeBlink.hidden, false, '新角色只能使用自己对齐的表情');
-assert.equal(MOON_FOX.assets.blink.forPortrait, MOON_FOX.assets.portrait.src);
-assert.equal(MOON_FOX.assets.speaking.forPortrait, MOON_FOX.assets.portrait.src);
+assert.equal(homeBlink.hidden, true, 'V6.1 引路人不再叠旧表情层');
 assert.equal(homeName.textContent, '月白');
 assert.equal(nodes.get('characterPortraitButton').getAttribute('aria-label'), '点击月白，开启探索');
-assert.equal(nodes.get('characterPortraitButton').style.getPropertyValue('--character-ratio'), `${MOON_FOX.assets.portrait.width} / ${MOON_FOX.assets.portrait.height}`);
-assert.equal(nodes.get('characterScene').dataset.cameraSafeX, '0.23');
-assert.equal(nodes.get('characterScene').dataset.cameraSafeInset, '0.05');
+assert.equal(nodes.get('characterPortraitButton').style.getPropertyValue('--character-ratio'), '1000 / 1800');
+assert.equal(nodes.get('characterScene').dataset.cameraCloseScale, '1.04');
+assert.equal(nodes.get('characterScene').dataset.cameraFullBody, 'true');
+assert.equal(nodes.get('characterScene').dataset.cameraSafeX, undefined);
+assert.equal(nodes.get('characterScene').dataset.cameraSafeInset, undefined);
 adapter.setHomeCharacter(JADE_EMPRESS);
 assert.equal(homeName.textContent, '玉宸');
 assert.equal(nodes.get('characterPortraitButton').getAttribute('aria-label'), '点击玉宸，开启探索');
 assert.ok(JADE_EMPRESS.assets.portrait.alt.startsWith('玉宸'));
+assert.equal(homePortrait.src, JADE_EMPRESS.assets.portrait.src);
+assert.equal(homeBlink.hidden, true);
 adapter.setHomeCharacter(EARTHFIRE_SOVEREIGN);
 assert.ok(EARTHFIRE_SOVEREIGN.assets.portrait.alt.startsWith('焱绒'));
 assert.equal(homePortrait.src, EARTHFIRE_SOVEREIGN.assets.portrait.src);
-assert.equal(homeBlink.src, EARTHFIRE_SOVEREIGN.assets.blink.src);
-assert.equal(EARTHFIRE_SOVEREIGN.assets.blink.forPortrait, EARTHFIRE_SOVEREIGN.assets.portrait.src);
-assert.equal(EARTHFIRE_SOVEREIGN.assets.speaking.forPortrait, EARTHFIRE_SOVEREIGN.assets.portrait.src);
+assert.equal(homeBlink.hidden, true);
 assert.equal(homeName.textContent, '焱绒');
 assert.equal(nodes.get('characterPortraitButton').getAttribute('aria-label'), '点击焱绒，开启探索');
-assert.equal(nodes.get('characterPortraitButton').style.getPropertyValue('--character-ratio'), `${EARTHFIRE_SOVEREIGN.assets.portrait.width} / ${EARTHFIRE_SOVEREIGN.assets.portrait.height}`);
-assert.equal(nodes.get('characterScene').dataset.cameraCloseScale, '1.7');
-assert.equal(nodes.get('characterScene').dataset.cameraSafeX, '0.885');
+assert.equal(nodes.get('characterPortraitButton').style.getPropertyValue('--character-ratio'), '1000 / 1800');
+assert.equal(nodes.get('characterScene').dataset.cameraCloseScale, '1.04');
+assert.equal(nodes.get('characterScene').dataset.cameraFullBody, 'true');
+assert.equal(nodes.get('characterScene').dataset.cameraSafeX, undefined);
 for (const character of [QINGLAN, XINGLING, LUYE, SUYAN]) {
   adapter.setHomeCharacter(character);
   assert.equal(homePortrait.src, character.assets.portrait.src);

@@ -394,3 +394,12 @@ html[data-system-mode="western"] .is-portrait-hidden .result-chapter-figure { vi
   html[data-system-mode="western"] .result-chapter-reading h2, html[data-system-mode="western"] .result-chapter-reading p,
   html[data-system-mode="western"] .result-chapter-kicker { color: CanvasText !important; }
 }
+
+/* V6.1 引路人视频立绘：poster 常驻，解码失败也不黑屏；不与表情静帧叠加。 */
+.result-character-video { opacity: 1; background: transparent; }
+.result-character-video.is-ready { animation: guide-video-in .6s ease-out both; }
+.result-character-video.is-fallback { animation: none; }
+@keyframes guide-video-in { from { opacity: .72; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  .result-character-video, .result-character-video.is-ready { animation: none; }
+}
