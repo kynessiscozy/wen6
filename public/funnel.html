@@ -329,9 +329,9 @@
   <div class="imm-shade"></div>
   <div class="dim"></div>
   <button class="skip" id="btnSkipStory">跳过</button>
-  <p class="line" data-line>命盘厅的灯，已经为你亮了。</p>
+  <p class="line" data-line>庭院的水面静了，狐火为你亮着。</p>
   <p class="line" data-line>你心里压着的那件事，<span class="hl">不必先说出口</span>。</p>
-  <p class="line" data-line>报上生辰，剩下的，交给盘面。</p>
+  <p class="line" data-line>报上生辰，我替你翻开那一页。</p>
   <div class="story-choices" id="storyChoices">
     <button type="button" data-act="look">环顾四周</button>
     <button type="button" data-act="sit">坐下来</button>
@@ -359,7 +359,7 @@
 <!-- 问卷中段过场 -->
 <section class="screen" id="s-inter">
   <video class="inter-video" muted loop playsinline preload="auto" src="./art/yuebai-quiz.mp4" poster="./art/yuebai-lord.webp" aria-hidden="true"></video>
-  <p class="inter-line">根基已定。<br>再问你几句。</p>
+  <p class="inter-line">根基已定。<br>再陪我走几步。</p>
 </section>
 
 <!-- 加载仪式 -->
@@ -735,7 +735,7 @@
   $('#btnBack').addEventListener('click',function(){if(flowLocked)return;if(qi>0)transitionTo(qi-1,-1);});
 
   /* 加载仪式 → 交接 */
-  var LINES_BY_PERSONA={diyan:['焱绒正在为你算财…','四柱落定，十神归位…','大运流年，逐年拆解中…','最后一处细节，焱绒再看一眼…'],yuchen:['玉宸正在为你看事业…','四柱落定，十神归位…','大运流年，逐年拆解中…','最后一处细节，再看一眼…'],moonfox:['月白正在为你翻册…','四柱落定，十神归位…','大运流年，逐年拆解中…','最后一页，月白再替你看一眼…'],xiyao:['夕瑶正在为你看姻缘…','四柱落定，十神归位…','大运流年，逐年拆解中…','最后一局，夕瑶再替你看一眼…'],xingluo:['星罗正在为你观星…','星盘展开，宫位落定…','行星相位，逐一对照中…','最后一颗星，星罗再替你看一眼…'],muse:['絮羽正在为你洗牌…','四柱落定，十神归位…','大运流年，逐年拆解中…','最后一处，絮羽再替你看一眼…']};
+  var LINES_BY_PERSONA={diyan:['焱绒正在为你算财…','财星落位，用神归仓…','大运流年，逐年盘点中…','最后一笔账，焱绒再替你算一遍…'],yuchen:['玉宸正在为你看事业…','命宫落定，官星归位…','大运流年，逐年拆解中…','最后一处关窍，玉宸再替你看一眼…'],moonfox:['月白正在为你翻册…','四柱落定，十神归位…','东西两面的盘，一并展开…','最后一页，月白再替你看一眼…'],xiyao:['夕瑶正在为你看姻缘…','红线牵定，配偶宫开…','桃花与流年，逐一对上中…','最后一段缘，夕瑶再替你看一眼…'],xingluo:['星罗正在为你观星…','星盘展开，宫位落定…','行星相位，逐一对照中…','最后一颗星，星罗再替你看一眼…'],muse:['絮羽正在为你洗牌…','牌阵展开，元素归位…','月亮与水星，逐一对照中…','最后一张牌，絮羽再替你翻开…']};
   /* 引路人可以在问卷途中切换，加载文案必须在提交那一刻重新读取，
      不能沿用页面加载时缓存的 LINES。 */
   function personaKey(){
@@ -1026,6 +1026,23 @@ var PERSONAS={
     ritual:'./art/muse-ritual.mp4?v=73',ritualPoster:'./art/muse-lord.webp',
     quiz:'./art/muse-quiz.mp4?v=73',poster:'./art/muse-lord.webp',firstLine:'絮羽正在为你洗牌…'}
 };
+/* 沉浸过场三句与问卷中段过场：随引路人切换（V6.1 文案，一人一版）。 */
+var IMMERSION_BY_PERSONA={
+  moonfox:['庭院的水面静了，狐火为你亮着。','你心里压着的那件事，<span class="hl">不必先说出口</span>。','报上生辰，我替你翻开那一页。'],
+  yuchen:['回廊的灯已经点上了。','事业这一局，落子之前，<span class="hl">先看清盘面</span>。','报上生辰，容我细看。'],
+  xiyao:['桃树下的红线，已经为你留好了。','心里的那个人、那件事，<span class="hl">不必先说出口</span>。','报上生辰，我替你翻一翻姻缘簿。'],
+  diyan:['藏宝阁的门，为你开了一扇。','财路进退，<span class="hl">心里先有个数</span>。','报上生辰，我替你拨一拨这盘账。'],
+  muse:['牌已经洗好了，烛光正静。','问题先放在心里，<span class="hl">牌会自己说话</span>。','报上生辰，我们一张一张看。'],
+  xingluo:['观星台的穹顶已经打开了。','你出生那一刻的星空，<span class="hl">一直在等你回头看</span>。','报上生辰，我替你把它重新画出来。']
+};
+var INTER_BY_PERSONA={
+  moonfox:'根基已定。<br>再陪我走几步。',
+  yuchen:'根基已定。<br>再问你几句要紧的。',
+  xiyao:'日子记下了。<br>再问你几句心里话。',
+  diyan:'底细摸清了。<br>再问你几句关键的。',
+  muse:'前半副牌已成形。<br>再抽几张。',
+  xingluo:'星位已锚定。<br>再确认几处坐标。'
+};
 function fmSetVideo(sel,src,poster){
   var v=fm$(sel);if(!v)return;
   if(poster)v.setAttribute('poster',poster);
@@ -1053,6 +1070,9 @@ function fmApplyPersona(key){
   var qn=fm$('#qwhoName');if(qn)qn.textContent=P.name+' 问';
   var la=fm$('#loadAvatar');if(la)la.src=P.poster;
   var lt=fm$('#ltext');if(lt)lt.textContent=P.firstLine;
+  var im=IMMERSION_BY_PERSONA[key];
+  if(im)document.querySelectorAll('#s-immersion [data-line]').forEach(function(el,i){if(im[i]!=null)el.innerHTML=im[i];});
+  var il=fm$('#s-inter .inter-line');if(il&&INTER_BY_PERSONA[key])il.innerHTML=INTER_BY_PERSONA[key];
   fm$('#personaLabel').textContent=P.name;
   fm$('#personaPerspective').textContent=P.name+' · '+P.focus;
   fm$('#personaToggle').setAttribute('aria-label','当前引路人：'+P.name+'，切换引路人');
