@@ -1,0 +1,46 @@
+{
+ "body": {
+  "file": "yanrong-body.webp",
+  "size": [
+   1280,
+   1920
+  ],
+  "eyeCenter": [
+   631,
+   294
+  ],
+  "eyeSpan": 59,
+  "mouth": [
+   639,
+   353
+  ]
+ },
+ "patches": {
+  "blink": {
+   "file": "yanrong-patch-blink.webp",
+   "size": [
+    340,
+    190
+   ],
+   "place": {
+    "left": 0.4427,
+    "top": 0.1325,
+    "width": 0.1005
+   },
+   "note": "scale=59/156=0.378 by eye span"
+  },
+  "talk": {
+   "file": "yanrong-patch-talk.webp",
+   "size": [
+    240,
+    140
+   ],
+   "place": {
+    "left": 0.4667,
+    "top": 0.1712,
+    "width": 0.0651
+   },
+   "note": "scale=59/170=0.347 by eye span, anchored at mouth"
+  }
+ }
+}

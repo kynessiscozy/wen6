@@ -1,0 +1,46 @@
+{
+ "body": {
+  "file": "yuchen-body.webp",
+  "size": [
+   1120,
+   2240
+  ],
+  "eyeCenter": [
+   561,
+   345
+  ],
+  "eyeSpan": 66,
+  "mouth": [
+   561,
+   408
+  ]
+ },
+ "patches": {
+  "blink": {
+   "file": "yuchen-patch-blink.webp",
+   "size": [
+    380,
+    225
+   ],
+   "place": {
+    "left": 0.4404,
+    "top": 0.1349,
+    "width": 0.1211
+   },
+   "note": "scale=66/185=0.357 by eye span"
+  },
+  "talk": {
+   "file": "yuchen-patch-talk.webp",
+   "size": [
+    180,
+    120
+   ],
+   "place": {
+    "left": 0.4715,
+    "top": 0.1693,
+    "width": 0.0589
+   },
+   "note": "v2 tight mouth-only crop, scale=0.365 by eye span, anchored at lips center (561,403)"
+  }
+ }
+}

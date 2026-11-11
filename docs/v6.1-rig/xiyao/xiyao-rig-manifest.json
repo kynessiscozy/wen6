@@ -1,0 +1,46 @@
+{
+ "body": {
+  "file": "xiyao-body.webp",
+  "size": [
+   1120,
+   2240
+  ],
+  "eyeCenter": [
+   573,
+   305
+  ],
+  "eyeSpan": 81,
+  "mouth": [
+   573,
+   376
+  ]
+ },
+ "patches": {
+  "blink": {
+   "file": "xiyao-patch-blink.webp",
+   "size": [
+    370,
+    185
+   ],
+   "place": {
+    "left": 0.4384,
+    "top": 0.1154,
+    "width": 0.1463
+   },
+   "note": "scale=81/183=0.443 by eye span"
+  },
+  "talk": {
+   "file": "xiyao-patch-talk.webp",
+   "size": [
+    230,
+    130
+   ],
+   "place": {
+    "left": 0.455,
+    "top": 0.1519,
+    "width": 0.1131
+   },
+   "note": "scale=81/147=0.551 by eye span, anchored at mouth"
+  }
+ }
+}
