@@ -3,13 +3,15 @@ import assert from 'node:assert/strict';
 import puppeteer from 'puppeteer';
 
 const BASE = process.env.BASE_URL || 'http://localhost:5173/index.html';
+// V6.1 六位引路人已移除旧 3D 演出道具，仅校验人物立绘 / 四柱 / 锁定契约。
+const V61_GUIDES = new Set(['moonfox', 'yuchen', 'xingling', 'diyan', 'muse', 'xingluo']);
 const THEMES = {
   wenwen: { trait: '温柔', portrait: 'wenwen-cinema3d.webp', art: 'awakening-scroll.webp', selector: '.calculation-scroll', animation: 'calculation-scroll' },
-  moonfox: { trait: '神秘', portrait: 'moonfox-cinema3d.webp', art: 'awakening-fox-fan.webp', selector: '.calculation-tail--left img', animation: 'calculation-tail-left' },
-  diyan: { trait: '威严', portrait: 'diyan-cinema3d.webp', art: 'earthfire-flame-seat.webp', selector: '.calculation-fire-seat', animation: 'calculation-fire-seat' },
-  yuchen: { trait: '从容', portrait: 'yuchen-cinema3d.webp', art: 'awakening-phoenix-wing.webp', selector: '.calculation-wing--left', animation: 'calculation-wing-left' },
+  moonfox: { trait: '神秘', portrait: 'moonfox-v61.webp', art: 'awakening-fox-fan.webp', selector: '.calculation-tail--left img', animation: 'calculation-tail-left' },
+  diyan: { trait: '威严', portrait: 'diyan-v61.webp', art: 'earthfire-flame-seat.webp', selector: '.calculation-fire-seat', animation: 'calculation-fire-seat' },
+  yuchen: { trait: '从容', portrait: 'yuchen-v61.webp', art: 'awakening-phoenix-wing.webp', selector: '.calculation-wing--left', animation: 'calculation-wing-left' },
   qinglan: { trait: '洒脱', portrait: 'qinglan-cinema3d.webp', art: 'qinglan-sword.webp', selector: '.calculation-sword', animation: 'calculation-sword-draw' },
-  xingling: { trait: '魅惑', portrait: 'xingling-cinema3d.webp', art: 'xingling-fan.webp', selector: '.calculation-star-fan', animation: 'calculation-fan-unfold' },
+  xingling: { trait: '魅惑', portrait: 'xingling-v61.webp', art: 'xingling-fan.webp', selector: '.calculation-star-fan', animation: 'calculation-fan-unfold' },
   luye: { trait: '好奇', portrait: 'luye-fullbody.webp', art: 'luye-turntable.svg', selector: '.calculation-turntable', animation: 'calculation-turntable-enter', detail: '.calculation-vinyl', detailAnimation: 'calculation-vinyl-spin' },
   suyan: { trait: '自信', portrait: 'suyan-fullbody.webp', art: 'suyan-camera.svg', selector: '.calculation-camera-prop', animation: 'calculation-camera-focus', detail: '.calculation-camera-iris', detailAnimation: 'calculation-iris-focus' },
   rongrong: { trait: '可爱', portrait: 'rongrong-cinema3d.webp', art: 'rongrong-pawbell.webp', selector: '.calculation-pawbell', animation: 'calculation-pawbell-swing' },
@@ -110,7 +112,7 @@ try {
       assert.equal(state.byline, `${config.trait} · 命盘推演`, '推演提示只显示特质，不显示人物名称');
       assert.ok(state.portrait.endsWith('/' + config.portrait));
       assert.equal(state.title, 'rgb(255, 249, 239)', '深色场景中的标题必须清晰');
-      assert.equal(state.animation, config.animation);
+      if (!V61_GUIDES.has(id)) assert.equal(state.animation, config.animation);
       assert.match(state.subjectAnimation, /^calculation-/);
       assert.notEqual(state.active, 'none');
       assert.equal(state.inactive, true);
@@ -121,6 +123,8 @@ try {
       assert.ok(state.rects.every(rect => rect.left >= 0 && rect.right <= width && rect.top >= 0 && rect.bottom <= height), `${id} ${width}x${height}: 提示及跳过按钮应完整可见`);
       assert.equal(state.scroll[0], state.scroll[1]);
       // Sampling the actual timeline proves this is movement, not just a style name.
+      // V6.1 引路人的旧道具图已隐藏，这里只检查仍保留道具演出的历史角色。
+      if (!V61_GUIDES.has(id)) {
       const frames = await page.evaluate((selector, name) => {
         const animation = document.querySelector(selector).getAnimations().find(item => item.animationName === name);
         if (!animation) return null;
@@ -129,7 +133,8 @@ try {
         const samples = [sample(200), sample(1200)]; animation.play(); return samples;
       }, config.selector, config.animation);
       assert.ok(frames && JSON.stringify(frames[0]) !== JSON.stringify(frames[1]), `${id}: 专属道具应有实际动作`);
-      if (config.detail) {
+      }
+      if (config.detail && !V61_GUIDES.has(id)) {
         const detailFrames = await page.evaluate((selector, name) => {
           const animation = document.querySelector(selector).getAnimations().find(item => item.animationName === name);
           if (!animation) return null;
@@ -179,7 +184,7 @@ try {
     const { page, context } = await newPage({ theme: 'moonfox' });
     // Predecode the other tab's role so the test observes the switch while
     // the short, normal-length scene is still on screen even on slower CI.
-    await page.evaluate(async () => Promise.all(['./art/yuchen-cinema3d.webp', './art/yuchen-hall-mobile.webp'].map(src => {
+    await page.evaluate(async () => Promise.all(['./art/yuchen-v61.webp', './art/yuchen-hall-mobile.webp'].map(src => {
       const image = new Image(); image.src = src; return image.decode();
     })));
     await openForm(page);
@@ -189,7 +194,7 @@ try {
     await delay(300);
     assert.equal(await page.$eval('html', el => el.dataset.homeTheme), 'moonfox', '其他标签页不能改变本次选择');
     assert.equal(await page.$eval('#calculationOverlay', el => el.dataset.calculationTheme), 'moonfox');
-    assert.ok(await page.$eval('[data-calculation-portrait]', el => el.currentSrc.endsWith('/moonfox-cinema3d.webp')));
+    assert.ok(await page.$eval('[data-calculation-portrait]', el => el.currentSrc.endsWith('/moonfox-v61.webp')));
     assert.equal(await page.$eval('#calculationByline', el => el.textContent), '神秘 · 命盘推演');
     await continueToReport(page);
     await context.close();

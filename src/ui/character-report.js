@@ -1,5 +1,6 @@
 import { HOME_THEMES } from './home-theme.js';
 import { buildGuidePerspective } from './guide-perspective.js';
+import { createGuideVideo, mountGuideVideo, syncGuideVideos } from './guide-video.js';
 
 // The report uses the same page-lifetime choice as the home and calculation
 // scene. No character identity or chart data is stored or sent anywhere here.
@@ -25,9 +26,17 @@ function imageFor(asset, className) {
   return image;
 }
 
-function makePortrait(character, className, withBlink = false) {
+function makePortrait(character, className, withBlink = false, useVideo = false) {
   const portrait = element('div', className);
   portrait.setAttribute('aria-hidden', 'true');
+  // V6.1：报告头图改用同一位引路人的 invite 视频，poster 是定妆图；
+  // 视频不可播时静态立绘接管，不叠任何表情静帧。
+  if (useVideo && character.motion?.src) {
+    const video = createGuideVideo(character.motion, 'result-character-portrait result-character-video');
+    portrait.append(video);
+    mountGuideVideo(video);
+    return portrait;
+  }
   portrait.append(imageFor(character.assets.portrait, 'result-character-portrait'));
   const blink = character.assets.blink;
   const original = character.assets.portrait;
@@ -101,6 +110,8 @@ function syncPortraitToggle(host) {
 function setPortraitHidden(hidden) {
   westernPortraitHidden = hidden;
   document.querySelectorAll('#page2 .result-character-hero, #page2 .result-character-chapter').forEach(syncPortraitToggle);
+  // 收起立绘时同步停掉人物视频，重新显示时再接着播。
+  syncGuideVideos();
 }
 
 function addPortraitToggle(host, figure, section) {
@@ -187,7 +198,7 @@ function makeHero(id, theme, ctx, western, isDemo, onReselect, overview, astro) 
   background.alt = '';
   background.decoding = 'async';
   picture.append(mobile, background);
-  const figure = makePortrait(theme.character, 'result-character-figure', true);
+  const figure = makePortrait(theme.character, 'result-character-figure', true, true);
   scene.append(picture, figure);
   hero.append(scene);
 
@@ -300,7 +311,7 @@ function makeGuidePerspective(id, ctx, western, isDemo) {
   const card = element('aside', 'guide-perspective');
   card.dataset.guidePerspective = id;
   card.setAttribute('aria-label', `${perspective.name}的阅读视角`);
-  card.append(element('p', 'guide-perspective-kicker', `${perspective.name} · 引路人视角${isDemo ? ' · 示例' : ''}`));
+  card.append(element('p', 'guide-perspective-kicker', `${perspective.name} · ${perspective.title} · 引路人视角${isDemo ? ' · 示例' : ''}`));
   card.append(element('h2', 'guide-perspective-title', perspective.focus));
   const easternEl = element('p', 'guide-perspective-facts sys-eastern',
     perspective.eastern ? `命盘线索：${perspective.eastern}` : '命盘线索暂不可用，请查看完整报告。');

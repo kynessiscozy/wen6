@@ -1,6 +1,6 @@
 /* 问问大师 PWA：离线可用 + 秒开的缓存策略。
    静态资源带 hash，可长期缓存；HTML 走 network-first 保证更新及时。 */
-const CACHE = 'wenda-cache-v74';
+const CACHE = 'wenda-cache-v75';
 const BASE = './';
 
 const OPTIONAL_ASSETS = [
@@ -54,6 +54,13 @@ const OPTIONAL_ASSETS = [
   // when their (large) MP4s are not cached.
   'art/diyan-lord.webp', 'art/yuchen-lord.webp', 'art/yuebai-lord.webp', 'art/xiyao-lord.webp', 'art/leizi-lord.webp', 'art/muse-lord.webp',
   'art/diyan-entry2-poster.webp', 'art/diyan-ritual-poster.webp',
+  // V6.1 全面换新：六位 2D 引路人的透明立绘与同版头像（报告/首页/推演共用）。
+  'art/moonfox-v61.webp', 'art/moonfox-v61-avatar.webp',
+  'art/yuchen-v61.webp', 'art/yuchen-v61-avatar.webp',
+  'art/xingling-v61.webp', 'art/xingling-v61-avatar.webp',
+  'art/diyan-v61.webp', 'art/diyan-v61-avatar.webp',
+  'art/muse-v61.webp', 'art/muse-v61-avatar.webp',
+  'art/xingluo-v61.webp', 'art/xingluo-v61-avatar.webp',
 ];
 
 self.addEventListener('install', (e) => {

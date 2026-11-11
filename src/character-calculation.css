@@ -14,14 +14,15 @@
   isolation: isolate;
 }
 .calculation-overlay[data-calculation-theme="moonfox"] { --ritual-ink: #e2f6ff; --ritual-muted: #d1eaf6; --ritual-glow: rgba(129, 207, 255, .37); background: #101e2a; }
-.calculation-overlay[data-calculation-theme="diyan"] { --ritual-ink: #ffdac3; --ritual-muted: #f5c4b2; --ritual-glow: rgba(255, 81, 33, .4); background: #1c0909; }
-.calculation-overlay[data-calculation-theme="yuchen"] { --ritual-ink: #fff1cd; --ritual-muted: #eee2cb; --ritual-glow: rgba(227, 202, 136, .35); background: #151d19; }
+.calculation-overlay[data-calculation-theme="diyan"] { --ritual-ink: #f7e7c8; --ritual-muted: #dcc9a6; --ritual-glow: rgba(223, 179, 108, .42); background: #0e0a07; }
+.calculation-overlay[data-calculation-theme="yuchen"] { --ritual-ink: #f2f6dd; --ritual-muted: #d7ddc2; --ritual-glow: rgba(211, 221, 166, .35); background: #10140e; }
 .calculation-overlay[data-calculation-theme="qinglan"] { --ritual-ink: #d9fff0; --ritual-muted: #cbe7df; --ritual-glow: rgba(140, 223, 196, .36); background: #0b1d20; }
-.calculation-overlay[data-calculation-theme="xingling"] { --ritual-ink: #f0dfff; --ritual-muted: #e5d3f4; --ritual-glow: rgba(200, 151, 248, .38); background: #171028; }
+.calculation-overlay[data-calculation-theme="xingling"] { --ritual-ink: #fff0f7; --ritual-muted: #f2c8dc; --ritual-glow: rgba(255, 154, 198, .42); background: #1b0d18; }
 .calculation-overlay[data-calculation-theme="luye"] { --ritual-ink: #ffe4bb; --ritual-muted: #eedac0; --ritual-glow: rgba(236, 184, 117, .35); background: #111a1c; }
 .calculation-overlay[data-calculation-theme="suyan"] { --ritual-ink: #ffe3eb; --ritual-muted: #f2d7de; --ritual-glow: rgba(225, 165, 188, .35); background: #211722; }
 .calculation-overlay[data-calculation-theme="leizi"] { --ritual-ink: #fdf0cd; --ritual-muted: #eee0b8; --ritual-glow: rgba(242, 193, 78, .38); background: #0a0e1a; }
-.calculation-overlay[data-calculation-theme="muse"] { --ritual-ink: #faf0d4; --ritual-muted: #eee1ba; --ritual-glow: rgba(230, 207, 154, .38); background: #10182b; }
+.calculation-overlay[data-calculation-theme="muse"] { --ritual-ink: #faf0d4; --ritual-muted: #d8cbe0; --ritual-glow: rgba(230, 207, 154, .38); background: #160d1a; }
+.calculation-overlay[data-calculation-theme="xingluo"] { --ritual-ink: #eef2ff; --ritual-muted: #c2cbe9; --ritual-glow: rgba(169, 188, 245, .38); background: #0a0d20; }
 .calculation-backdrop { position: absolute; inset: 0; overflow: hidden; }
 .calculation-backdrop img { display: block; width: 100%; height: 100%; object-fit: cover; opacity: .56; }
 .calculation-backdrop::after {
@@ -337,3 +338,22 @@
 @keyframes calculation-crane-subject { from { opacity: .1; transform: translate(-10px, 16px) rotate(-2deg) scale(.96); } 70% { opacity: 1; transform: translate(3px, -5px) rotate(.5deg) scale(1.01); } to { opacity: 1; transform: none; } }
 @keyframes calculation-pawbell-swing { 0%, 8% { opacity: 0; transform: translateY(-18px) rotate(-35deg) scale(.8); } 35% { opacity: .95; transform: rotate(17deg) scale(1.05); } 62% { transform: rotate(-9deg); } 82% { transform: rotate(4deg); } 100% { opacity: .9; transform: rotate(0); } }
 @keyframes calculation-crane-flight { 0%, 5% { opacity: 0; transform: translate(-45px, 65px) rotate(-22deg) scale(.62); } 55% { opacity: .95; transform: translate(20px, -20px) rotate(10deg) scale(1.06); } 100% { opacity: .88; transform: translate(0, 0) rotate(-3deg) scale(1); } }
+
+
+/* V6.1：旧 3D 道具（狐尾扇/火焰王座/符文/凤翼/星扇）随旧立绘一并退场，
+   只保留 SVG 轨迹；全身 2D 立绘统一用温和的默认推入动画。 */
+.calculation-overlay[data-calculation-theme="moonfox"] .calculation-props--moonfox img[data-calculation-src],
+.calculation-overlay[data-calculation-theme="diyan"] .calculation-props--diyan img[data-calculation-src],
+.calculation-overlay[data-calculation-theme="yuchen"] .calculation-props--yuchen img[data-calculation-src],
+.calculation-overlay[data-calculation-theme="xingling"] .calculation-props--xingling img[data-calculation-src] { display: none !important; }
+
+.calculation-overlay[data-calculation-theme="moonfox"] .calculation-portrait,
+.calculation-overlay[data-calculation-theme="diyan"] .calculation-portrait,
+.calculation-overlay[data-calculation-theme="yuchen"] .calculation-portrait,
+.calculation-overlay[data-calculation-theme="xingling"] .calculation-portrait,
+.calculation-overlay[data-calculation-theme="muse"] .calculation-portrait,
+.calculation-overlay[data-calculation-theme="xingluo"] .calculation-portrait {
+  height: 100%;
+  bottom: 0;
+  animation-name: calculation-subject;
+}

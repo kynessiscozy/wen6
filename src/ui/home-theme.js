@@ -3,8 +3,8 @@ import { syncBrowserThemeColor } from './theme-color.js';
 import { themeForPersona } from './entry-personas.js';
 import { JIANGJIANG } from '../character/wenwen.js';
 import {
-  MOON_FOX, EARTHFIRE_SOVEREIGN, JADE_EMPRESS, QINGLAN, XINGLING,
-  LUYE, SUYAN, RONGRONG, ZHIYA, LEIZI, MUSE, XINGLUO,
+  MOON_FOX, YANRONG, JADE_EMPRESS, QINGLAN, XIYAO,
+  LUYE, SUYAN, RONGRONG, ZHIYA, LEIZI, TAROT_MASTER, XINGLUO,
 } from '../character/characters.data.js';
 
 // One registry supplies the reel, scenes and report styling.
@@ -17,8 +17,9 @@ export const HOME_THEMES = Object.freeze({
     backdrop: Object.freeze({ wide: './art/sacred-study-wide.webp', mobile: './art/sacred-study-mobile.webp' }),
   }),
   moonfox: Object.freeze({
-    trait: Object.freeze({ label: '神秘', description: '敏锐内敛，总想探索未知。', mark: '秘', color: '#b9dbef' }),
-    reportLead: '有意思，线索已经浮现。',
+    trait: Object.freeze({ label: '神秘', description: '不预设方向，东西两面一并看全。', mark: '秘', color: '#b9dbef' }),
+    guide: Object.freeze({ name: '月白', title: '神秘人', focus: '全能推演' }),
+    reportLead: '东西两面都看全，再下判断。',
     character: MOON_FOX,
     backdrop: Object.freeze({ wide: './art/moon-fox-study-wide.webp', mobile: './art/moon-fox-study-mobile.webp' }),
   }),
@@ -29,20 +30,23 @@ export const HOME_THEMES = Object.freeze({
     backdrop: Object.freeze({ wide: './art/leizi-hall-wide.webp', mobile: './art/leizi-hall-mobile.webp' }),
   }),
   muse: Object.freeze({
-    trait: Object.freeze({ label: '灵感', description: '念头落下之前，先接住它。', mark: '羽', color: '#e6cf9a' }),
-    reportLead: '让灵感先落在你身上。',
-    character: MUSE,
+    trait: Object.freeze({ label: '灵感', description: '以西方卡罗牌为镜，把问题问清楚。', mark: '羽', color: '#e6cf9a' }),
+    guide: Object.freeze({ name: '絮羽', title: '卡罗大师', focus: '塔罗推演' }),
+    reportLead: '问题先放心里，让牌说话。',
+    character: TAROT_MASTER,
     backdrop: Object.freeze({ wide: './art/muse-hall-wide.webp', mobile: './art/muse-hall-mobile.webp' }),
   }),
   diyan: Object.freeze({
-    trait: Object.freeze({ label: '威严', description: '坚定果断，敢于为选择担当。', mark: '威', color: '#ec8278' }),
-    reportLead: '先定根基，再看全局。',
-    character: EARTHFIRE_SOVEREIGN,
+    trait: Object.freeze({ label: '威严', description: '拨一盘账，看财路的来处与漏处。', mark: '威', color: '#dfb36c' }),
+    guide: Object.freeze({ name: '焱绒', title: '财富', focus: '财富推演' }),
+    reportLead: '先看财路，再定进退。',
+    character: YANRONG,
     backdrop: Object.freeze({ wide: './art/earthfire-hall-wide.webp', mobile: './art/earthfire-hall-mobile.webp' }),
   }),
   yuchen: Object.freeze({
-    trait: Object.freeze({ label: '从容', description: '沉静笃定，遇事自有节奏。', mark: '容', color: '#d9d3a9' }),
-    reportLead: '静下心，先看这一处。',
+    trait: Object.freeze({ label: '从容', description: '看大运与流年，先定事业这一局的势。', mark: '容', color: '#d3dda6' }),
+    guide: Object.freeze({ name: '玉宸', title: '事业', focus: '事业推演' }),
+    reportLead: '事业这一局，先看势。',
     character: JADE_EMPRESS,
     backdrop: Object.freeze({ wide: './art/yuchen-hall-wide.webp', mobile: './art/yuchen-hall-mobile.webp' }),
   }),
@@ -53,17 +57,18 @@ export const HOME_THEMES = Object.freeze({
     backdrop: Object.freeze({ wide: './art/qinglan-room-wide.webp', mobile: './art/qinglan-room-mobile.webp' }),
   }),
   xingling: Object.freeze({
-    trait: Object.freeze({ label: '魅惑', description: '自有吸引力，懂得欣赏生活。', mark: '魅', color: '#f2a7c3' }),
-    reportLead: '细看，线索藏在这里。',
-    character: XINGLING,
+    trait: Object.freeze({ label: '魅惑', description: '牵红线、翻姻缘簿，先看心里那个人。', mark: '魅', color: '#ff9ac6' }),
+    guide: Object.freeze({ name: '夕瑶', title: '姻缘', focus: '姻缘推演' }),
+    reportLead: '姻缘这一线，先看心。',
+    character: XIYAO,
     backdrop: Object.freeze({ wide: './art/xingling-room-wide.webp', mobile: './art/xingling-room-mobile.webp' }),
   }),
   xingluo: Object.freeze({
-    trait: Object.freeze({ label: '占星', description: '看星盘定底色，观行运知进退。', mark: '星', color: '#a9bcf5' }),
+    trait: Object.freeze({ label: '占星', description: '以星盘三要素定底色，观行运知进退。', mark: '星', color: '#a9bcf5' }),
+    guide: Object.freeze({ name: '星罗', title: '占星术', focus: '占星推演' }),
     reportLead: '星盘之上，自有答案。',
     character: XINGLUO,
-    // 星罗专属场景图待定妆确认后补；暂借絮羽星空大厅占位。
-    backdrop: Object.freeze({ wide: './art/muse-hall-wide.webp', mobile: './art/muse-hall-mobile.webp' }),
+    backdrop: Object.freeze({ wide: './art/xingluo-observatory-wide.webp', mobile: './art/xingluo-observatory-mobile.webp' }),
   }),
   luye: Object.freeze({
     trait: Object.freeze({ label: '好奇', description: '对新鲜事物，总想多看一眼。', mark: '奇', color: '#e8c595' }),

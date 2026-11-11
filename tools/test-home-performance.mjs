@@ -254,8 +254,8 @@ try {
 
   // Optional fire layers and expression images must not block a role selection.
   for (const [id, heldPattern, filename, selector] of [
-    ['diyan', /earthfire-(flame-seat|runes|rune-seal)\.webp/, 'earthfire-flame-seat.webp', '.character-fire-base'],
-    ['moonfox', /moonfox-cinema3d-blink-v2\.webp/, 'moonfox-cinema3d-blink-v2.webp', '.character-blink'],
+    ['wenwen', /wenwen-lantern\.webp/, 'wenwen-lantern.webp', '.character-prop--lantern img'],
+    ['qinglan', /qinglan-cinema3d-blink-v2\.webp/, 'qinglan-cinema3d-blink-v2.webp', '.character-blink'],
   ]) {
     const { page, context, errors } = await openContext();
     await page.setRequestInterception(true);
@@ -264,7 +264,7 @@ try {
     await choose(page, id);
     await waitForHeld(gate, filename);
     assert.equal(await page.$eval(selector, image => image.complete && image.naturalWidth > 0), false);
-    if (id === 'moonfox') assert.equal(await page.$eval(selector, image => image.hidden), true, '未加载的表情不能露出错误图层');
+    if (id === 'qinglan') assert.equal(await page.$eval(selector, image => image.hidden), true, '未加载的表情不能露出错误图层');
     await gate.release();
     await page.waitForFunction(sel => { const image = document.querySelector(sel); return !image.hidden && image.complete && image.naturalWidth > 0; }, {}, selector);
     assert.equal(await page.$eval('html', el => el.dataset.homeTheme), id);
@@ -278,18 +278,18 @@ try {
   {
     const { page, context } = await openContext();
     await page.setRequestInterception(true);
-    const gate = gateRequests(page, url => url.endsWith('/yuchen-cinema3d.webp'));
+    const gate = gateRequests(page, url => url.endsWith('/yuchen-v61.webp'));
     await page.goto(base + 'index.html', { waitUntil: 'domcontentloaded' });
     await page.waitForSelector('#traitMachine[data-ready="true"]');
     await spinFor(page, 'yuchen');
-    await waitForHeld(gate, '/yuchen-cinema3d.webp');
+    await waitForHeld(gate, '/yuchen-v61.webp');
     assert.equal(await page.$$eval('#traitSpin, #traitLever, #traitConfirm', buttons => buttons.every(button => button.disabled)), true);
     await page.waitForFunction(() => document.documentElement.dataset.homeTheme === 'yuchen', { timeout: 5000 });
     assert.equal(await page.$eval('[data-character-asset="portrait"]', image => getComputedStyle(image).visibility), 'hidden');
     await gate.release();
     await page.waitForFunction(() => {
       const image = document.querySelector('[data-character-asset="portrait"]');
-      return image.complete && image.currentSrc.endsWith('/yuchen-cinema3d.webp') && getComputedStyle(image).visibility === 'visible';
+      return image.complete && image.currentSrc.endsWith('/yuchen-v61.webp') && getComputedStyle(image).visibility === 'visible';
     });
     await context.close();
   }
@@ -343,7 +343,7 @@ try {
     assert.equal(await page.$eval('#traitSelection', el => el.hidden), false);
     responses.length = 0;
     await choose(page, 'moonfox');
-    for (const name of ['moonfox-cinema3d.webp', 'moon-fox-study-mobile.webp']) {
+    for (const name of ['moonfox-v61.webp', 'moon-fox-study-mobile.webp']) {
       const response = responses.find(item => item.url.endsWith('/' + name));
       assert.ok(response?.cached, `${name} 重新选择应复用浏览器缓存`);
     }

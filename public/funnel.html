@@ -15,7 +15,7 @@
 <script>
   // Apply the saved palette before the page is painted, including in standalone PWA mode.
   (function () {
-    var backgrounds = { moonfox: '#090f17', diyan: '#130b0b', yuchen: '#10140e', xiyao: '#170d16', xingluo: '#0a0d20', muse: '#10182b' };
+    var backgrounds = { moonfox: '#090f17', diyan: '#0e0a07', yuchen: '#10140e', xiyao: '#1b0d18', xingluo: '#0a0d20', muse: '#160d1a' };
     window.__wenSetFunnelTheme = function (key) {
       if (!Object.prototype.hasOwnProperty.call(backgrounds, key)) key = 'moonfox';
       document.documentElement.dataset.funnelPersona = key;
@@ -46,27 +46,27 @@
     --backdrop-mobile:url('./art/moon-fox-study-mobile.webp'); --backdrop-wide:url('./art/moon-fox-study-wide.webp');
   }
   html[data-funnel-persona="diyan"]{
-    --bg:#130b0b; --shade-rgb:19,11,11; --accent-rgb:236,130,120;
-    --panel:rgba(30,15,14,.84); --line:rgba(236,130,120,.4);
-    --gold:#ec8278; --gold-soft:#f5c5bc; --red:#8a2015;
-    --button-top:#8a2015; --button-bottom:#5f130d; --ink:#fff1ed; --ink-dim:#dec3bb;
-    --card:#251411; --card-on:#4a211c;
+    --bg:#0e0a07; --shade-rgb:14,10,7; --accent-rgb:223,179,108;
+    --panel:rgba(26,19,12,.86); --line:rgba(223,179,108,.4);
+    --gold:#dfb36c; --gold-soft:#f0d6a6; --red:#6a4a1d;
+    --button-top:#8a6428; --button-bottom:#4a3212; --ink:#fbf3e4; --ink-dim:#dcc9a6;
+    --card:#1c140b; --card-on:#3a2a14;
     --backdrop-mobile:url('./art/earthfire-hall-mobile.webp'); --backdrop-wide:url('./art/earthfire-hall-wide.webp');
   }
   html[data-funnel-persona="yuchen"]{
-    --bg:#10140e; --shade-rgb:16,20,14; --accent-rgb:217,211,169;
-    --panel:rgba(24,30,21,.84); --line:rgba(217,211,169,.4);
-    --gold:#d9d3a9; --gold-soft:#eee9cc; --red:#4d5936;
-    --button-top:#566440; --button-bottom:#313e26; --ink:#f5f5e9; --ink-dim:#d2d5bf;
+    --bg:#10140e; --shade-rgb:16,20,14; --accent-rgb:211,221,166;
+    --panel:rgba(24,30,21,.84); --line:rgba(211,221,166,.4);
+    --gold:#d3dda6; --gold-soft:#e9efc8; --red:#4d5936;
+    --button-top:#566440; --button-bottom:#313e26; --ink:#f5f5e9; --ink-dim:#d7ddc2;
     --card:#1d251a; --card-on:#343f29;
     --backdrop-mobile:url('./art/yuchen-hall-mobile.webp'); --backdrop-wide:url('./art/yuchen-hall-wide.webp');
   }
   html[data-funnel-persona="xiyao"]{
-    --bg:#170d16; --shade-rgb:23,13,22; --accent-rgb:242,167,195;
-    --panel:rgba(38,20,32,.84); --line:rgba(242,167,195,.4);
-    --gold:#f2a7c3; --gold-soft:#fad3e1; --red:#65344c;
-    --button-top:#96506e; --button-bottom:#65344c; --ink:#fff3f7; --ink-dim:#e6c3d1;
-    --card:#2b1622; --card-on:#4a2a3a;
+    --bg:#1b0d18; --shade-rgb:27,13,24; --accent-rgb:255,154,198;
+    --panel:rgba(48,19,38,.84); --line:rgba(255,154,198,.42);
+    --gold:#ff9ac6; --gold-soft:#ffd6e8; --red:#7a2f59;
+    --button-top:#b05082; --button-bottom:#7a2f59; --ink:#fff3f8; --ink-dim:#f2c8dc;
+    --card:#301623; --card-on:#5c2b47;
     --backdrop-mobile:url('./art/xingling-room-mobile.webp'); --backdrop-wide:url('./art/xingling-room-wide.webp');
   }
   html[data-funnel-persona="xingluo"]{
@@ -78,11 +78,11 @@
     --backdrop-mobile:url('./art/xingluo-observatory-mobile.webp'); --backdrop-wide:url('./art/xingluo-observatory-wide.webp');
   }
   html[data-funnel-persona="muse"]{
-    --bg:#10182b; --shade-rgb:16,24,43; --accent-rgb:230,207,154;
-    --panel:rgba(20,28,48,.84); --line:rgba(230,207,154,.38);
-    --gold:#e6cf9a; --gold-soft:#f4e7c3; --red:#6b5a2e;
-    --button-top:#a68d4e; --button-bottom:#77622f; --ink:#faf3e0; --ink-dim:#d8d0b8;
-    --card:#171f33; --card-on:#2c3350;
+    --bg:#160d1a; --shade-rgb:22,13,26; --accent-rgb:230,207,154;
+    --panel:rgba(33,20,39,.86); --line:rgba(230,207,154,.38);
+    --gold:#e6cf9a; --gold-soft:#f4e7c3; --red:#5c3268;
+    --button-top:#6b3f7a; --button-bottom:#43224f; --ink:#faf3e0; --ink-dim:#d8cbe0;
+    --card:#24162b; --card-on:#40254a;
     --backdrop-mobile:url('./art/muse-hall-mobile.webp'); --backdrop-wide:url('./art/muse-hall-wide.webp');
   }
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -298,19 +298,19 @@
 <!-- 入口门 -->
 <section class="screen active" id="s-entry">
   <video class="entry-video" id="entryVideo" autoplay muted loop playsinline preload="auto"
-         poster="./art/yuebai-lord.webp" src="./art/yuebai-entry.mp4" aria-label="月白"></video>
+         poster="./art/yuebai-lord.webp" src="./art/yuebai-entry.mp4?v=75" aria-label="月白"></video>
   <div class="entry-shade"></div>
   <div class="persona-switch">
     <button type="button" class="persona-toggle" id="personaToggle" aria-expanded="false" aria-controls="personaOptions" aria-label="当前引路人：月白，切换引路人">
       <span class="persona-label" id="personaLabel">月白</span><span>切换</span><span class="persona-chevron" aria-hidden="true">⌄</span>
     </button>
     <div class="persona-options" id="personaOptions" role="group" aria-label="选择引路人" hidden>
-      <button type="button" data-persona="diyan" aria-pressed="false"><span>焱绒<small>财富</small></span></button>
-      <button type="button" data-persona="yuchen" aria-pressed="false"><span>玉宸<small>事业</small></span></button>
+      <button type="button" data-persona="diyan" aria-pressed="false"><span>焱绒<small>财富推演专家</small></span></button>
+      <button type="button" data-persona="yuchen" aria-pressed="false"><span>玉宸<small>事业推演专家</small></span></button>
       <button type="button" data-persona="moonfox" class="on" aria-pressed="true"><span>月白<small>神秘人 · 全能推演</small></span></button>
-      <button type="button" data-persona="xiyao" aria-pressed="false"><span>夕瑶<small>姻缘</small></span></button>
-      <button type="button" data-persona="xingluo" aria-pressed="false"><span>星罗<small>占星术</small></span></button>
-      <button type="button" data-persona="muse" aria-pressed="false"><span>絮羽<small>卡罗大师</small></span></button>
+      <button type="button" data-persona="xiyao" aria-pressed="false"><span>夕瑶<small>姻缘推演专家</small></span></button>
+      <button type="button" data-persona="xingluo" aria-pressed="false"><span>星罗<small>西方占星师</small></span></button>
+      <button type="button" data-persona="muse" aria-pressed="false"><span>絮羽<small>西方卡罗大师</small></span></button>
     </div>
   </div>
   <div class="entry-inner">
@@ -325,7 +325,7 @@
 
 <!-- 沉浸过场 -->
 <section class="screen" id="s-immersion">
-  <video class="imm-video" id="immVideo" muted loop playsinline preload="auto" src="./art/yuebai-ritual.mp4" poster="./art/yuebai-lord.webp" aria-hidden="true"></video>
+  <video class="imm-video" id="immVideo" muted loop playsinline preload="auto" src="./art/yuebai-ritual.mp4?v=75" poster="./art/yuebai-lord.webp" aria-hidden="true"></video>
   <div class="imm-shade"></div>
   <div class="dim"></div>
   <button class="skip" id="btnSkipStory">跳过</button>
@@ -340,7 +340,7 @@
 
 <!-- 问卷 -->
 <section class="screen" id="s-quiz">
-  <video class="quiz-bg" src="./art/yuebai-quiz.mp4" poster="./art/yuebai-lord.webp" autoplay muted loop playsinline aria-hidden="true"></video>
+  <video class="quiz-bg" src="./art/yuebai-quiz.mp4?v=75" poster="./art/yuebai-lord.webp" autoplay muted loop playsinline aria-hidden="true"></video>
   <div class="quiz-shade"></div>
   <div class="qhead">
     <button class="back" id="btnBack" aria-label="上一题">‹</button>
@@ -358,14 +358,14 @@
 
 <!-- 问卷中段过场 -->
 <section class="screen" id="s-inter">
-  <video class="inter-video" muted loop playsinline preload="auto" src="./art/yuebai-quiz.mp4" poster="./art/yuebai-lord.webp" aria-hidden="true"></video>
+  <video class="inter-video" muted loop playsinline preload="auto" src="./art/yuebai-quiz.mp4?v=75" poster="./art/yuebai-lord.webp" aria-hidden="true"></video>
   <p class="inter-line">根基已定。<br>再陪我走几步。</p>
 </section>
 
 <!-- 加载仪式 -->
 <section class="screen" id="s-loading">
   <video class="load-video" autoplay muted loop playsinline preload="auto"
-         poster="./art/yuebai-lord.webp" src="./art/yuebai-ritual.mp4" aria-hidden="true"></video>
+         poster="./art/yuebai-lord.webp" src="./art/yuebai-ritual.mp4?v=75" aria-hidden="true"></video>
   <div class="load-shade"></div>
   <div class="load-inner">
     <img id="loadAvatar" src="./art/yuebai-lord.webp" alt="">
@@ -1007,24 +1007,24 @@ document.querySelectorAll('#fmPanels [data-fmclose]').forEach(function(el){
 
 /* 首屏右上角选择引路人，全漏斗换人。 */
 var PERSONAS={
-  diyan:{name:'焱绒',focus:'财富推演',entry:'./art/diyan-entry2.mp4',entryPoster:'./art/diyan-entry2-poster.webp',
-    ritual:'./art/diyan-ritual.mp4',ritualPoster:'./art/diyan-ritual-poster.webp',
-    quiz:'./art/diyan-quiz.mp4?v=73',poster:'./art/diyan-lord.webp',firstLine:'焱绒正在为你算财…'},
-  yuchen:{name:'玉宸',focus:'事业推演',entry:'./art/yuchen-entry.mp4',entryPoster:'./art/yuchen-lord.webp',
-    ritual:'./art/yuchen-ritual.mp4',ritualPoster:'./art/yuchen-lord.webp',
-    quiz:'./art/yuchen-quiz.mp4?v=73',poster:'./art/yuchen-lord.webp',firstLine:'玉宸正在为你看事业…'},
-  moonfox:{name:'月白',focus:'全能推演',entry:'./art/yuebai-entry.mp4',entryPoster:'./art/yuebai-lord.webp',
-    ritual:'./art/yuebai-ritual.mp4',ritualPoster:'./art/yuebai-lord.webp',
-    quiz:'./art/yuebai-quiz.mp4?v=73',poster:'./art/yuebai-lord.webp',firstLine:'月白正在为你翻册…'},
-  xiyao:{name:'夕瑶',focus:'姻缘推演',entry:'./art/xiyao-entry.mp4',entryPoster:'./art/xiyao-lord.webp',
-    ritual:'./art/xiyao-ritual.mp4',ritualPoster:'./art/xiyao-lord.webp',
-    quiz:'./art/xiyao-quiz.mp4?v=73',poster:'./art/xiyao-lord.webp',firstLine:'夕瑶正在为你看姻缘…'},
-  xingluo:{name:'星罗',focus:'占星推演',entry:'./art/xingluo-entry.mp4?v=73',entryPoster:'./art/xingluo-lord.webp',
-    ritual:'./art/xingluo-ritual.mp4?v=73',ritualPoster:'./art/xingluo-lord.webp',
-    quiz:'./art/xingluo-quiz.mp4?v=73',poster:'./art/xingluo-lord.webp',firstLine:'星罗正在为你观星…'},
-  muse:{name:'絮羽',focus:'塔罗推演',entry:'./art/muse-entry.mp4?v=73',entryPoster:'./art/muse-lord.webp',
-    ritual:'./art/muse-ritual.mp4?v=73',ritualPoster:'./art/muse-lord.webp',
-    quiz:'./art/muse-quiz.mp4?v=73',poster:'./art/muse-lord.webp',firstLine:'絮羽正在为你洗牌…'}
+  diyan:{name:'焱绒',title:'财富',focus:'财富推演',entry:'./art/diyan-entry2.mp4?v=75',entryPoster:'./art/diyan-entry2-poster.webp',
+    ritual:'./art/diyan-ritual.mp4?v=75',ritualPoster:'./art/diyan-ritual-poster.webp',
+    quiz:'./art/diyan-quiz.mp4?v=75',poster:'./art/diyan-lord.webp',firstLine:'焱绒正在为你算财…'},
+  yuchen:{name:'玉宸',title:'事业',focus:'事业推演',entry:'./art/yuchen-entry.mp4?v=75',entryPoster:'./art/yuchen-lord.webp',
+    ritual:'./art/yuchen-ritual.mp4?v=75',ritualPoster:'./art/yuchen-lord.webp',
+    quiz:'./art/yuchen-quiz.mp4?v=75',poster:'./art/yuchen-lord.webp',firstLine:'玉宸正在为你看事业…'},
+  moonfox:{name:'月白',title:'神秘人',focus:'全能推演',entry:'./art/yuebai-entry.mp4?v=75',entryPoster:'./art/yuebai-lord.webp',
+    ritual:'./art/yuebai-ritual.mp4?v=75',ritualPoster:'./art/yuebai-lord.webp',
+    quiz:'./art/yuebai-quiz.mp4?v=75',poster:'./art/yuebai-lord.webp',firstLine:'月白正在为你翻册…'},
+  xiyao:{name:'夕瑶',title:'姻缘',focus:'姻缘推演',entry:'./art/xiyao-entry.mp4?v=75',entryPoster:'./art/xiyao-lord.webp',
+    ritual:'./art/xiyao-ritual.mp4?v=75',ritualPoster:'./art/xiyao-lord.webp',
+    quiz:'./art/xiyao-quiz.mp4?v=75',poster:'./art/xiyao-lord.webp',firstLine:'夕瑶正在为你看姻缘…'},
+  xingluo:{name:'星罗',title:'占星术',focus:'占星推演',entry:'./art/xingluo-entry.mp4?v=75',entryPoster:'./art/xingluo-lord.webp',
+    ritual:'./art/xingluo-ritual.mp4?v=75',ritualPoster:'./art/xingluo-lord.webp',
+    quiz:'./art/xingluo-quiz.mp4?v=75',poster:'./art/xingluo-lord.webp',firstLine:'星罗正在为你观星…'},
+  muse:{name:'絮羽',title:'卡罗大师',focus:'塔罗推演',entry:'./art/muse-entry.mp4?v=75',entryPoster:'./art/muse-lord.webp',
+    ritual:'./art/muse-ritual.mp4?v=75',ritualPoster:'./art/muse-lord.webp',
+    quiz:'./art/muse-quiz.mp4?v=75',poster:'./art/muse-lord.webp',firstLine:'絮羽正在为你洗牌…'}
 };
 /* 沉浸过场三句与问卷中段过场：随引路人切换（V6.1 文案，一人一版）。 */
 var IMMERSION_BY_PERSONA={
