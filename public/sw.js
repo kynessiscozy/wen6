@@ -1,6 +1,6 @@
 /* 问问大师 PWA：离线可用 + 秒开的缓存策略。
    静态资源带 hash，可长期缓存；HTML 走 network-first 保证更新及时。 */
-const CACHE = 'wenda-cache-v72';
+const CACHE = 'wenda-cache-v73';
 const BASE = './';
 
 const OPTIONAL_ASSETS = [
@@ -21,6 +21,7 @@ const OPTIONAL_ASSETS = [
   'art/muse-cinema3d.webp', 'art/muse-cinema3d-avatar.webp', 'art/muse-cinema3d-blink.webp', 'art/muse-cinema3d-speak.webp',
   'art/xingluo-cinema3d.webp', 'art/xingluo-cinema3d-avatar.webp', 'art/xingluo-lord.webp',
   'art/leizi-hall-wide.webp', 'art/leizi-hall-mobile.webp', 'art/muse-hall-wide.webp', 'art/muse-hall-mobile.webp',
+  'art/xingluo-observatory-wide.webp', 'art/xingluo-observatory-mobile.webp',
   'manifest.webmanifest', 'pwa-install.js', 'icon.svg', 'icon-192.png', 'icon-512.png',
   'icon-twins-128.png', 'icon-twins-192.png', 'icon-twins-512.png',
   'icon-twins-maskable-192.png', 'icon-twins-maskable-512.png', 'apple-touch-icon-twins.png',

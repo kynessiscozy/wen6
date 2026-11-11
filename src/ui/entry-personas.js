@@ -114,7 +114,7 @@ export const FUNNEL_PERSONAS = Object.freeze({
     theme: 'muse',
     palette: PALETTES.muse,
     poster: './art/muse-lord.webp',
-    video: './art/muse-invite.mp4?v=69',
+    video: './art/muse-invite.mp4?v=73',
     lead: '问题先放心里，牌会说话。',
     circle: '是絮羽先替你圈出来的',
     hooksTitle: '絮 羽 先 说 三 句',

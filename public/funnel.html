@@ -75,7 +75,7 @@
     --gold:#a9bcf5; --gold-soft:#d5defc; --red:#2a3460;
     --button-top:#46548c; --button-bottom:#2a3460; --ink:#f0f3ff; --ink-dim:#c2cbe9;
     --card:#141a33; --card-on:#27304f;
-    --backdrop-mobile:url('./art/muse-hall-mobile.webp'); --backdrop-wide:url('./art/muse-hall-wide.webp');
+    --backdrop-mobile:url('./art/xingluo-observatory-mobile.webp'); --backdrop-wide:url('./art/xingluo-observatory-wide.webp');
   }
   html[data-funnel-persona="muse"]{
     --bg:#10182b; --shade-rgb:16,24,43; --accent-rgb:230,207,154;
@@ -986,23 +986,22 @@ document.querySelectorAll('#fmPanels [data-fmclose]').forEach(function(el){
 var PERSONAS={
   diyan:{name:'焱绒',focus:'财富推演',entry:'./art/diyan-entry2.mp4',entryPoster:'./art/diyan-entry2-poster.webp',
     ritual:'./art/diyan-ritual.mp4',ritualPoster:'./art/diyan-ritual-poster.webp',
-    quiz:'./art/diyan-quiz.mp4?v=66',poster:'./art/diyan-lord.webp',firstLine:'焱绒正在为你算财…'},
+    quiz:'./art/diyan-quiz.mp4?v=73',poster:'./art/diyan-lord.webp',firstLine:'焱绒正在为你算财…'},
   yuchen:{name:'玉宸',focus:'事业推演',entry:'./art/yuchen-entry.mp4',entryPoster:'./art/yuchen-lord.webp',
     ritual:'./art/yuchen-ritual.mp4',ritualPoster:'./art/yuchen-lord.webp',
-    quiz:'./art/yuchen-quiz.mp4?v=66',poster:'./art/yuchen-lord.webp',firstLine:'玉宸正在为你看事业…'},
+    quiz:'./art/yuchen-quiz.mp4?v=73',poster:'./art/yuchen-lord.webp',firstLine:'玉宸正在为你看事业…'},
   moonfox:{name:'月白',focus:'全能推演',entry:'./art/yuebai-entry.mp4',entryPoster:'./art/yuebai-lord.webp',
     ritual:'./art/yuebai-ritual.mp4',ritualPoster:'./art/yuebai-lord.webp',
-    quiz:'./art/yuebai-quiz.mp4?v=66',poster:'./art/yuebai-lord.webp',firstLine:'月白正在为你翻册…'},
+    quiz:'./art/yuebai-quiz.mp4?v=73',poster:'./art/yuebai-lord.webp',firstLine:'月白正在为你翻册…'},
   xiyao:{name:'夕瑶',focus:'姻缘推演',entry:'./art/xiyao-entry.mp4',entryPoster:'./art/xiyao-lord.webp',
     ritual:'./art/xiyao-ritual.mp4',ritualPoster:'./art/xiyao-lord.webp',
-    quiz:'./art/xiyao-quiz.mp4?v=66',poster:'./art/xiyao-lord.webp',firstLine:'夕瑶正在为你看姻缘…'},
-  /* 星罗素材为占位（暂借星空大厅系），定妆确认后整体替换 */
-  xingluo:{name:'星罗',focus:'占星推演',entry:'./art/muse-entry.mp4?v=67',entryPoster:'./art/xingluo-lord.webp',
-    ritual:'./art/muse-ritual.mp4?v=68',ritualPoster:'./art/xingluo-lord.webp',
-    quiz:'./art/muse-quiz.mp4?v=67',poster:'./art/xingluo-lord.webp',firstLine:'星罗正在为你观星…'},
-  muse:{name:'絮羽',focus:'塔罗推演',entry:'./art/muse-entry.mp4?v=67',entryPoster:'./art/muse-lord.webp',
-    ritual:'./art/muse-ritual.mp4?v=68',ritualPoster:'./art/muse-lord.webp',
-    quiz:'./art/muse-quiz.mp4?v=67',poster:'./art/muse-lord.webp',firstLine:'絮羽正在为你洗牌…'}
+    quiz:'./art/xiyao-quiz.mp4?v=73',poster:'./art/xiyao-lord.webp',firstLine:'夕瑶正在为你看姻缘…'},
+  xingluo:{name:'星罗',focus:'占星推演',entry:'./art/xingluo-entry.mp4?v=73',entryPoster:'./art/xingluo-lord.webp',
+    ritual:'./art/xingluo-ritual.mp4?v=73',ritualPoster:'./art/xingluo-lord.webp',
+    quiz:'./art/xingluo-quiz.mp4?v=73',poster:'./art/xingluo-lord.webp',firstLine:'星罗正在为你观星…'},
+  muse:{name:'絮羽',focus:'塔罗推演',entry:'./art/muse-entry.mp4?v=73',entryPoster:'./art/muse-lord.webp',
+    ritual:'./art/muse-ritual.mp4?v=73',ritualPoster:'./art/muse-lord.webp',
+    quiz:'./art/muse-quiz.mp4?v=73',poster:'./art/muse-lord.webp',firstLine:'絮羽正在为你洗牌…'}
 };
 function fmSetVideo(sel,src,poster){
   var v=fm$(sel);if(!v)return;
