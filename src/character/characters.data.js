@@ -164,7 +164,7 @@ export const XINGLUO = defineCharacter({
   name: '星罗',
   camera: { closeScale: 1.5, safeX: .5, safeInset: .05 },
   assets: {
-    portrait: { src: './art/xingluo-cinema3d.webp', alt: '星罗立于星盘与浑天仪之间，手持黄铜星盘', width: 768, height: 1376 },
+    portrait: { src: './art/xingluo-cinema3d.webp', alt: '星罗站在现代天文台落地窗前，手持金属星球仪，身后是全息星盘投影', width: 768, height: 1376 },
     avatar: { src: './art/xingluo-cinema3d-avatar.webp', alt: '', width: 192, height: 192 },
   },
 });
