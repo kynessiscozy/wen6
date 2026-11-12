@@ -98,9 +98,10 @@ ok(preview.includes('guide-companion-visual') && preview.includes('guide-compani
 ok(Object.keys(GUIDE_ELEMENTS).length === GUIDE_KEYS.length &&
    personaJs.includes('export const GUIDE_ELEMENTS'),
   '六位引路人的元素映射仍在单一数据源');
-ok((funnelHtml.match(/--cta-clip:polygon/g) || []).length === 6 &&
-   funnelHtml.includes('var CTA_ELEMENTS='),
-  '首页按钮六条元素轮廓与跨页小表仍在');
+ok((funnelHtml.match(/--cta-foil-hue:[^;]+;/g) || []).length === 6 &&
+   funnelHtml.includes('var CTA_ELEMENTS=') &&
+   !funnelHtml.includes('--cta-clip:polygon'),
+  '首页按钮六位元素意象与跨页小表仍在，异形轮廓已换成精致贴图');
 ok(pkg.scripts['test:guide-companion'] === 'node tools/test-guide-companion-card.mjs' &&
    pkg.scripts['test:unit'].includes('node tools/test-guide-companion-card.mjs'),
   '合并卡回归有独立脚本且纳入 test:unit');

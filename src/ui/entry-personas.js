@@ -24,7 +24,7 @@ export const DEFAULT_PERSONA = 'moonfox';
 export const GUIDE_VIDEO_VERSION = 'v76';
 export const GUIDE_VIDEO_QUERY = '?v=76';
 /* 引路人阅读路线上线后，funnel.html / 预告页 / 报告指引都需要刷新离线副本。 */
-export const APP_CACHE_VERSION = 'v78';
+export const APP_CACHE_VERSION = 'v79';
 
 /**
  * 六位引路人的完整定义。color 是跨页唯一的主题色：
@@ -80,17 +80,18 @@ export const GUIDE_V61 = Object.freeze({
 
 export const GUIDE_KEYS = Object.freeze(Object.keys(GUIDE_V61));
 
-/* 每位引路人的「对应元素」：首屏「进入命盘厅」按钮按它换形状与纹章。
-   element 是元素意象，shape 是按钮轮廓名，motif 是 2D 定妆里已过审的道具 / 场景符号。
-   funnel.html 是 public/ 下的独立页面，保留同值小表；两处由
-   tools/test-guide-cta-shape.mjs 校验不漂移。 */
+/* 每位引路人的「对应元素」：首屏「进入命盘厅」共用一张精致箔纹贴图，
+   再按 element / foilHue / 纹章区分六位，不再用六套异形轮廓。
+   element 是元素意象，shape 是贴图里的徽记名，motif 是 2D 定妆里已过审的道具 / 场景符号，
+   foilHue 把同一张金箔贴图旋到该人物的主题色。funnel.html 是 public/ 下的独立页面，
+   保留同值小表；两处由 tools/test-guide-cta-shape.mjs 校验不漂移。 */
 export const GUIDE_ELEMENTS = Object.freeze({
-  moonfox: Object.freeze({ element: '月与水', shape: '月牙水波', motif: '蓝色狐火 / 水面 / 狐面具' }),
-  yuchen: Object.freeze({ element: '玉与木', shape: '玉圭', motif: '绿玉凤冠 / 玉印 / 竹影回廊' }),
-  xiyao: Object.freeze({ element: '桃花与红线', shape: '四瓣桃花', motif: '红线 / 桃花簪 / 同心结' }),
-  diyan: Object.freeze({ element: '金与铜钱', shape: '元宝金锭', motif: '金算盘 / 铜钱串 / 元宝' }),
-  muse: Object.freeze({ element: '羽与牌', shape: '斜角塔罗牌', motif: '悬浮牌弧 / 羽毛' }),
-  xingluo: Object.freeze({ element: '星与黄道', shape: '星芒', motif: '星图卷 / 黄道环 / 星座连线' }),
+  moonfox: Object.freeze({ element: '月与水', shape: '月牙水波贴图', motif: '蓝色狐火 / 水面 / 狐面具', texture: 'art/cta-foil.webp', foilHue: '157deg' }),
+  yuchen: Object.freeze({ element: '玉与木', shape: '玉圭贴图', motif: '绿玉凤冠 / 玉印 / 竹影回廊', texture: 'art/cta-foil.webp', foilHue: '26deg' }),
+  xiyao: Object.freeze({ element: '桃花与红线', shape: '四瓣桃花贴图', motif: '红线 / 桃花簪 / 同心结', texture: 'art/cta-foil.webp', foilHue: '-71deg' }),
+  diyan: Object.freeze({ element: '金与铜钱', shape: '元宝金锭贴图', motif: '金算盘 / 铜钱串 / 元宝', texture: 'art/cta-foil.webp', foilHue: '-8deg' }),
+  muse: Object.freeze({ element: '羽与牌', shape: '斜角塔罗牌贴图', motif: '悬浮牌弧 / 羽毛', texture: 'art/cta-foil.webp', foilHue: '-3deg' }),
+  xingluo: Object.freeze({ element: '星与黄道', shape: '星芒贴图', motif: '星图卷 / 黄道环 / 星座连线', texture: 'art/cta-foil.webp', foilHue: '180deg' }),
 });
 
 /* 人物主题配色：与 funnel.html 中 html[data-funnel-persona=...] 的变量逐值对齐。

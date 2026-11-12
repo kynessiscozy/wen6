@@ -44,7 +44,7 @@
     --button-top:#315d7a; --button-bottom:#18374e; --ink:#edf6fa; --ink-dim:#c2d4df;
     --card:#111f2b; --card-on:#254358;
     --backdrop-mobile:url('./art/moon-fox-study-mobile.webp'); --backdrop-wide:url('./art/moon-fox-study-wide.webp');
-    --cta-clip:polygon(0% 50%,3% 26%,9% 10%,18% 3%,82% 3%,91% 10%,97% 26%,100% 50%,95% 74%,84% 90%,70% 97%,50% 100%,30% 97%,16% 90%,5% 74%);
+    --cta-foil-hue:157deg;
   }
   html[data-funnel-persona="diyan"]{
     --bg:#0e0a07; --shade-rgb:14,10,7; --accent-rgb:223,179,108;
@@ -53,7 +53,7 @@
     --button-top:#8a6428; --button-bottom:#4a3212; --ink:#fbf3e4; --ink-dim:#dcc9a6;
     --card:#1c140b; --card-on:#3a2a14;
     --backdrop-mobile:url('./art/earthfire-hall-mobile.webp'); --backdrop-wide:url('./art/earthfire-hall-wide.webp');
-    --cta-clip:polygon(0% 18%,10% 18%,16% 2%,30% 2%,38% 28%,62% 28%,70% 2%,84% 2%,90% 18%,100% 18%,94% 78%,84% 98%,16% 98%,6% 78%);
+    --cta-foil-hue:-8deg;
   }
   html[data-funnel-persona="yuchen"]{
     --bg:#10140e; --shade-rgb:16,20,14; --accent-rgb:211,221,166;
@@ -62,7 +62,7 @@
     --button-top:#566440; --button-bottom:#313e26; --ink:#f5f5e9; --ink-dim:#d7ddc2;
     --card:#1d251a; --card-on:#343f29;
     --backdrop-mobile:url('./art/yuchen-hall-mobile.webp'); --backdrop-wide:url('./art/yuchen-hall-wide.webp');
-    --cta-clip:polygon(0% 16%,42% 16%,50% 0%,58% 16%,100% 16%,100% 84%,97% 100%,3% 100%,0% 84%);
+    --cta-foil-hue:26deg;
   }
   html[data-funnel-persona="xiyao"]{
     --bg:#1b0d18; --shade-rgb:27,13,24; --accent-rgb:255,154,198;
@@ -71,7 +71,7 @@
     --button-top:#b05082; --button-bottom:#7a2f59; --ink:#fff3f8; --ink-dim:#f2c8dc;
     --card:#301623; --card-on:#5c2b47;
     --backdrop-mobile:url('./art/xingling-room-mobile.webp'); --backdrop-wide:url('./art/xingling-room-wide.webp');
-    --cta-clip:polygon(0% 50%,14% 18%,36% 6%,50% 20%,64% 6%,86% 18%,100% 50%,86% 82%,64% 94%,50% 80%,36% 94%,14% 82%);
+    --cta-foil-hue:-71deg;
   }
   html[data-funnel-persona="xingluo"]{
     --bg:#0a0d20; --shade-rgb:10,13,32; --accent-rgb:169,188,245;
@@ -80,7 +80,7 @@
     --button-top:#46548c; --button-bottom:#2a3460; --ink:#f0f3ff; --ink-dim:#c2cbe9;
     --card:#141a33; --card-on:#27304f;
     --backdrop-mobile:url('./art/xingluo-observatory-mobile.webp'); --backdrop-wide:url('./art/xingluo-observatory-wide.webp');
-    --cta-clip:polygon(0% 50%,6% 34%,16% 34%,28% 8%,50% 0%,72% 8%,84% 34%,94% 34%,100% 50%,94% 66%,84% 66%,72% 92%,50% 100%,28% 92%,16% 66%,6% 66%);
+    --cta-foil-hue:180deg;
   }
   html[data-funnel-persona="muse"]{
     --bg:#160d1a; --shade-rgb:22,13,26; --accent-rgb:230,207,154;
@@ -89,7 +89,7 @@
     --button-top:#6b3f7a; --button-bottom:#43224f; --ink:#faf3e0; --ink-dim:#d8cbe0;
     --card:#24162b; --card-on:#40254a;
     --backdrop-mobile:url('./art/muse-hall-mobile.webp'); --backdrop-wide:url('./art/muse-hall-wide.webp');
-    --cta-clip:polygon(4% 0%,92% 0%,100% 18%,100% 82%,96% 100%,8% 100%,0% 82%,0% 12%);
+    --cta-foil-hue:-3deg;
   }
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html,body{height:100%;height:100dvh}
@@ -205,7 +205,7 @@
   .fm-gbody .term-name{font-weight:700;font-size:14.5px}
   .fm-gbody .term-tag{font-size:11px;color:#8a6d3b}
   .fm-gbody .faq-q{font-size:14.5px;margin-bottom:3px}
-  /* 首屏按钮形状由各主题块的 --cta-clip 注入，具体样式见下方 .cta-wrap / .cta。 */
+  /* 首屏按钮改用同一张精致箔纹贴图；各主题块只注入 --cta-foil-hue 旋色。 */
   /* 问卷与过场压暗背景，聚焦内容 */
   .dim{position:absolute;inset:0;background:rgba(9,6,5,.36);pointer-events:none}
   #s-quiz .qhead,#s-quiz .qbody{position:relative;z-index:1}
@@ -236,39 +236,50 @@
   #s-loading img{display:none}
   #s-loading .load-shade{position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(var(--shade-rgb),.25),rgba(var(--shade-rgb),.78))}
   #s-loading .load-inner{position:relative;z-index:1;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
-  /* ---------- 首屏主按钮：形状随引路人的对应元素切换 ----------
-     --cta-clip 由 html[data-funnel-persona] 注入。外框 .cta-edge 与按钮用同一
-     形状叠出金边；.cta-wrap 上的 drop-shadow 会跟着轮廓发光。clip-path 会裁掉
-     元素自身的 outline 与外阴影，所以发光与焦点环都放在 wrap 这一层。 */
-  #s-entry .cta-wrap{position:relative;align-self:stretch;width:100%;max-width:440px;height:62px;
-    margin:26px auto 0;filter:drop-shadow(0 10px 16px rgba(0,0,0,.5));
-    animation:ctaPulse 2.8s ease-in-out 1.2s infinite alternate}
-  @keyframes ctaPulse{
-    from{filter:drop-shadow(0 10px 16px rgba(0,0,0,.5))}
-    to{filter:drop-shadow(0 8px 24px rgba(var(--accent-rgb),.5))}
-  }
-  /* .rise 的入场动画与呼吸发光并行，避免后写的 animation 把入场覆盖掉。 */
-  #s-entry.active .cta-wrap{animation:riseIn .8s cubic-bezier(.22,.9,.24,1) var(--d,0s) forwards,
-    ctaPulse 2.8s ease-in-out 1.2s infinite alternate}
-  #s-entry .cta-edge{position:absolute;inset:0;background:var(--gold);clip-path:var(--cta-clip);opacity:.92}
-  #s-entry .cta{position:absolute;inset:2px;display:flex;align-items:center;justify-content:center;gap:10px;
-    appearance:none;border:0;padding:0 24px;clip-path:var(--cta-clip);
+  /* ---------- 首屏主按钮：精致箔纹贴图 + 元素徽记 ----------
+     六位共用一张 art/cta-foil.webp，按 --cta-foil-hue 旋到各自主题色；
+     不再用六套异形 clip-path。贴图放在 ::before 上，screen 混合让近黑底透出
+     主题渐变，只留下细箔纹；文字、徽记与箭头在贴图之上。 */
+  #s-entry .cta-wrap{position:relative;align-self:stretch;width:100%;max-width:440px;height:60px;
+    margin:26px auto 0;border-radius:18px;filter:drop-shadow(0 8px 18px rgba(0,0,0,.45))}
+  /* 入场沿用全局 .rise；静止后不再呼吸 / 闪烁，只有 hover / active / focus 的极轻反馈。 */
+  #s-entry .cta-edge{position:absolute;inset:-1px;border-radius:19px;
+    border:1px solid color-mix(in srgb,var(--gold) 34%,transparent);
+    box-shadow:0 0 0 1px rgba(255,255,255,.04) inset;pointer-events:none}
+  #s-entry .cta{position:relative;display:grid;grid-template-columns:34px minmax(0,1fr) 18px;
+    align-items:center;gap:10px;width:100%;height:100%;padding:0 18px;
+    appearance:none;border:1px solid color-mix(in srgb,var(--gold) 48%,transparent);border-radius:18px;
     background:linear-gradient(180deg,var(--button-top),var(--button-bottom));color:#fff;
-    font:inherit;font-size:17px;letter-spacing:.3em;text-indent:.3em;cursor:pointer;
-    box-shadow:inset 0 0 0 2px rgba(var(--shade-rgb),.55),inset 0 0 0 3px var(--line);
-    transition:transform .15s ease}
-  #s-entry .cta:active{transform:scale(.98)}
-  #s-entry .cta-wrap:has(.cta:focus-visible){outline:2px solid var(--gold-soft);outline-offset:4px;border-radius:14px}
-  #s-entry .cta:focus-visible{outline:2px solid var(--gold-soft);outline-offset:-4px}
-  #s-entry .cta-emblem{width:20px;height:20px;flex:0 0 20px;color:var(--gold-soft);
+    font:inherit;font-size:16px;letter-spacing:.28em;text-indent:.28em;cursor:pointer;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.12),inset 0 -1px 0 rgba(0,0,0,.22);
+    transition:transform .15s ease,border-color .2s ease,box-shadow .2s ease;overflow:hidden}
+  #s-entry .cta::before{content:'';position:absolute;inset:0;border-radius:inherit;
+    background:url('./art/cta-foil.webp') center/100% 100% no-repeat;
+    mix-blend-mode:screen;opacity:.46;
+    filter:hue-rotate(var(--cta-foil-hue,0deg)) saturate(1.25) brightness(1.12);
+    pointer-events:none}
+  #s-entry .cta::after{content:'';position:absolute;inset:1px;border-radius:17px;
+    border:1px solid rgba(255,255,255,.07);pointer-events:none}
+  #s-entry .cta:hover{border-color:color-mix(in srgb,var(--gold) 72%,transparent);
+    transform:translateY(-1px);box-shadow:inset 0 1px 0 rgba(255,255,255,.14),0 3px 12px rgba(var(--accent-rgb),.10)}
+  #s-entry .cta:active{transform:scale(.99)}
+  #s-entry .cta:focus-visible{outline:2px solid var(--gold-soft);outline-offset:3px}
+  #s-entry .cta-seal{position:relative;z-index:2;display:grid;place-items:center;width:34px;height:34px;
+    border-radius:50%;border:1px solid color-mix(in srgb,var(--gold-soft) 55%,transparent);
+    background:rgba(255,255,255,.07);box-shadow:0 0 12px rgba(var(--accent-rgb),.12) inset}
+  #s-entry .cta-emblem{width:18px;height:18px;color:var(--gold-soft);
     fill:none;stroke:currentColor;stroke-width:1.6;stroke-linejoin:round;stroke-linecap:round}
   #s-entry .cta-emblem [data-emblem]{display:none}
-  html[data-funnel-persona="moonfox"] .cta-emblem [data-emblem="moonfox"],
-  html[data-funnel-persona="yuchen"] .cta-emblem [data-emblem="yuchen"],
-  html[data-funnel-persona="xiyao"] .cta-emblem [data-emblem="xiyao"],
-  html[data-funnel-persona="diyan"] .cta-emblem [data-emblem="diyan"],
-  html[data-funnel-persona="muse"] .cta-emblem [data-emblem="muse"],
-  html[data-funnel-persona="xingluo"] .cta-emblem [data-emblem="xingluo"]{display:inline}
+  /* 带上 #s-entry 才能压过上面的隐藏规则（ID 选择器优先级更高）。 */
+  html[data-funnel-persona="moonfox"] #s-entry .cta-emblem [data-emblem="moonfox"],
+  html[data-funnel-persona="yuchen"] #s-entry .cta-emblem [data-emblem="yuchen"],
+  html[data-funnel-persona="xiyao"] #s-entry .cta-emblem [data-emblem="xiyao"],
+  html[data-funnel-persona="diyan"] #s-entry .cta-emblem [data-emblem="diyan"],
+  html[data-funnel-persona="muse"] #s-entry .cta-emblem [data-emblem="muse"],
+  html[data-funnel-persona="xingluo"] #s-entry .cta-emblem [data-emblem="xingluo"]{display:inline}
+  #s-entry .cta-label,#s-entry .cta-arrow{position:relative;z-index:2}
+  #s-entry .cta-label{text-align:center}
+  #s-entry .cta-arrow{color:var(--gold-soft);font-size:18px;line-height:1;opacity:.78}
   .fineprint{margin-top:18px;padding-top:0;font-size:11.5px;line-height:1.6;color:var(--ink-dim);opacity:.85;text-align:center}
   /* An explicit exit remains available throughout data collection. */
   .funnel-exit{position:fixed;top:calc(14px + env(safe-area-inset-top, 0px));right:16px;z-index:200;min-height:40px;padding:8px 14px;border:1px solid var(--line);border-radius:999px;background:rgba(var(--shade-rgb),.9);color:var(--ink);font:inherit;font-size:13px;cursor:pointer}
@@ -367,15 +378,18 @@
       <div class="cta-wrap rise" style="--d:.35s">
         <span class="cta-edge" aria-hidden="true"></span>
         <button class="cta" type="button" id="btnStart" data-guide-element="月与水">
-          <svg class="cta-emblem" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-            <g data-emblem="moonfox"><path d="M17.5 3.6A8.6 8.6 0 1 0 20.4 16.8 9.8 9.8 0 0 1 17.5 3.6Z"/></g>
-            <g data-emblem="yuchen"><path d="M8 20h8V9l-4-6-4 6z"/><path d="M10 9h4"/></g>
-            <g data-emblem="xiyao"><path d="M12 3c2.6 2.5 4.2 4.6 4.2 6.6a4.2 4.2 0 0 1-8.4 0C7.8 7.6 9.4 5.5 12 3z"/><path d="M12 9.6V21"/></g>
-            <g data-emblem="diyan"><circle cx="12" cy="12" r="8.5"/><rect x="9" y="9" width="6" height="6" rx="1"/></g>
-            <g data-emblem="muse"><path d="M6 3h12v18H6z"/><path d="M12 8l1.1 2.9L16 12l-2.9 1.1L12 16l-1.1-2.9L8 12l2.9-1.1z"/></g>
-            <g data-emblem="xingluo"><path d="M12 2.5l2.4 7.1 7.1 2.4-7.1 2.4L12 21.5l-2.4-7.1L2.5 12l7.1-2.4z"/></g>
-          </svg>
+          <span class="cta-seal" aria-hidden="true">
+            <svg class="cta-emblem" viewBox="0 0 24 24" focusable="false">
+              <g data-emblem="moonfox"><path d="M17.5 3.6A8.6 8.6 0 1 0 20.4 16.8 9.8 9.8 0 0 1 17.5 3.6Z"/></g>
+              <g data-emblem="yuchen"><path d="M8 20h8V9l-4-6-4 6z"/><path d="M10 9h4"/></g>
+              <g data-emblem="xiyao"><path d="M12 3c2.6 2.5 4.2 4.6 4.2 6.6a4.2 4.2 0 0 1-8.4 0C7.8 7.6 9.4 5.5 12 3z"/><path d="M12 9.6V21"/></g>
+              <g data-emblem="diyan"><circle cx="12" cy="12" r="8.5"/><rect x="9" y="9" width="6" height="6" rx="1"/></g>
+              <g data-emblem="muse"><path d="M6 3h12v18H6z"/><path d="M12 8l1.1 2.9L16 12l-2.9 1.1L12 16l-1.1-2.9L8 12l2.9-1.1z"/></g>
+              <g data-emblem="xingluo"><path d="M12 2.5l2.4 7.1 7.1 2.4-7.1 2.4L12 21.5l-2.4-7.1L2.5 12l7.1-2.4z"/></g>
+            </svg>
+          </span>
           <span class="cta-label">进入命盘厅</span>
+          <span class="cta-arrow" aria-hidden="true">›</span>
         </button>
       </div>
       <p class="fineprint rise" style="--d:.5s">出生信息只保存在本机，不上传、不注册</p>
@@ -1098,14 +1112,15 @@ var GUIDE_ROUTES={
   "xingluo":{"chips":["星盘三核","十大星曜","星座助手","问问追问"]}
 };
 /* 首屏按钮的「对应元素」：与 src/ui/entry-personas.js 的 GUIDE_ELEMENTS 逐值一致，
-   tools/test-guide-cta-shape.mjs 校验两处不漂移。形状本身由各主题块的 --cta-clip 决定。 */
+   tools/test-guide-cta-shape.mjs 校验两处不漂移。六位共用 art/cta-foil.webp 精致贴图，
+   各自只按主题块的 --cta-foil-hue 旋色并显示自己的元素徽记。 */
 var CTA_ELEMENTS={
-  "moonfox":{"element":"月与水","shape":"月牙水波","motif":"蓝色狐火 / 水面 / 狐面具"},
-  "yuchen":{"element":"玉与木","shape":"玉圭","motif":"绿玉凤冠 / 玉印 / 竹影回廊"},
-  "xiyao":{"element":"桃花与红线","shape":"四瓣桃花","motif":"红线 / 桃花簪 / 同心结"},
-  "diyan":{"element":"金与铜钱","shape":"元宝金锭","motif":"金算盘 / 铜钱串 / 元宝"},
-  "muse":{"element":"羽与牌","shape":"斜角塔罗牌","motif":"悬浮牌弧 / 羽毛"},
-  "xingluo":{"element":"星与黄道","shape":"星芒","motif":"星图卷 / 黄道环 / 星座连线"}
+  "moonfox":{"element":"月与水","shape":"月牙水波贴图","motif":"蓝色狐火 / 水面 / 狐面具","texture":"art/cta-foil.webp","foilHue":"157deg"},
+  "yuchen":{"element":"玉与木","shape":"玉圭贴图","motif":"绿玉凤冠 / 玉印 / 竹影回廊","texture":"art/cta-foil.webp","foilHue":"26deg"},
+  "xiyao":{"element":"桃花与红线","shape":"四瓣桃花贴图","motif":"红线 / 桃花簪 / 同心结","texture":"art/cta-foil.webp","foilHue":"-71deg"},
+  "diyan":{"element":"金与铜钱","shape":"元宝金锭贴图","motif":"金算盘 / 铜钱串 / 元宝","texture":"art/cta-foil.webp","foilHue":"-8deg"},
+  "muse":{"element":"羽与牌","shape":"斜角塔罗牌贴图","motif":"悬浮牌弧 / 羽毛","texture":"art/cta-foil.webp","foilHue":"-3deg"},
+  "xingluo":{"element":"星与黄道","shape":"星芒贴图","motif":"星图卷 / 黄道环 / 星座连线","texture":"art/cta-foil.webp","foilHue":"180deg"}
 };
 /* 沉浸过场三句与问卷中段过场：随引路人切换（V6.1 文案，一人一版）。 */
 var IMMERSION_BY_PERSONA={
@@ -1161,7 +1176,7 @@ function fmApplyPersona(key){
   if(routeEl&&gr)routeEl.textContent=gr.chips.join(' → ');
   var ce=CTA_ELEMENTS[key],startBtn=fm$('#btnStart');
   if(startBtn&&ce){startBtn.dataset.guideElement=ce.element;
-    startBtn.setAttribute('title',P.name+' · '+ce.element+' · '+ce.shape+'形');}
+    startBtn.setAttribute('title',P.name+' · '+ce.element+' · '+ce.shape);}
   fm$('#personaToggle').setAttribute('aria-label','当前引路人：'+P.name+'，切换引路人');
   document.querySelectorAll('#personaOptions [data-persona]').forEach(function(b){
     var on=b.getAttribute('data-persona')===key;

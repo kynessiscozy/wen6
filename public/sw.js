@@ -1,6 +1,6 @@
 /* 问问大师 PWA：离线可用 + 秒开的缓存策略。
    静态资源带 hash，可长期缓存；HTML 走 network-first 保证更新及时。 */
-const CACHE = 'wenda-cache-v78';
+const CACHE = 'wenda-cache-v79';
 const BASE = './';
 
 const OPTIONAL_ASSETS = [
@@ -19,6 +19,8 @@ const OPTIONAL_ASSETS = [
   'art/zhiya-cinema3d.webp', 'art/zhiya-cinema3d-avatar.webp', 'art/zhiya-cinema3d-blink.webp', 'art/zhiya-cinema3d-speak.webp',
   'art/muse-cinema3d.webp', 'art/muse-cinema3d-avatar.webp', 'art/muse-cinema3d-blink.webp', 'art/muse-cinema3d-speak.webp',
   'art/xingluo-cinema3d.webp', 'art/xingluo-cinema3d-avatar.webp', 'art/xingluo-lord.webp',
+  // 首屏主按钮的精致箔纹贴图：六位共用一张，按主题色相旋色。
+  'art/cta-foil.webp',
   'art/muse-hall-wide.webp', 'art/muse-hall-mobile.webp',
   'art/xingluo-observatory-wide.webp', 'art/xingluo-observatory-mobile.webp',
   'manifest.webmanifest', 'pwa-install.js', 'icon.svg', 'icon-192.png', 'icon-512.png',
