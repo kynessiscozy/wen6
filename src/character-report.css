@@ -427,3 +427,242 @@ html[data-system-mode="western"] .is-portrait-hidden .result-chapter-figure { vi
 @media (prefers-reduced-motion: reduce) {
   .result-character-video, .result-character-video.is-ready { animation: none; }
 }
+
+/* ============================================================
+   同行卡 + 引路人卡：推翻旧的两卡并排，合并成一张重排后的主卡
+   ------------------------------------------------------------
+   旧版：.result-character-hero 是一张满幅人物场景 + 速读，
+         .guide-perspective 是紧随其后的白底小卡，身份 / 标题 /
+         路线说明重复出现，且两张卡各自占一段滚动。
+   新版：一个 #characterResultHero，右侧独立画面（人物 / 3D 星盘），
+         左侧「身份 → 真实速读 → 引路人视角 → 四步路线」一条动线；
+         宽屏左右分栏，窄屏上下堆叠。数据节点全部沿用原 DOM，
+         不重算、不复制结论，也不改变路线按钮的真实动作。
+   ============================================================ */
+#page2 .result-character-hero.is-guide-companion-merged {
+  min-height: 440px;
+  border: 1px solid color-mix(in srgb, var(--result-character-accent) 34%, transparent);
+  border-radius: 22px;
+  box-shadow: 0 18px 44px rgba(0, 0, 0, .28);
+}
+#page2 .result-character-hero.is-guide-companion-merged::before {
+  content: '';
+  position: absolute;
+  z-index: 4;
+  inset: 0 auto auto 0;
+  width: 4px;
+  height: 100%;
+  background: linear-gradient(180deg, var(--result-character-accent), transparent 82%);
+  pointer-events: none;
+}
+html[data-system-mode="western"] #page2 .result-character-hero.is-guide-companion-merged { min-height: 440px; }
+html[data-system-mode="western"] #page2 .result-character-hero.is-guide-companion-merged.has-hint { min-height: 490px; }
+
+/* 视觉层收进右侧 / 顶部画面，不再与文字抢同一块背景。 */
+#page2 .is-guide-companion-merged .guide-companion-visual {
+  position: absolute;
+  z-index: 0;
+  inset: 0 0 0 auto;
+  width: 38%;
+  overflow: hidden;
+  background: var(--result-scene-bg, #19181c);
+}
+#page2 .is-guide-companion-merged .result-western-theatre { inset: 0; }
+#page2 .is-guide-companion-merged .result-character-scene {
+  inset: 0;
+  height: 100%;
+  background: transparent;
+}
+#page2 .is-guide-companion-merged .result-character-figure {
+  top: 0;
+  right: 0;
+  width: 100%;
+  height: 100%;
+}
+#page2 .is-guide-companion-merged .result-character-backdrop { opacity: .78; }
+#page2 .is-guide-companion-merged .result-portrait-toggle {
+  top: 12px;
+  right: 12px;
+  bottom: auto;
+}
+
+/* 内容层：半透明底板压在画面之上，但把空白区域还给 3D 拖动。 */
+#page2 .is-guide-companion-merged .guide-companion-shell {
+  position: relative;
+  z-index: 3;
+  display: grid;
+  align-content: start;
+  gap: 14px;
+  width: 62%;
+  min-height: 440px;
+  padding: 18px 20px 20px clamp(22px, 4vw, 34px);
+  background: linear-gradient(90deg, rgba(9, 10, 18, .96) 0%, rgba(9, 10, 18, .9) 72%, rgba(9, 10, 18, .55) 100%);
+  pointer-events: none;
+}
+#page2 .is-guide-companion-merged .guide-companion-shell > * { pointer-events: auto; }
+#page2 .is-guide-companion-merged .guide-companion-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 12px;
+  padding: 0;
+  pointer-events: none;
+}
+#page2 .is-guide-companion-merged .guide-companion-head > * { pointer-events: auto; }
+#page2 .is-guide-companion-merged .result-character-kicker {
+  grid-area: auto;
+  font-size: 12px;
+  letter-spacing: .04em;
+  color: var(--result-character-accent);
+}
+#page2 .is-guide-companion-merged .result-character-controls {
+  grid-area: auto;
+  margin-left: auto;
+}
+#page2 .is-guide-companion-merged .result-character-hint-button {
+  min-height: 36px;
+  color: var(--result-character-accent);
+  text-shadow: none;
+}
+#page2 .is-guide-companion-merged .result-character-hint {
+  grid-column: auto;
+  grid-row: auto;
+  flex: 1 0 100%;
+  max-width: none;
+  margin: 4px 0 0;
+  padding: 8px 10px;
+  border-left: 2px solid var(--result-character-accent);
+  background: rgba(10, 12, 20, .78);
+}
+#page2 .is-guide-companion-merged .guide-companion-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1.04fr) minmax(0, .96fr);
+  gap: 12px;
+  align-items: stretch;
+}
+#page2 .is-guide-companion-merged .guide-companion-data,
+#page2 .is-guide-companion-merged .guide-companion-route { min-width: 0; }
+#page2 .is-guide-companion-merged .guide-companion-data { display: grid; align-content: start; gap: 10px; }
+#page2 .is-guide-companion-merged .result-character-reading {
+  grid-column: auto;
+  grid-row: auto;
+  padding: 0;
+}
+#page2 .is-guide-companion-merged .result-character-title {
+  margin: 0 0 6px;
+  font: 600 clamp(20px, 2.2vw, 25px)/1.3 var(--serif, serif) !important;
+}
+#page2 .is-guide-companion-merged .result-character-description {
+  max-width: none;
+  font-size: 11.5px;
+  line-height: 1.6;
+}
+#page2 .is-guide-companion-merged .result-character-overview { padding: 0; }
+
+/* 原来的白底小卡改成同一张卡里的「路线面板」。 */
+#page2 .is-guide-companion-merged .guide-perspective {
+  margin: 0;
+  padding: 13px 14px;
+  border: 1px solid rgba(255, 249, 241, .16);
+  border-left: 3px solid var(--result-character-accent);
+  border-radius: 16px;
+  background: linear-gradient(160deg, rgba(255, 255, 255, .07), rgba(255, 255, 255, .025));
+  color: #fff9f1;
+}
+#page2 .is-guide-companion-merged .guide-perspective-kicker,
+#page2 .is-guide-companion-merged .guide-route-title {
+  margin: 0 0 6px;
+  color: var(--result-character-accent);
+  font-size: 10.5px;
+  letter-spacing: .14em;
+}
+#page2 .is-guide-companion-merged .guide-perspective-title {
+  margin: 0 0 7px;
+  color: #fffaf4;
+  font-size: 16px;
+  line-height: 1.35;
+}
+#page2 .is-guide-companion-merged .guide-perspective-facts,
+#page2 .is-guide-companion-merged .guide-perspective-prompt {
+  margin: 0 0 6px;
+  color: rgba(255, 249, 241, .84);
+  font-size: 11.5px;
+  line-height: 1.55;
+}
+#page2 .is-guide-companion-merged .guide-route {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+  margin: 8px 0 0;
+}
+#page2 .is-guide-companion-merged .guide-route-btn {
+  grid-template-columns: 20px minmax(0, 1fr) 10px;
+  gap: 6px;
+  padding: 7px 7px;
+  border-color: rgba(255, 249, 241, .18);
+  background: rgba(255, 255, 255, .055);
+  color: #fff9f1;
+  text-align: left;
+}
+#page2 .is-guide-companion-merged .guide-route-btn:hover { border-color: var(--result-character-accent); }
+#page2 .is-guide-companion-merged .guide-route-num {
+  width: 20px;
+  height: 20px;
+  background: var(--result-character-accent);
+  color: #101018;
+  font-size: 9px;
+}
+#page2 .is-guide-companion-merged .guide-route-copy b { font-size: 11.5px; line-height: 1.35; }
+#page2 .is-guide-companion-merged .guide-route-copy small {
+  margin-top: 1px;
+  color: rgba(255, 249, 241, .68);
+  font-size: 10px;
+  line-height: 1.4;
+}
+#page2 .is-guide-companion-merged .guide-route-go { color: var(--result-character-accent); font-size: 14px; }
+#page2 .is-guide-companion-merged .guide-perspective-note {
+  margin: 8px 0 0;
+  color: rgba(255, 249, 241, .62);
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+@media (max-width: 760px) {
+  #page2 .result-character-hero.is-guide-companion-merged,
+  html[data-system-mode="western"] #page2 .result-character-hero.is-guide-companion-merged,
+  html[data-system-mode="western"] #page2 .result-character-hero.is-guide-companion-merged.has-hint {
+    display: block;
+    min-height: 0;
+    border-radius: 18px;
+  }
+  #page2 .is-guide-companion-merged .guide-companion-visual {
+    position: relative;
+    inset: auto;
+    width: 100%;
+    height: 170px;
+  }
+  #page2 .is-guide-companion-merged .guide-companion-shell {
+    width: 100%;
+    min-height: 0;
+    padding: 14px 16px 18px;
+    background: linear-gradient(180deg, rgba(9, 10, 18, .94), rgba(9, 10, 18, .84));
+  }
+  #page2 .is-guide-companion-merged .guide-companion-body { grid-template-columns: 1fr; gap: 12px; }
+  #page2 .is-guide-companion-merged .result-portrait-toggle { top: 10px; right: 10px; }
+}
+@media (max-width: 380px) {
+  #page2 .is-guide-companion-merged .guide-route { grid-template-columns: 1fr; }
+  #page2 .is-guide-companion-merged .guide-route-copy small { display: none; }
+}
+@media (max-height: 450px) and (orientation: landscape) {
+  html[data-system-mode="western"] #page2 .result-character-hero.is-guide-companion-merged { min-height: 320px; }
+}
+@media (forced-colors: active) {
+  #page2 .result-character-hero.is-guide-companion-merged,
+  #page2 .is-guide-companion-merged .guide-companion-visual,
+  #page2 .is-guide-companion-merged .guide-companion-shell { background: Canvas !important; color: CanvasText !important; border-color: CanvasText !important; }
+  #page2 .is-guide-companion-merged .guide-perspective,
+  #page2 .is-guide-companion-merged .guide-route-btn,
+  #page2 .is-guide-companion-merged .result-character-hint { color: CanvasText !important; background: Canvas !important; border-color: CanvasText !important; }
+  #page2 .is-guide-companion-merged :is(.guide-perspective-kicker, .guide-perspective-title, .guide-perspective-facts, .guide-perspective-prompt, .guide-perspective-note, .guide-route-title, .guide-route-copy b, .guide-route-copy small, .guide-route-go, .result-character-kicker, .result-character-description, .result-character-hint-button, .result-character-hint p) { color: CanvasText !important; }
+  #page2 .is-guide-companion-merged .guide-route-num { background: CanvasText !important; color: Canvas !important; }
+}

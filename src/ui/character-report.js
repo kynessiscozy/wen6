@@ -115,14 +115,14 @@ function setPortraitHidden(hidden) {
   syncGuideVideos();
 }
 
-function addPortraitToggle(host, figure, section) {
+function addPortraitToggle(host, figure, section, toggleHost = host) {
   figure.id = `resultPortrait-${section}`;
   const button = element('button', 'result-portrait-toggle sys-western');
   button.type = 'button';
   button.setAttribute('aria-controls', figure.id);
   button.title = '也可以轻点人物；拖动仍可旋转场景';
   button.addEventListener('click', () => setPortraitHidden(!westernPortraitHidden));
-  host.append(button);
+  toggleHost.append(button);
   syncPortraitToggle(host);
 }
 
@@ -178,16 +178,22 @@ function installPortraitInteraction() {
   }
 }
 
-function makeHero(id, theme, ctx, western, isDemo, overview, astro) {
-  const hero = element('section', 'result-character-hero');
+function makeHero(id, theme, ctx, western, isDemo, overview, astro, perspective) {
+  const hero = element('section', 'result-character-hero is-guide-companion-merged');
   hero.id = 'characterResultHero';
   hero.dataset.reportCharacter = id;
   hero.dataset.reportDemo = String(isDemo);
+  hero.dataset.guideMerged = 'true';
+  if (perspective?.dataset.guideRoute) hero.dataset.guideRoute = perspective.dataset.guideRoute;
   hero.style.setProperty('--result-character-accent', theme.accent);
-  hero.setAttribute('aria-label', isDemo ? '示例命盘与星盘一览' : '命盘与星盘一览');
-  const theatre = makeTheatre(astro);
-  if (theatre) hero.append(theatre);
+  hero.setAttribute('aria-label', isDemo
+    ? '示例：同行场景、真实速读与引路人阅读路线'
+    : '同行场景、真实速读与引路人阅读路线');
 
+  /* 视觉层：人物 / 场景 / 3D 星盘收进右侧独立画面，不再铺满整张卡。 */
+  const visual = element('div', 'guide-companion-visual');
+  const theatre = makeTheatre(astro);
+  if (theatre) visual.append(theatre);
   const scene = element('div', 'result-character-scene');
   scene.setAttribute('aria-hidden', 'true');
   const picture = document.createElement('picture');
@@ -201,32 +207,28 @@ function makeHero(id, theme, ctx, western, isDemo, overview, astro) {
   picture.append(mobile, background);
   const figure = makePortrait(theme.character, 'result-character-figure', true, true);
   scene.append(picture, figure);
-  hero.append(scene);
+  visual.append(scene);
+  hero.append(visual);
 
-  const copy = element('div', 'result-character-copy');
+  /* 内容层：身份一行 + 速读 / 星盘 + 引路人路线，全部在同一张卡里。 */
+  const shell = element('div', 'guide-companion-shell');
+  const head = element('header', 'guide-companion-head result-character-copy');
   const kicker = element('p', 'result-character-kicker');
   const displayName = theme.guide?.name || theme.character.name;
+  const guideTitle = theme.guide?.title || '引路人';
   kicker.append(element('span', 'result-character-mark', displayName.slice(0, 1)),
-    element('span', '', `${displayName} · 同行`));
+    element('span', '', `${displayName} · ${guideTitle} · 同行`));
   if (isDemo) kicker.append(element('span', 'result-character-demo', '示例'));
-  copy.append(kicker);
-
-  const dayMaster = [ctx?.dg, ctx?.dw].filter(Boolean).join('');
-  const westernHeading = element('div', 'result-character-reading sys-western');
-  westernHeading.append(element('h1', 'result-character-title', isDemo ? '示例星盘' : '星盘一览'));
-  westernHeading.append(element('p', 'result-character-description', '拖动星盘，探索星体位置。星盘按出生地时区及历史夏令时计算；夏令时切换时的重复或不存在的时间可能产生偏差。'));
-  copy.append(westernHeading);
+  head.append(kicker);
 
   const controls = element('div', 'result-character-controls');
-
-  // A short, character-specific reading cue uses only facts already calculated
-  // in the report. It is not an AI response or a second prediction.
   const hint = element('div', 'result-character-hint');
   hint.id = 'characterResultHint';
   hint.hidden = true;
   hint.setAttribute('role', 'status');
   hint.setAttribute('aria-live', 'polite');
   const lead = theme.reportLead || '先从这里看起。';
+  const dayMaster = [ctx?.dg, ctx?.dw].filter(Boolean).join('');
   const easternFacts = [dayMaster && `日主${dayMaster}`, ctx?.wx?.ys && `用神${ctx.wx.ys}`].filter(Boolean).join('、');
   const westernFacts = [western?.astro?.sun?.name && `太阳${western.astro.sun.name}`,
     western?.astro?.moon?.name && `月亮${western.astro.moon.name}`].filter(Boolean).join('、');
@@ -237,7 +239,6 @@ function makeHero(id, theme, ctx, western, isDemo, overview, astro) {
   hint.append(element('p', 'sys-western', westernFacts
     ? `${lead}${westernFacts}是${chart}星盘的起点，可以接着看它们的落点与相位。`
     : `${lead}从${chart}星盘的星体位置开始读。`));
-
   const hintButton = element('button', 'result-character-hint-button', '看一条提示');
   hintButton.type = 'button';
   hintButton.setAttribute('aria-controls', hint.id);
@@ -254,16 +255,32 @@ function makeHero(id, theme, ctx, western, isDemo, overview, astro) {
     }
   });
   controls.append(hintButton);
-  copy.append(controls, hint);
-  hero.append(copy);
+  head.append(controls, hint);
+  shell.append(head);
+
+  const body = element('div', 'guide-companion-body');
+  const data = element('div', 'guide-companion-data');
+  const westernHeading = element('div', 'result-character-reading sys-western');
+  westernHeading.append(element('h1', 'result-character-title', isDemo ? '示例星盘' : '星盘一览'));
+  westernHeading.append(element('p', 'result-character-description',
+    '拖动星盘，探索星体位置。星盘按出生地时区及历史夏令时计算；夏令时切换时的重复或不存在的时间可能产生偏差。'));
+  data.append(westernHeading);
   if (overview) {
     const eastern = element('div', 'result-character-overview sys-eastern');
     // Keep a structural heading for assistive technology without adding a
     // second visible title above the calculated values.
     eastern.append(element('h1', 'result-overview-heading', '命盘'), overview);
-    hero.append(eastern);
+    data.append(eastern);
   }
-  addPortraitToggle(hero, figure, 'ming');
+  body.append(data);
+  if (perspective) {
+    perspective.classList.add('guide-companion-route');
+    body.append(perspective);
+  }
+  shell.append(body);
+  hero.append(shell);
+
+  addPortraitToggle(hero, figure, 'ming', visual);
   return hero;
 }
 
@@ -304,8 +321,9 @@ function makeGuidePerspective(id, ctx, western, isDemo) {
   const card = element('aside', 'guide-perspective');
   card.dataset.guidePerspective = id;
   card.dataset.guideRoute = route.key;
-  card.setAttribute('aria-label', `${perspective.name}的阅读路线`);
-  card.append(element('p', 'guide-perspective-kicker', `${perspective.name} · ${perspective.title} · 引路人视角${isDemo ? ' · 示例' : ''}`));
+  card.dataset.guideMerged = 'true';
+  card.setAttribute('aria-label', `${perspective.name}的同行与阅读路线`);
+  card.append(element('p', 'guide-perspective-kicker', `阅读路线${isDemo ? ' · 示例' : ''}`));
   card.append(element('h2', 'guide-perspective-title', perspective.focus));
   const easternEl = element('p', 'guide-perspective-facts sys-eastern',
     perspective.eastern ? `命盘线索：${perspective.eastern}` : '命盘线索暂不可用，请查看完整报告。');
@@ -361,8 +379,8 @@ export function mountCharacterReport({ ctx, western = {}, isDemo = false } = {})
   }));
   let hero, luckChapter, relationChapter, perspective;
   try {
-    hero = makeHero(id, theme, ctx, western, isDemo, overview, astro);
     perspective = makeGuidePerspective(id, ctx, western, isDemo);
+    hero = makeHero(id, theme, ctx, western, isDemo, overview, astro, perspective);
     luckChapter = makeChapter(id, theme, 'yun',
       [isDemo ? '示例星象' : '星象一览', '拖动星象，探索十二星座示意。'], horo, luckOverview, isDemo);
     relationChapter = makeChapter(id, theme, 'rel',
@@ -376,9 +394,8 @@ export function mountCharacterReport({ ctx, western = {}, isDemo = false } = {})
     throw error;
   }
   [ming, yun, rel].forEach(section => section.querySelector(':scope > .result-character-hero, :scope > .result-character-chapter')?.remove());
-  ming.querySelector(':scope > .guide-perspective')?.remove();
+  ming.querySelectorAll('.guide-perspective').forEach(node => node.remove());
   ming.prepend(hero);
-  if (perspective) hero.after(perspective);
   yun.prepend(luckChapter);
   rel.prepend(relationChapter);
   installPortraitInteraction();

@@ -4,7 +4,27 @@
 
 格式参照 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)。产品正式版本号以 `src/product-copy.js` 的 `PRODUCT.version` 为准；npm 包版本遵循[语义化版本](https://semver.org/lang/zh-CN/)。
 
-## [Unreleased] - 2026-11-12 · V6.1 引路人革新 / 首屏内容流
+## [Unreleased] - 2026-11-12 · V6.1 引路人革新 / 首屏内容流 / 按钮元素化 / 卡片合并
+
+### 变更（同行卡与引路人卡合并，推翻重做报告首屏布局）
+
+- **此前**：`#s-ming` 顶部是两张紧挨着的卡——`.result-character-hero`（满幅人物场景 + 速读 + 3D 星盘）和 `.guide-perspective`（白底小卡：身份 / 专长 / 线索 / 反思 / 四步路线）。同一位引路人的身份与「带你读」的说明出现两遍，前者暗底满幅、后者白底窄卡，视觉与信息都被切成两段。
+- **定案**：按用户「把这两张卡片的内容合并在一起，推翻重做布局设计」改成**一张主卡** `#characterResultHero.is-guide-companion-merged`。右侧（宽屏）/ 顶部（窄屏）是独立的 `guide-companion-visual` 画面层，只放人物、场景与 3D 星盘；左侧是 `guide-companion-shell` 内容层，按「身份一行 → 真实速读 / 星盘 → 引路人视角 → 四步可点路线 → 边界说明」一条动线排下去。引路人卡不再另起一张白底卡，而是收进主卡的 `guide-companion-route` 面板。
+- **重做布局**：宽屏 62% 内容 / 38% 画面分栏，内容层再分「数据 / 路线」两列；≤760px 改为画面在上、内容在下；四步路线改 2×2 紧凑网格，≤380px 单列并收起次要说明。卡片加主题色左轨、圆角与柔和阴影，发光与 3D 拖动区域分离；`prefers-reduced-motion` 与 `forced-colors` 都有对应回退。
+- **不丢契约**：`#characterResultHero`、`.qr-card`、`.sys-eastern` / `.sys-western`、`#w3d-astro`、`.result-character-figure`、`.result-portrait-toggle`、`.guide-perspective-*`、`.guide-route-btn` 全部保留且仍在同一张卡内；四步按钮继续调 `runGuideAction()`，只改阅读顺序，不写输入、不重算、不碰评分 / 结论 / AI 改写。人物切换失败时原有速读与星盘仍按旧链路还原。
+- **文案口径**：`src/product-copy.js` 的「阅读报告」与「引路人」术语改为「合并后的同行 / 引路人指引卡」，`npm run sync:copy` 同步到 README 与漏斗页；README 体验流程、`docs/content-flow.md` 流程表同步。
+- **回归**：新增 `tools/test-guide-companion-card.mjs` 并纳入 `npm run test:unit`；`tools/test-guide-route.mjs` 增补合并结构断言。新增 `tools/preview-guide-companion-card.html` 静态对照页，不进构建产物。
+- **未动**：产品版本 `wen6.0` / `6.0.0`、视频 `v76` / `?v=76`、SW `wenda-cache-v78`；三处生成区块由 `npm run check:copy` 校验一致。上一轮「按钮按引路人元素换形状」的改动保留。
+
+### 变更（「进入命盘厅」按钮按引路人元素换形状）
+
+- **此前**：漏斗首屏主按钮是六位共用的 `border-radius:8px` 矩形 + 双层内阴影，只随主题色变；选谁形状都一样。
+- **元素映射**：`src/ui/entry-personas.js` 新增 `GUIDE_ELEMENTS` 单一数据源，按已过审的 2D 定妆道具 / 场景符号定六位元素与形状：月白 月与水 → 月牙水波（狐火 / 水面 / 狐面具）、玉宸 玉与木 → 玉圭（绿玉凤冠 / 玉印 / 竹影回廊）、夕瑶 桃花与红线 → 四瓣桃花（红线 / 桃花簪 / 同心结）、焱绒 金与铜钱 → 元宝金锭（算盘 / 铜钱串 / 元宝）、絮羽 羽与牌 → 斜角塔罗牌（悬浮牌弧 / 羽毛）、星罗 星与黄道 → 星芒（星图卷 / 黄道环 / 星座连线）。funnel.html 保留同值小表，由新回归校验不漂移。
+- **形状实现**：六个 `html[data-funnel-persona]` 主题块各注入一条百分比 `--cta-clip: polygon(...)`（随按钮宽度缩放、无新增素材）；`.cta-edge` 与 `.cta` 叠用同一轮廓做金边，`clip-path` 会裁掉元素自身外阴影 / outline，因此呼吸发光改由外层 `.cta-wrap` 的 `drop-shadow` 承担，焦点环也放在外层 `:has(.cta:focus-visible)`；入场 `riseIn` 与呼吸 `ctaPulse` 改成并行，避免 `animation` 相互覆盖。按钮本体仍保留角色主题 `linear-gradient`（配色回归依赖 computedStyle）。
+- **纹章**：按钮内新增 20px 描边 SVG，六位各一枚（月牙 / 玉圭 / 桃花 / 铜钱 / 塔罗牌 / 星芒），默认隐藏、按当前引路人显示一枚；`fmApplyPersona()` 同步写入 `data-guide-element` 与 `title`。文字「进入命盘厅」、入口动画、点击行为与全部计算 / 评分 / 结论边界不变。
+- **对照页**：新增 `tools/preview-cta-shapes.html`，并排摊开六套形状 / 纹章 / 配色与改动前的矩形基准，供无浏览器环境下逐位比对；不进构建产物。
+- **回归**：新增 `tools/test-guide-cta-shape.mjs`（19 项断言）并纳入 `npm run test:unit`，校验元素 / 形状 / 依据六位互异、跨页小表逐值一致、六条轮廓互异且全为百分比、形状真的接到 CSS、纹章与换人接线、对照页同源。
+- **未动**：产品版本 `wen6.0` / `6.0.0`、视频 `v76` / `?v=76`、SW `wenda-cache-v78`（HTML network-first、静态资源带 hash，无需升缓存版本）；三处生成区块未改，`npm run check:copy` 保持一致。
 
 ### 变更（首屏内容流梳理）
 

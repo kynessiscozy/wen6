@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>问问大师 · 首屏按钮形状对照（六位引路人元素）</title>
+<style>
+  /* 本页只用于本地对照：六条 --cta-clip 与 public/funnel.html 的主题块逐值一致，
+     tools/test-guide-cta-shape.mjs 会拦截漂移。不是线上页面，也不进构建产物。 */
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{min-height:100vh;background:#0b0d11;color:#e9edf2;font-family:"Noto Serif SC","Songti SC",serif;padding:32px 20px 60px}
+  h1{font-size:22px;letter-spacing:.08em;margin-bottom:8px}
+  .intro{max-width:760px;font-size:13px;line-height:1.9;color:#9aa6b4;margin-bottom:28px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:18px;max-width:1100px}
+  .card{border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:20px;background:#12161d}
+  .card .name{font-size:17px;font-weight:700;color:var(--gold)}
+  .card .meta{margin-top:6px;font-size:12px;line-height:1.8;color:#8e9aa8}
+  .card .meta b{color:var(--gold-soft);font-weight:600}
+  .stage{margin-top:20px;padding:22px 12px;border-radius:12px;background:var(--bg);border:1px solid rgba(255,255,255,.06)}
+  .cta-wrap{position:relative;width:100%;height:62px;margin:0 auto;filter:drop-shadow(0 10px 18px rgba(0,0,0,.55))}
+  .cta-edge{position:absolute;inset:0;background:var(--gold);clip-path:var(--cta-clip);opacity:.92}
+  .cta{position:absolute;inset:2px;display:flex;align-items:center;justify-content:center;gap:10px;
+    appearance:none;border:0;padding:0 24px;clip-path:var(--cta-clip);
+    background:linear-gradient(180deg,var(--button-top),var(--button-bottom));color:#fff;
+    font:inherit;font-size:16px;letter-spacing:.3em;text-indent:.3em;cursor:default;
+    box-shadow:inset 0 0 0 2px rgba(var(--shade-rgb),.55),inset 0 0 0 3px var(--line)}
+  .cta-emblem{width:20px;height:20px;flex:0 0 20px;color:var(--gold-soft);
+    fill:none;stroke:currentColor;stroke-width:1.6;stroke-linejoin:round;stroke-linecap:round}
+  /* 每格只显示自己的纹章 */
+  .card .cta-emblem [data-emblem]{display:none}
+  .card[data-persona="moonfox"] [data-emblem="moonfox"],
+  .card[data-persona="yuchen"] [data-emblem="yuchen"],
+  .card[data-persona="xiyao"] [data-emblem="xiyao"],
+  .card[data-persona="diyan"] [data-emblem="diyan"],
+  .card[data-persona="muse"] [data-emblem="muse"],
+  .card[data-persona="xingluo"] [data-emblem="xingluo"]{display:inline}
+  .old{display:block;width:100%;height:62px;margin-top:14px;border:1px solid rgba(255,255,255,.22);border-radius:8px;
+    background:#252b33;color:#aab4c0;font:inherit;font-size:13px;letter-spacing:.2em}
+  .foot{max-width:1100px;margin-top:26px;font-size:12px;line-height:1.9;color:#7f8b99}
+</style>
+</head>
+<body>
+<h1>「进入命盘厅」按钮 · 六位引路人元素形状对照</h1>
+<p class="intro">切换漏斗首屏右上角的引路人，同一个按钮会换成那位引路人的形状、纹章与主题色。下面六格是把同一套 CSS 变量并排摊开，方便逐位比对；最下方灰色矩形是改动前的 8px 圆角矩形基准。</p>
+<div class="grid">
+
+  <div class="card" data-persona="moonfox" style="--bg:#090f17;--shade-rgb:9,15,23;--accent-rgb:185,219,239;--line:rgba(185,219,239,.38);--gold:#b9dbef;--gold-soft:#d4e8f5;--button-top:#315d7a;--button-bottom:#18374e;--cta-clip:polygon(0% 50%,3% 26%,9% 10%,18% 3%,82% 3%,91% 10%,97% 26%,100% 50%,95% 74%,84% 90%,70% 97%,50% 100%,30% 97%,16% 90%,5% 74%);">
+    <div class="name">月白 · 神秘人</div>
+    <div class="meta"><b>元素</b> 月与水　·　<b>形状</b> 月牙水波<br><b>定妆依据</b> 蓝色狐火 / 水面 / 狐面具</div>
+    <div class="stage"><div class="cta-wrap"><span class="cta-edge"></span><button class="cta" type="button">
+      <svg class="cta-emblem" viewBox="0 0 24 24" aria-hidden="true"><g data-emblem="moonfox"><path d="M17.5 3.6A8.6 8.6 0 1 0 20.4 16.8 9.8 9.8 0 0 1 17.5 3.6Z"/></g><g data-emblem="yuchen"><path d="M8 20h8V9l-4-6-4 6z"/></g><g data-emblem="xiyao"><path d="M12 3c2.6 2.5 4.2 4.6 4.2 6.6a4.2 4.2 0 0 1-8.4 0C7.8 7.6 9.4 5.5 12 3z"/></g><g data-emblem="diyan"><circle cx="12" cy="12" r="8.5"/></g><g data-emblem="muse"><path d="M6 3h12v18H6z"/></g><g data-emblem="xingluo"><path d="M12 2.5l2.4 7.1 7.1 2.4-7.1 2.4L12 21.5l-2.4-7.1L2.5 12l7.1-2.4z"/></g></svg>
+      <span>进入命盘厅</span></button></div></div>
+  </div>
+
+  <div class="card" data-persona="yuchen" style="--bg:#10140e;--shade-rgb:16,20,14;--accent-rgb:211,221,166;--line:rgba(211,221,166,.4);--gold:#d3dda6;--gold-soft:#e9efc8;--button-top:#566440;--button-bottom:#313e26;--cta-clip:polygon(0% 16%,42% 16%,50% 0%,58% 16%,100% 16%,100% 84%,97% 100%,3% 100%,0% 84%);">
+    <div class="name">玉宸 · 事业</div>
+    <div class="meta"><b>元素</b> 玉与木　·　<b>形状</b> 玉圭<br><b>定妆依据</b> 绿玉凤冠 / 玉印 / 竹影回廊</div>
+    <div class="stage"><div class="cta-wrap"><span class="cta-edge"></span><button class="cta" type="button">
+      <svg class="cta-emblem" viewBox="0 0 24 24" aria-hidden="true"><g data-emblem="moonfox"><path d="M17.5 3.6A8.6 8.6 0 1 0 20.4 16.8 9.8 9.8 0 0 1 17.5 3.6Z"/></g><g data-emblem="yuchen"><path d="M8 20h8V9l-4-6-4 6z"/><path d="M10 9h4"/></g><g data-emblem="xiyao"><path d="M12 3c2.6 2.5 4.2 4.6 4.2 6.6a4.2 4.2 0 0 1-8.4 0C7.8 7.6 9.4 5.5 12 3z"/></g><g data-emblem="diyan"><circle cx="12" cy="12" r="8.5"/></g><g data-emblem="muse"><path d="M6 3h12v18H6z"/></g><g data-emblem="xingluo"><path d="M12 2.5l2.4 7.1 7.1 2.4-7.1 2.4L12 21.5l-2.4-7.1L2.5 12l7.1-2.4z"/></g></svg>
+      <span>进入命盘厅</span></button></div></div>
+  </div>
+
+  <div class="card" data-persona="xiyao" style="--bg:#1b0d18;--shade-rgb:27,13,24;--accent-rgb:255,154,198;--line:rgba(255,154,198,.42);--gold:#ff9ac6;--gold-soft:#ffd6e8;--button-top:#b05082;--button-bottom:#7a2f59;--cta-clip:polygon(0% 50%,14% 18%,36% 6%,50% 20%,64% 6%,86% 18%,100% 50%,86% 82%,64% 94%,50% 80%,36% 94%,14% 82%);">
+    <div class="name">夕瑶 · 姻缘</div>
+    <div class="meta"><b>元素</b> 桃花与红线　·　<b>形状</b> 四瓣桃花<br><b>定妆依据</b> 红线 / 桃花簪 / 同心结</div>
+    <div class="stage"><div class="cta-wrap"><span class="cta-edge"></span><button class="cta" type="button">
+      <svg class="cta-emblem" viewBox="0 0 24 24" aria-hidden="true"><g data-emblem="moonfox"><path d="M17.5 3.6A8.6 8.6 0 1 0 20.4 16.8 9.8 9.8 0 0 1 17.5 3.6Z"/></g><g data-emblem="yuchen"><path d="M8 20h8V9l-4-6-4 6z"/></g><g data-emblem="xiyao"><path d="M12 3c2.6 2.5 4.2 4.6 4.2 6.6a4.2 4.2 0 0 1-8.4 0C7.8 7.6 9.4 5.5 12 3z"/><path d="M12 9.6V21"/></g><g data-emblem="diyan"><circle cx="12" cy="12" r="8.5"/></g><g data-emblem="muse"><path d="M6 3h12v18H6z"/></g><g data-emblem="xingluo"><path d="M12 2.5l2.4 7.1 7.1 2.4-7.1 2.4L12 21.5l-2.4-7.1L2.5 12l7.1-2.4z"/></g></svg>
+      <span>进入命盘厅</span></button></div></div>
+  </div>
+
+  <div class="card" data-persona="diyan" style="--bg:#0e0a07;--shade-rgb:14,10,7;--accent-rgb:223,179,108;--line:rgba(223,179,108,.4);--gold:#dfb36c;--gold-soft:#f0d6a6;--button-top:#8a6428;--button-bottom:#4a3212;--cta-clip:polygon(0% 18%,10% 18%,16% 2%,30% 2%,38% 28%,62% 28%,70% 2%,84% 2%,90% 18%,100% 18%,94% 78%,84% 98%,16% 98%,6% 78%);">
+    <div class="name">焱绒 · 财富</div>
+    <div class="meta"><b>元素</b> 金与铜钱　·　<b>形状</b> 元宝金锭<br><b>定妆依据</b> 金算盘 / 铜钱串 / 元宝</div>
+    <div class="stage"><div class="cta-wrap"><span class="cta-edge"></span><button class="cta" type="button">
+      <svg class="cta-emblem" viewBox="0 0 24 24" aria-hidden="true"><g data-emblem="moonfox"><path d="M17.5 3.6A8.6 8.6 0 1 0 20.4 16.8 9.8 9.8 0 0 1 17.5 3.6Z"/></g><g data-emblem="yuchen"><path d="M8 20h8V9l-4-6-4 6z"/></g><g data-emblem="xiyao"><path d="M12 3c2.6 2.5 4.2 4.6 4.2 6.6a4.2 4.2 0 0 1-8.4 0C7.8 7.6 9.4 5.5 12 3z"/></g><g data-emblem="diyan"><circle cx="12" cy="12" r="8.5"/><rect x="9" y="9" width="6" height="6" rx="1"/></g><g data-emblem="muse"><path d="M6 3h12v18H6z"/></g><g data-emblem="xingluo"><path d="M12 2.5l2.4 7.1 7.1 2.4-7.1 2.4L12 21.5l-2.4-7.1L2.5 12l7.1-2.4z"/></g></svg>
+      <span>进入命盘厅</span></button></div></div>
+  </div>
+
+  <div class="card" data-persona="muse" style="--bg:#160d1a;--shade-rgb:22,13,26;--accent-rgb:230,207,154;--line:rgba(230,207,154,.38);--gold:#e6cf9a;--gold-soft:#f4e7c3;--button-top:#6b3f7a;--button-bottom:#43224f;--cta-clip:polygon(4% 0%,92% 0%,100% 18%,100% 82%,96% 100%,8% 100%,0% 82%,0% 12%);">
+    <div class="name">絮羽 · 卡罗大师</div>
+    <div class="meta"><b>元素</b> 羽与牌　·　<b>形状</b> 斜角塔罗牌<br><b>定妆依据</b> 悬浮牌弧 / 羽毛</div>
+    <div class="stage"><div class="cta-wrap"><span class="cta-edge"></span><button class="cta" type="button">
+      <svg class="cta-emblem" viewBox="0 0 24 24" aria-hidden="true"><g data-emblem="moonfox"><path d="M17.5 3.6A8.6 8.6 0 1 0 20.4 16.8 9.8 9.8 0 0 1 17.5 3.6Z"/></g><g data-emblem="yuchen"><path d="M8 20h8V9l-4-6-4 6z"/></g><g data-emblem="xiyao"><path d="M12 3c2.6 2.5 4.2 4.6 4.2 6.6a4.2 4.2 0 0 1-8.4 0C7.8 7.6 9.4 5.5 12 3z"/></g><g data-emblem="diyan"><circle cx="12" cy="12" r="8.5"/></g><g data-emblem="muse"><path d="M6 3h12v18H6z"/><path d="M12 8l1.1 2.9L16 12l-2.9 1.1L12 16l-1.1-2.9L8 12l2.9-1.1z"/></g><g data-emblem="xingluo"><path d="M12 2.5l2.4 7.1 7.1 2.4-7.1 2.4L12 21.5l-2.4-7.1L2.5 12l7.1-2.4z"/></g></svg>
+      <span>进入命盘厅</span></button></div></div>
+  </div>
+
+  <div class="card" data-persona="xingluo" style="--bg:#0a0d20;--shade-rgb:10,13,32;--accent-rgb:169,188,245;--line:rgba(169,188,245,.38);--gold:#a9bcf5;--gold-soft:#d5defc;--button-top:#46548c;--button-bottom:#2a3460;--cta-clip:polygon(0% 50%,6% 34%,16% 34%,28% 8%,50% 0%,72% 8%,84% 34%,94% 34%,100% 50%,94% 66%,84% 66%,72% 92%,50% 100%,28% 92%,16% 66%,6% 66%);">
+    <div class="name">星罗 · 占星术</div>
+    <div class="meta"><b>元素</b> 星与黄道　·　<b>形状</b> 星芒<br><b>定妆依据</b> 星图卷 / 黄道环 / 星座连线</div>
+    <div class="stage"><div class="cta-wrap"><span class="cta-edge"></span><button class="cta" type="button">
+      <svg class="cta-emblem" viewBox="0 0 24 24" aria-hidden="true"><g data-emblem="moonfox"><path d="M17.5 3.6A8.6 8.6 0 1 0 20.4 16.8 9.8 9.8 0 0 1 17.5 3.6Z"/></g><g data-emblem="yuchen"><path d="M8 20h8V9l-4-6-4 6z"/></g><g data-emblem="xiyao"><path d="M12 3c2.6 2.5 4.2 4.6 4.2 6.6a4.2 4.2 0 0 1-8.4 0C7.8 7.6 9.4 5.5 12 3z"/></g><g data-emblem="diyan"><circle cx="12" cy="12" r="8.5"/></g><g data-emblem="muse"><path d="M6 3h12v18H6z"/></g><g data-emblem="xingluo"><path d="M12 2.5l2.4 7.1 7.1 2.4-7.1 2.4L12 21.5l-2.4-7.1L2.5 12l7.1-2.4z"/></g></svg>
+      <span>进入命盘厅</span></button></div></div>
+  </div>
+
+</div>
+<button class="old" type="button" disabled>改动前：8px 圆角矩形（六位共用）</button>
+<p class="foot">形状、纹章与配色只作用于漏斗首屏的主按钮；文案、阅读路线与排盘计算均未改动。本页由 <code>tools/test-guide-cta-shape.mjs</code> 校验与线上 CSS 同源。</p>
+</body>
+</html>
