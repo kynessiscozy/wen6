@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import puppeteer from 'puppeteer';
-import { spinFor } from './trait-picker-helper.mjs';
+import { FUNNEL_PERSONAS } from '../src/ui/entry-personas.js';
 import { HOME_THEMES } from '../src/ui/home-theme.js';
 import { readAllStyles } from './read-styles.mjs';
 
@@ -21,59 +21,75 @@ for (const name of ['accent', 'accent-h', 'ac', 'ac1', 'glass-border', 'glass-sh
 assert.doesNotMatch(ui, /:root\s*\{/);
 assert.doesNotMatch(character, /html\[data-home-theme\]\s*\{/);
 
-const browser = await puppeteer.launch({headless:true,args:['--no-sandbox','--disable-setuid-sandbox']});
+const baseUrl = process.env.BASE_URL || 'http://localhost:5173/index.html';
+const personas = Object.entries(FUNNEL_PERSONAS);
+assert.equal(personas.length, 6, '主题回归覆盖六位可选引路人');
+const sharedSurfaceKeys = [
+  '--c-bg', '--c-bg-2', '--c-surface', '--c-surface-2', '--c-surface-3',
+  '--c-text', '--c-text-2', '--c-text-hi', '--glass-shadow',
+];
+const modes = {};
+const browser = await puppeteer.launch({ headless: true, args: ['--no-sandbox', '--disable-setuid-sandbox'] });
 try {
-  for (const mode of ['light','dark']) {
-    const context = await browser.createBrowserContext();
-    const page = await context.newPage();
-    await page.setViewport({width:390,height:844});
-    await page.emulateMediaFeatures([{name:'prefers-reduced-motion',value:'reduce'}]);
-    await page.evaluateOnNewDocument(mode => localStorage.setItem('tj_theme', mode),mode);
-    await page.goto(process.env.BASE_URL || 'http://localhost:5173/index.html', {waitUntil:'domcontentloaded'});
-    assert.equal(await page.$eval('#homeTraitSummary', el => el.hidden), true, '选择之前不显示说明');
-    const snapshots = new Map();
-    const ids = Object.keys(HOME_THEMES);
-    for (const id of [...ids, ...ids]) {
-      if (snapshots.size) await page.click('#homeTraitReset');
-      await spinFor(page,id);
-      await page.waitForFunction(id => document.documentElement.dataset.homeTheme === id && document.getElementById('traitSelection').hidden,{},id);
-      const values = await page.evaluate(() => {
-        const root=getComputedStyle(document.documentElement), page=getComputedStyle(document.getElementById('page1'));
-        return Object.fromEntries(['--trait-color','--accent-h','--accent-s','--accent-l','--c-bg','--c-surface','--c-accent','--c-accent-text','--ac','--ac1','--glass-border','--glass-shadow'].map(k=>[k,root.getPropertyValue(k).trim()]).concat([['--home-bg',page.getPropertyValue('--home-bg').trim()]]));
+  for (const mode of ['light', 'dark']) {
+    const accents = new Set();
+    let sharedSurface = null;
+    for (const [id, persona] of personas) {
+      const context = await browser.createBrowserContext();
+      const page = await context.newPage();
+      await page.setViewport({ width: 390, height: 844 });
+      await page.emulateMediaFeatures([{ name: 'prefers-reduced-motion', value: 'reduce' }]);
+      await page.goto(baseUrl, { waitUntil: 'domcontentloaded' });
+      await page.evaluate(({ mode, id }) => {
+        localStorage.clear();
+        localStorage.setItem('tj_theme', mode);
+        localStorage.setItem('wen_funnel_persona', id);
+      }, { mode, id });
+      await page.reload({ waitUntil: 'domcontentloaded' });
+      await page.waitForFunction(({ mode, theme }) =>
+        document.documentElement.dataset.theme === mode &&
+        document.documentElement.dataset.homeTheme === theme,
+      {}, { mode, theme: persona.theme });
+
+      const result = await page.evaluate(() => {
+        const root = getComputedStyle(document.documentElement);
+        const keys = [
+          '--trait-color', '--accent-h', '--accent-s', '--accent-l', '--c-accent', '--c-accent-text',
+          '--ac', '--ac1', '--glass-border', '--glass-shadow', '--c-bg', '--c-bg-2',
+          '--c-surface', '--c-surface-2', '--c-surface-3', '--c-text', '--c-text-2', '--c-text-hi',
+        ];
+        const values = Object.fromEntries(keys.map(key => [key, root.getPropertyValue(key).trim()]));
+        const summary = document.getElementById('homeTraitSummary');
+        return {
+          values,
+          summary: summary && {
+            hidden: summary.hidden,
+            label: document.getElementById('homeTraitLabel').textContent,
+            description: document.getElementById('homeTraitDescription').textContent,
+          },
+        };
       });
-      if (snapshots.has(id)) assert.deepEqual(values,snapshots.get(id),`${mode}/${id}: 重选后主题不应混入之前的值`);
-      else snapshots.set(id,values);
-      assert.equal(values['--trait-color'].toLowerCase(),HOME_THEMES[id].trait.color.toLowerCase());
-      const summary = await page.$eval('#homeTraitSummary', el => ({hidden:el.hidden, label:el.querySelector('#homeTraitLabel').textContent, description:el.querySelector('#homeTraitDescription').textContent}));
-      assert.deepEqual(summary, {hidden:false, label:HOME_THEMES[id].trait.label, description:HOME_THEMES[id].trait.description}, `${mode}/${id}: 特质说明应同步更新`);
+      const theme = HOME_THEMES[persona.theme];
+      assert.ok(theme, `${mode}/${id}: 漏斗人物映射到现存角色主题`);
+      assert.equal(result.values['--trait-color'].toLowerCase(), theme.accent.toLowerCase(), `${mode}/${id}: 角色强调色与角色主题一致`);
+      assert.deepEqual(result.summary, {
+        hidden: false,
+        label: persona.name,
+        description: `${persona.title} · ${persona.focus}`,
+      }, `${mode}/${id}: 当前选定的引路人说明同步可用`);
+
+      const surface = Object.fromEntries(sharedSurfaceKeys.map(key => [key, result.values[key]]));
+      if (sharedSurface) assert.deepEqual(surface, sharedSurface, `${mode}/${id}: 共享表面不随人物色相漂移`);
+      else sharedSurface = surface;
+      accents.add(result.values['--c-accent']);
+      await context.close();
     }
-    assert.ok(new Set([...snapshots.values()].map(value=>value['--c-accent'])).size>5, '不同特质保留独立主题色');
-    await page.reload({waitUntil:'domcontentloaded'});
-    assert.equal(await page.$eval('#homeTraitSummary', el => el.hidden), true, '刷新后重新选择前不显示旧说明');
-    await context.close();
+    assert.ok(accents.size > 5, `${mode}: 六位引路人保留各自的主题强调色`);
+    modes[mode] = sharedSurface;
   }
-  for (const [width,height] of [[320,568],[390,844],[568,320],[1280,720]]) {
-    const context = await browser.createBrowserContext();
-    const page = await context.newPage();
-    await page.setViewport({width,height});
-    await page.emulateMediaFeatures([{name:'prefers-reduced-motion',value:'reduce'}]);
-    await page.goto(process.env.BASE_URL || 'http://localhost:5173/index.html', {waitUntil:'domcontentloaded'});
-    for (const [index,id] of Object.keys(HOME_THEMES).entries()) {
-      if (index) await page.click('#homeTraitReset');
-      await spinFor(page,id);
-      await page.waitForFunction(id => document.documentElement.dataset.homeTheme === id && document.getElementById('traitSelection').hidden,{},id);
-      const layout = await page.evaluate(() => {
-        document.querySelector('#page1 .p1-scroll').scrollTop = 0;
-        const box = selector => document.querySelector(selector).getBoundingClientRect();
-        const summary = box('#homeTraitSummary'), menu = box('#homeMenuBtn'), toggle = box('.theme-toggle-home'), cta = box('#homeCtaMain');
-        const range = document.createRange();
-        range.selectNodeContents(document.querySelector('#homeTraitDescription'));
-        const text = range.getBoundingClientRect();
-        return {top:summary.top,bottom:summary.bottom,left:text.left,right:text.right,menuRight:menu.right,toggleLeft:toggle.left,ctaTop:cta.top,overflow:document.documentElement.scrollWidth > innerWidth};
-      });
-      assert.ok(!layout.overflow && layout.top >= 0 && layout.bottom <= height && layout.bottom < layout.ctaTop && layout.left >= layout.menuRight && layout.right <= layout.toggleLeft, `${width}x${height}/${id}: 说明应完整显示且不遮挡按钮 ${JSON.stringify(layout)}`);
-    }
-    await context.close();
-  }
-  console.log('✓ 主题令牌、十种特质说明及明暗切换、刷新和多视口布局');
-} finally { await browser.close(); }
+  assert.notEqual(modes.light['--c-bg'], modes.dark['--c-bg'], '浅深模式共享表面各自保持独立');
+  assert.notEqual(modes.light['--c-text'], modes.dark['--c-text'], '浅深模式正文色各自保持独立');
+  console.log('✓ 六位引路人主题映射正确；共享表面只随浅深模式变化，强调色保留人物差异');
+} finally {
+  await browser.close();
+}

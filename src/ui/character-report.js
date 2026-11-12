@@ -216,8 +216,9 @@ function makeHero(id, theme, ctx, western, isDemo, overview, astro, perspective)
   const kicker = element('p', 'result-character-kicker');
   const displayName = theme.guide?.name || theme.character.name;
   const guideTitle = theme.guide?.title || '引路人';
-  kicker.append(element('span', 'result-character-mark', displayName.slice(0, 1)),
-    element('span', '', `${displayName} · ${guideTitle} · 同行`));
+  const mark = element('span', 'result-character-mark', displayName.slice(0, 1));
+  mark.setAttribute('aria-hidden', 'true');
+  kicker.append(mark, element('span', '', `${displayName} · ${guideTitle} · 同行`));
   if (isDemo) kicker.append(element('span', 'result-character-demo', '示例'));
   head.append(kicker);
 

@@ -119,7 +119,7 @@ class Tools3DRingCarousel {
   updateIndicators() {
     const dotsContainer = this.container.querySelector('.tool-ring-dots');
 
-    // 左右切换箭头仅在「筛选状态」下生效（未筛选时顶部已有切换控件）
+    // 分类筛选后保留舞台两侧的快捷切换；「全部」模式用拖动与滚轮浏览，避免遮挡卡面。
     const showNav = this.viewMode === 'ring' && this.activeCategory !== 'all' && this.visibleIndices.length > 1;
     this.container.querySelectorAll('.tool-ring-arrow').forEach((btn) => {
       btn.hidden = !showNav;
@@ -327,8 +327,11 @@ class Tools3DRingCarousel {
     this.autoPlay = !this.autoPlay;
     const btn = this.container.querySelector('#toolRingPlayBtn');
     if (btn) {
+      const label = this.autoPlay ? '暂停自动轮播' : '继续自动轮播';
       btn.classList.toggle('active', this.autoPlay);
-      btn.title = this.autoPlay ? '暂停自动轮播' : '开启自动轮播';
+      btn.title = label;
+      btn.setAttribute('aria-label', label);
+      btn.setAttribute('aria-pressed', String(this.autoPlay));
     }
   }
 

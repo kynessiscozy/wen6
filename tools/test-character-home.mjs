@@ -640,7 +640,7 @@ try {
   {
     const { page, context } = await newPage(390, 844);
     const ax = await (await page.createCDPSession()).send('Accessibility.getFullAXTree');
-    for (const name of ['开启探索', '日历']) {
+    for (const name of ['填写生辰', '日历']) {
       assert.ok(ax.nodes.some(node => !node.ignored && node.role?.value === 'button' && node.name?.value === name), `${name}: 按钮应有简洁的无障碍名称`);
     }
     await page.focus('#homeMenuBtn');
@@ -716,7 +716,7 @@ try {
     await page.waitForFunction(() => document.activeElement.id === 'formModalTitle');
     assert.equal(await page.$eval('#aiSheet', el => el.classList.contains('open')), false);
     const ax = await (await page.createCDPSession()).send('Accessibility.getFullAXTree');
-    assert.ok(ax.nodes.some(node => node.role?.value === 'dialog' && node.name?.value === '让我们从认识你开始'), '表单应有无障碍名称');
+    assert.ok(ax.nodes.some(node => node.role?.value === 'dialog' && node.name?.value === '出生信息'), '表单应有无障碍名称');
     await page.keyboard.down('Shift'); await page.keyboard.press('Tab'); await page.keyboard.up('Shift');
     assert.equal(await page.evaluate(() => document.activeElement.className), 'character-form-submit', '反向 Tab 应留在表单中');
     await page.keyboard.press('Tab');

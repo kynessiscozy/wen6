@@ -145,7 +145,7 @@ ok(indexHtml.includes('wen6.0') && funnel.includes('wen6.0') && (await read('REA
   '主应用 / 漏斗 / README 三处版本号同步');
 ok(indexHtml.includes('data-veil-portrait src="./art/yuebai-lord.webp"'),
   '交接遮罩静态默认回到月白，不再是焱绒');
-for (const label of ['神秘人 · 全能推演', '事业推演专家', '姻缘推演专家', '财富推演专家', '西方占星师', '西方卡罗大师']) {
+for (const label of ['财富 · 看财路与进退', '事业 · 看大运与选择', '全盘 · 东方命盘与星盘', '姻缘 · 看相处与互动', '占星 · 看星体与宫位', '塔罗 · 围绕问题读牌']) {
   assert.ok(funnel.includes(label), `入口选择器明确标注「${label}」`);
 }
 console.log('  ✓ 六位引导方向在入口选择器逐条可见');

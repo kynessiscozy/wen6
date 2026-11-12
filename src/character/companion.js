@@ -57,7 +57,7 @@ export function mountCharacterCompanion(host, {
     response.textContent = selected ? selected.response : (hint || (showGreeting ? character.greeting : ''));
     buttons.forEach(button => button.setAttribute('aria-pressed', String(button.dataset.topic === selected?.id)));
     if (!actionButton) next.hidden = !selected;
-    next.textContent = !selected ? '开启探索' : hasReport() ? '继续聊聊' : '填写信息';
+    next.textContent = !selected ? '填写生辰' : hasReport() ? '继续聊聊' : '填写出生信息';
   }
   render();
 

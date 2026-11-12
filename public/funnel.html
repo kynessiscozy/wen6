@@ -36,6 +36,10 @@
   }
 </script>
 <style>
+  :root{
+    --funnel-sans:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans SC",sans-serif;
+    --funnel-serif:"Noto Serif SC","Source Han Serif SC","Songti SC","STSong",ui-serif,Georgia,serif;
+  }
   /* Accent values match HOME_THEMES for the mapped report character. */
   :root, html[data-funnel-persona="moonfox"]{
     --bg:#090f17; --shade-rgb:9,15,23; --accent-rgb:185,219,239;
@@ -93,7 +97,8 @@
   }
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html,body{height:100%;height:100dvh}
-  body{background:var(--bg);color:var(--ink);font-family:"Noto Serif SC","Songti SC",serif;overflow:hidden;overscroll-behavior:none}
+  body{background:var(--bg);color:var(--ink);font-family:var(--funnel-sans);overflow:hidden;overscroll-behavior:none}
+  #s-entry h1,.persona-perspective,#s-immersion .line,#s-inter .inter-line,.qtitle,#s-loading .ltext{font-family:var(--funnel-serif)}
   .bg{position:fixed;inset:0;background:var(--bg) var(--backdrop-mobile) center/cover no-repeat;filter:brightness(.55)}
   .bg::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(var(--shade-rgb),.55),rgba(var(--shade-rgb),.25) 40%,rgba(var(--shade-rgb),.88))}
   @media (min-aspect-ratio:4/5){.bg{background-image:var(--backdrop-wide)}}
@@ -344,6 +349,56 @@
     *,*::before,*::after{animation-duration:.01s !important;transition-duration:.01s !important}
   }
   #s-loading .lsub{font-size:13px;color:var(--ink-dim);letter-spacing:.2em}
+
+  /* Unslop pass — 01. spacing: retain the funnel sequence and media-led scenes,
+     while bringing the interaction gaps onto the same 4/8/12/16/24px rhythm. */
+  #s-entry .persona-route{gap:8px;margin-top:24px}
+  #s-entry .fineprint{margin-top:16px}
+  .fm-header{gap:12px;padding:16px}
+  .fm-body{padding:8px 16px 16px}
+  .fm-card{gap:12px;padding:12px;margin-bottom:8px}
+  .fm-footer{gap:8px;padding:16px 16px calc(16px + env(safe-area-inset-bottom, 0px))}
+  .persona-options{gap:4px;padding:8px}
+  .persona-options button{gap:12px;padding:8px 12px}
+  #fmPanels .modal-sheet{padding:24px 20px}
+  #fmPanels .about-section{margin-bottom:16px}
+  #fmPanels .about-note{padding:12px 16px}
+  .fm-tabs{gap:8px;margin-bottom:16px}
+  .fm-gbody .ng-step-card,.fm-gbody .ng-glossary-item,.fm-gbody .ng-faq-item{gap:12px;padding:12px;margin-bottom:8px}
+  .qhead{gap:12px}
+  .qwho{gap:12px;margin-bottom:16px}
+  .opts{gap:12px;margin-top:24px}
+  .opt{padding:16px 18px}
+  .field{gap:12px;margin-top:24px}
+  .field input{padding:16px}
+  .rowbtns{gap:8px;margin-top:8px}
+  .btn{min-height:48px;padding:14px 12px}
+  #s-loading .ltext{margin-top:24px}
+  #fmPanels .about-kicker{letter-spacing:.02em}
+  #fmPanels .unslop-credit{margin:16px 0 0;padding-top:12px;border-top:1px solid #eadfca;color:#8a7a5f;font-size:11px;line-height:1.5;text-align:center}
+  @media(max-width:400px){
+    #s-entry .persona-route{margin-top:20px}
+    #fmPanels .modal-sheet{padding:22px 18px}
+  }
+
+  /* A small, consistent mark for each guide; the art and scene remain primary. */
+  .persona-options{width:min(190px,calc(100vw - 44px))}
+  .persona-options button{position:relative;justify-content:flex-start;padding-left:42px}
+  .persona-options button::before,.persona-toggle[data-persona]::before{
+    position:absolute;display:grid;place-items:center;width:22px;height:22px;
+    border:1px solid currentColor;border-radius:50%;color:var(--ink);
+    font:400 14px/1 "Segoe UI Symbol","Noto Sans Symbols 2",sans-serif;
+    text-shadow:none;pointer-events:none
+  }
+  .persona-options button::before{left:10px}
+  .persona-toggle[data-persona]{position:relative;padding-left:42px}
+  .persona-toggle[data-persona]::before{left:12px}
+  .persona-options button[data-persona="moonfox"]::before,.persona-toggle[data-persona="moonfox"]::before{content:"☾"}
+  .persona-options button[data-persona="yuchen"]::before,.persona-toggle[data-persona="yuchen"]::before{content:"♧"}
+  .persona-options button[data-persona="xiyao"]::before,.persona-toggle[data-persona="xiyao"]::before{content:"✿"}
+  .persona-options button[data-persona="diyan"]::before,.persona-toggle[data-persona="diyan"]::before{content:"◎"}
+  .persona-options button[data-persona="muse"]::before,.persona-toggle[data-persona="muse"]::before{content:"▱"}
+  .persona-options button[data-persona="xingluo"]::before,.persona-toggle[data-persona="xingluo"]::before{content:"✦"}
 </style>
 </head>
 <body>
@@ -359,12 +414,12 @@
       <span class="persona-label" id="personaLabel">月白</span><span>切换</span><span class="persona-chevron" aria-hidden="true">⌄</span>
     </button>
     <div class="persona-options" id="personaOptions" role="group" aria-label="选择引路人" hidden>
-      <button type="button" data-persona="diyan" aria-pressed="false"><span>焱绒<small>财富推演专家</small></span></button>
-      <button type="button" data-persona="yuchen" aria-pressed="false"><span>玉宸<small>事业推演专家</small></span></button>
-      <button type="button" data-persona="moonfox" class="on" aria-pressed="true"><span>月白<small>神秘人 · 全能推演</small></span></button>
-      <button type="button" data-persona="xiyao" aria-pressed="false"><span>夕瑶<small>姻缘推演专家</small></span></button>
-      <button type="button" data-persona="xingluo" aria-pressed="false"><span>星罗<small>西方占星师</small></span></button>
-      <button type="button" data-persona="muse" aria-pressed="false"><span>絮羽<small>西方卡罗大师</small></span></button>
+      <button type="button" data-persona="diyan" aria-pressed="false"><span>焱绒<small>财富 · 看财路与进退</small></span></button>
+      <button type="button" data-persona="yuchen" aria-pressed="false"><span>玉宸<small>事业 · 看大运与选择</small></span></button>
+      <button type="button" data-persona="moonfox" class="on" aria-pressed="true"><span>月白<small>全盘 · 东方命盘与星盘</small></span></button>
+      <button type="button" data-persona="xiyao" aria-pressed="false"><span>夕瑶<small>姻缘 · 看相处与互动</small></span></button>
+      <button type="button" data-persona="xingluo" aria-pressed="false"><span>星罗<small>占星 · 看星体与宫位</small></span></button>
+      <button type="button" data-persona="muse" aria-pressed="false"><span>絮羽<small>塔罗 · 围绕问题读牌</small></span></button>
     </div>
   </div>
   <div class="entry-inner">
@@ -482,7 +537,7 @@
   <div class="modal-sheet glass about-sheet" role="dialog" aria-modal="true" aria-labelledby="aboutTitle" tabindex="0">
     <button class="modal-close" type="button" data-fmclose aria-label="关闭关于">×</button>
     <!-- PRODUCT:ABOUT:BEGIN -->
-    <p class="about-kicker">ABOUT · 问问大师</p>
+    <p class="about-kicker">版本与使用说明</p>
     <h2 id="aboutTitle">关于问问大师</h2>
     <p class="about-lead">用不同的视角，给自己一点思考的空间。</p>
     <div class="about-section">
@@ -514,6 +569,7 @@
     </div>
     <div class="about-note"><b>请理性看待</b><p>推演内容仅供文化体验、娱乐消遣与自我反思，不构成医疗、法律、财务、心理咨询等专业建议，也不对人生事件作出确定预测。重要选择请结合现实情况独立判断。</p></div>
 <!-- PRODUCT:ABOUT:END -->
+    <p class="unslop-credit">界面精修致谢：unslop by @heydamir（CC BY 4.0）</p>
   </div>
 </div>
 <div class="modal" id="disclaimerModal">
@@ -1178,6 +1234,7 @@ function fmApplyPersona(key){
   if(startBtn&&ce){startBtn.dataset.guideElement=ce.element;
     startBtn.setAttribute('title',P.name+' · '+ce.element+' · '+ce.shape);}
   fm$('#personaToggle').setAttribute('aria-label','当前引路人：'+P.name+'，切换引路人');
+  fm$('#personaToggle').setAttribute('data-persona',key);
   document.querySelectorAll('#personaOptions [data-persona]').forEach(function(b){
     var on=b.getAttribute('data-persona')===key;
     b.classList.toggle('on',on);b.setAttribute('aria-pressed',String(on));

@@ -46,7 +46,7 @@ export function initCharacterCompanion({
     }
     const publicLabel = nextCharacter.name;
     root.querySelectorAll('[data-character-name]').forEach(el => { el.textContent = publicLabel; });
-    portrait?.setAttribute('aria-label', `点击${publicLabel}，开启探索`);
+    portrait?.setAttribute('aria-label', `点击${publicLabel}，填写出生信息`);
   }
 
   // The report keeps its own identity. The home waits for an explicit trait

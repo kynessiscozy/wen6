@@ -55,6 +55,8 @@ for (const needle of [
 }
 ok(reportUiJs.includes("addPortraitToggle(hero, figure, 'ming', visual)"),
   '立绘开关挂进独立画面层，隐藏态仍由主卡承载');
+ok(reportUiJs.includes("mark.setAttribute('aria-hidden', 'true')"),
+  '角色主题徽记仅作装饰，不在读屏名称中重复人物名字');
 ok(reportUiJs.includes('guideRouteFor(id)') && reportUiJs.includes('runGuideAction(step.action)') &&
    reportUiJs.includes("element('button', 'guide-route-btn')") && reportUiJs.includes('不改变排盘或评分'),
   '四步路线仍是同一份 GUIDE_ROUTES，边界说明不变');

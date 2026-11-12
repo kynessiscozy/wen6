@@ -178,7 +178,7 @@ try {
     assert.match(await page.$eval('#homeCtaMain', el => el.textContent), /加载中/);
     await gate.release();
     await page.waitForSelector('#formModal.open', { timeout: 15000 });
-    assert.match(await page.$eval('#homeCtaMain', el => el.textContent), /开启探索/);
+    assert.match(await page.$eval('#homeCtaMain', el => el.textContent), /填写生辰/);
     assert.equal(await page.$eval('#homeCtaMain', el => el.hasAttribute('aria-busy')), false);
     await page.keyboard.press('Escape');
     assert.deepEqual(errors, []);

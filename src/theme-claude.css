@@ -62,8 +62,8 @@
   /* 五行色（浅色底：压低明度保证对比度） */
   --wx-mu:    #427c30;
   --wx-huo:   #c25538;
-  --wx-tu:    #a8762a;
-  --wx-jin:   #8a7638;
+  --wx-tu:    #8c6020;
+  --wx-jin:   #75622a;
   --wx-shui:  #266d92;
 
   --c-shadow-0:  none;
@@ -211,50 +211,23 @@
   }
 }
 
-/* The selected trait owns the app accent. The light and dark modes keep their
-   own surfaces and text contrast; no independent color preference is read. */
+/* The selected guide supplies an identity accent, not a page-wide palette.
+   Shared app surfaces and text continue to follow the user's light/dark mode;
+   character illustrations keep their own scene colors in character-theme.css. */
 html[data-home-theme] {
   --accent-h: var(--trait-h, 18);
   --accent-s: var(--trait-s, 62%);
   --accent-l: var(--trait-accent-l, 34%);
   --c-accent: hsl(var(--accent-h), var(--accent-s), var(--accent-l));
   --c-accent-hover: hsl(var(--accent-h), var(--accent-s), calc(var(--accent-l) - 6%));
-  --c-accent-soft: hsl(var(--accent-h), var(--accent-s), 94%);
+  --c-accent-soft: color-mix(in srgb, var(--c-accent) 10%, var(--c-surface));
   --c-accent-text: hsl(var(--accent-h), var(--accent-s), calc(var(--accent-l) - 6%));
   --c-on-accent: #fff;
-
-  /* The trait defines the whole palette, not just small selected controls.
-     Large backgrounds, surfaces and glass all carry the same hue while text
-     retains enough contrast to stay readable across every character. */
-  --c-bg: hsl(var(--accent-h), 54%, 91%);
-  --c-bg-2: hsl(var(--accent-h), 45%, 87%);
-  --c-surface: hsl(var(--accent-h), 56%, 97%);
-  --c-surface-2: hsl(var(--accent-h), 48%, 94%);
-  --c-surface-3: hsl(var(--accent-h), 42%, 90%);
-  --c-surface-4: hsl(var(--accent-h), 35%, 85%);
-  --c-border: hsla(var(--accent-h), 30%, 26%, .14);
-  --c-border-2: hsla(var(--accent-h), 30%, 26%, .22);
-  --c-border-3: hsla(var(--accent-h), 30%, 26%, .32);
-  --c-text-2: hsl(var(--accent-h), 9%, 25%);
-  --c-text-3: hsl(var(--accent-h), 8%, 34%);
-  --c-text-4: hsl(var(--accent-h), 8%, 42%);
   --result-scene-bg: hsl(var(--accent-h), 29%, 13%);
 }
 html[data-home-theme][data-theme="dark"] {
-  --c-accent-soft: hsla(var(--accent-h), var(--accent-s), 70%, .16);
+  --c-accent-soft: color-mix(in srgb, var(--c-accent) 15%, var(--c-surface-2));
   --c-accent-text: hsl(var(--accent-h), var(--accent-s), 82%);
-  --c-bg: hsl(var(--accent-h), 29%, 12%);
-  --c-bg-2: hsl(var(--accent-h), 27%, 9%);
-  --c-surface: hsl(var(--accent-h), 24%, 19%);
-  --c-surface-2: hsl(var(--accent-h), 22%, 21%);
-  --c-surface-3: hsl(var(--accent-h), 22%, 25%);
-  --c-surface-4: hsl(var(--accent-h), 19%, 30%);
-  --c-border: hsla(var(--accent-h), 50%, 87%, .16);
-  --c-border-2: hsla(var(--accent-h), 50%, 87%, .24);
-  --c-border-3: hsla(var(--accent-h), 50%, 87%, .32);
-  --c-text-2: rgba(245, 244, 238, .82);
-  --c-text-3: rgba(245, 244, 238, .70);
-  --c-text-4: rgba(245, 244, 238, .60);
 }
 
 /* 兼容旧组件的主题别名：由语义令牌派生，不再重复维护一套配色。 */
@@ -282,9 +255,9 @@ html[data-home-theme][data-theme="dark"] {
   --purple: var(--c-purple);
 
   /* 字体：Claude = 正文无衬线 + 标题衬线 */
-  --sf: "Styrene B", ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI",
+  --sf: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
         "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif;
-  --serif: "Noto Serif SC", ui-serif, Georgia, "Songti SC", "STSong", serif;
+  --serif: "Noto Serif SC", "Source Han Serif SC", "Songti SC", "STSong", ui-serif, Georgia, serif;
   --display: var(--serif);
 
   --r:  var(--c-r-xl);

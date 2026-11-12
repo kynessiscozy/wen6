@@ -116,7 +116,7 @@ const conversation = mountCharacterCompanion(host, {
   onResume: topic => events.push(`resume:${topic.id}`),
 });
 assert.equal(host.children[0].textContent, '从哪里开始？');
-assert.equal(action.textContent, '开启探索');
+assert.equal(action.textContent, '填写生辰');
 conversation.showHint('先选一个话题。');
 conversation.refresh();
 assert.equal(host.children[0].textContent, '先选一个话题。', '主动提示应在刷新时保留');
@@ -125,7 +125,7 @@ host.children[1].children[0].click();
 conversation.showHint('不应覆盖已选择的话题');
 assert.equal(host.children[0].textContent, '一起聊聊兴趣。');
 assert.equal(host.children[1].children[0].getAttribute('aria-pressed'), 'true');
-assert.equal(action.textContent, '填写信息');
+assert.equal(action.textContent, '填写出生信息');
 action.click();
 reportReady = true;
 conversation.refresh();
@@ -135,7 +135,7 @@ assert.deepEqual(events, ['default', 'start:test', 'resume:test']);
 conversation.clearSelection();
 assert.equal(conversation.getTopic(), null);
 assert.equal(host.children[0].textContent, '从哪里开始？', '清除选择后不应保留旧提示');
-assert.equal(action.textContent, '开启探索');
+assert.equal(action.textContent, '填写生辰');
 assert.equal(host.children[1].children[0].getAttribute('aria-pressed'), 'false');
 conversation.destroy();
 action.click();
@@ -248,7 +248,7 @@ const adapter = initCharacterCompanion({
   openAsk: () => { chatOpened++; },
 });
 assert.ok(names.every(el => el.textContent === '小星'));
-assert.equal(nodes.get('characterPortraitButton').getAttribute('aria-label'), '点击小星，开启探索');
+assert.equal(nodes.get('characterPortraitButton').getAttribute('aria-label'), '点击小星，填写出生信息');
 assert.equal(nodes.get('characterPortraitButton').style.getPropertyValue('--character-ratio'), '400 / 800');
 assert.equal(nodes.get('characterScene').style.getPropertyValue('--character-ratio'), '400 / 800', '天灯位置应跟随替换后的角色比例');
 assert.equal(nodes.get('characterScene').style.getPropertyValue('--character-mobile-vw'), '200.0000vw');
@@ -257,7 +257,7 @@ assert.equal(nodes.get('characterScene').style.getPropertyValue('--character-mob
 nodes.get('characterPortraitButton').click();
 nodes.get('homeCtaMain').click();
 assert.equal(chatOpened, 0, '首页人物不能打开聊天');
-assert.equal(formOpened, 2, '人物与开启探索都应打开真实表单');
+assert.equal(formOpened, 2, '人物与填写出生信息都应打开真实表单');
 assert.equal(windowEvents.has('tj:ai-stream'), false, 'AI 回答不能驱动首页角色的嘴型');
 assert.equal(nodes.get('characterScene').dataset.speaking, undefined);
 
@@ -280,7 +280,7 @@ adapter.setHomeCharacter(MOON_FOX);
 assert.equal(homePortrait.src, MOON_FOX.assets.portrait.src);
 assert.equal(homeBlink.hidden, true, 'V6.1 引路人不再叠旧表情层');
 assert.equal(homeName.textContent, '月白');
-assert.equal(nodes.get('characterPortraitButton').getAttribute('aria-label'), '点击月白，开启探索');
+assert.equal(nodes.get('characterPortraitButton').getAttribute('aria-label'), '点击月白，填写出生信息');
 assert.equal(nodes.get('characterPortraitButton').style.getPropertyValue('--character-ratio'), '1000 / 1800');
 assert.equal(nodes.get('characterScene').dataset.cameraCloseScale, '1.04');
 assert.equal(nodes.get('characterScene').dataset.cameraFullBody, 'true');
@@ -288,7 +288,7 @@ assert.equal(nodes.get('characterScene').dataset.cameraSafeX, undefined);
 assert.equal(nodes.get('characterScene').dataset.cameraSafeInset, undefined);
 adapter.setHomeCharacter(JADE_EMPRESS);
 assert.equal(homeName.textContent, '玉宸');
-assert.equal(nodes.get('characterPortraitButton').getAttribute('aria-label'), '点击玉宸，开启探索');
+assert.equal(nodes.get('characterPortraitButton').getAttribute('aria-label'), '点击玉宸，填写出生信息');
 assert.ok(JADE_EMPRESS.assets.portrait.alt.startsWith('玉宸'));
 assert.equal(homePortrait.src, JADE_EMPRESS.assets.portrait.src);
 assert.equal(homeBlink.hidden, true);
@@ -297,7 +297,7 @@ assert.ok(EARTHFIRE_SOVEREIGN.assets.portrait.alt.startsWith('焱绒'));
 assert.equal(homePortrait.src, EARTHFIRE_SOVEREIGN.assets.portrait.src);
 assert.equal(homeBlink.hidden, true);
 assert.equal(homeName.textContent, '焱绒');
-assert.equal(nodes.get('characterPortraitButton').getAttribute('aria-label'), '点击焱绒，开启探索');
+assert.equal(nodes.get('characterPortraitButton').getAttribute('aria-label'), '点击焱绒，填写出生信息');
 assert.equal(nodes.get('characterPortraitButton').style.getPropertyValue('--character-ratio'), '1000 / 1800');
 assert.equal(nodes.get('characterScene').dataset.cameraCloseScale, '1.04');
 assert.equal(nodes.get('characterScene').dataset.cameraFullBody, 'true');
@@ -311,11 +311,11 @@ for (const character of [QINGLAN, XINGLING, LUYE, SUYAN]) {
     assert.equal(character.assets.blink.forPortrait, character.assets.portrait.src);
     assert.equal(character.assets.speaking.forPortrait, character.assets.portrait.src);
   } else assert.equal(homeBlink.hidden, true, '没有对齐表情时不能沿用上一位人物的表情');
-  assert.equal(nodes.get('characterPortraitButton').getAttribute('aria-label'), `点击${character.name}，开启探索`);
+  assert.equal(nodes.get('characterPortraitButton').getAttribute('aria-label'), `点击${character.name}，填写出生信息`);
 }
 adapter.setHomeCharacter(QINGLAN);
 assert.equal(homeName.textContent, '青岚', '界面以角色本名示人，不再挂特质标签');
-assert.equal(nodes.get('characterPortraitButton').getAttribute('aria-label'), '点击青岚，开启探索', '读屏同样使用本名');
+assert.equal(nodes.get('characterPortraitButton').getAttribute('aria-label'), '点击青岚，填写出生信息', '读屏同样使用本名');
 assert.ok(homePortrait.alt.includes('青岚'), '图片备用文案使用本名');
 adapter.setHomeCharacter(WENWEN);
 assert.equal(nodes.get('characterScene').dataset.cameraCloseScale, '1.45', '新角色应采用自己的近景比例');
