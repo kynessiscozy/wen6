@@ -4,6 +4,32 @@
 
 格式参照 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)。产品正式版本号以 `src/product-copy.js` 的 `PRODUCT.version` 为准；npm 包版本遵循[语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [Unreleased] - 2026-11-11 · V6.1 引路人革新（本地未上线）
+
+### 新增（引路人真正起作用：阅读路线）
+
+- **单一功能契约** `src/ui/guide-route.js`：六位引路人各有 `role / opening / hookTitle / cta / chips / toc / entry / steps`。`steps` 是真实动作——跳报告卡片（`jumpTo`，可切东方 / 西方视图）、打开工具中心对应工具（`openToolPage`）、把问题预填进「问问」（不代发）。未知人物键回退月白；报告主题键 `xingling` 与漏斗人物键 `xiyao` 统一解析。
+- **预告页按专长改写**：`src/ui/funnel-teaser.js` 不再六人共用「换柱 / 评分 / 明年流年」三句，改由 `buildGuideHooks()` 按专长从 `window._ctx` 与 `window.__w3dData` 只挑真数据（事业→大运 / 事业评分 / 流年，姻缘→日支 / 感情评分 / 金星月亮，占星→三核 / 年柱 / 大运……）；报告目录按路线重排并标「路线起点」，工具行改成这位引路人真正会打开的那一款。新增四步可点路线卡片与可点目录；主 CTA 直接落到第一站。
+- **「引路人指引」不再只是反思问题**：`src/ui/character-report.js` 的视角卡追加同一张四步路线（可点按钮），说明文案改为「只决定先看哪张卡、用哪个体系、打开哪款工具与追问方向，不改变排盘或评分」；`src/character-report.css` 补按钮 / 高对比样式。
+- **入口页先说清楚作用**：`public/funnel.html` 首屏新增「这位引路人会带你走」chips，随选人切换；与 `GUIDE_ROUTES.chips` 逐值一致，变更由 `tools/test-guide-route.mjs` 拦截。
+- **跳转补全**：`src/ui/navigation.js::jumpTo()` 增加 `.wastro-pane / .whoro-pane / .wnum-pane / .sec-pane` 唤醒，西方卡片与分区标签页里的卡片跳转后真的可见。
+- **文案口径**：`src/product-copy.js` 的使用指南 / 术语 / 常见问题与「关于」改为「引路人决定阅读路线，不参与计算」，三处生成区块由 `npm run sync:copy` 同步；云端开场白新增通用「具体作用 / 路线标签」提示并升缓存 `wen_teaser_copy_v2`，仍不上传姓名、生辰、四柱或评分。
+- **离线缓存**：`public/sw.js` 升 `wenda-cache-v76`，`APP_CACHE_VERSION` 与视频素材版本 `GUIDE_VIDEO_VERSION=v75` 解耦，避免改文案时误改 `?v=75` 视频 URL。
+- **回归**：新增 `tools/test-guide-route.mjs` 并纳入 `npm run test:unit`；校验六条路线、真实卡片 / 工具目标、跨页 chips、钩子纯函数与不改写输入。`npm run test:guide-v61` 改查 `APP_CACHE_VERSION`。
+
+### 新增（引路人全面革新）
+
+- **六位引路人定版**：月白（神秘人·全能推演，默认）、玉宸（事业推演）、夕瑶（姻缘推演）、焱绒（财富推演）、絮羽（卡罗大师·西方卡罗牌塔罗推演）、星罗（新增·西方占星师）。专长方向在 `src/ui/guide-perspective.js` 只读取已算出的结果，不改写排盘数据。
+- **24 段人物视频接入漏斗四段**（入口 / 问卷 / 仪式 / 邀约）与交接预告；报告头图改用邀约视频，按视口、页面可见性与 `prefers-reduced-motion` 自动播放或暂停，poster 为定妆静帧，解码失败不黑屏（`src/ui/guide-video.js`）。
+- **V6.1 回归套件** `tools/test-guide-v61.mjs`：校验六位引导方向、跨页配色逐值一致、2D 素材与 24 段视频齐备、旧 3D 立绘退场、版本与缓存版本；已纳入 `npm run test:unit`。
+
+### 变更（形象与配色全面换新）
+
+- **全站换用 2D 定妆**：六位主应用角色改用透明全身立绘（`*-v61.webp`）与同版头像（`*-v61-avatar.webp`），弃用旧 3D 电影渲染立绘、逐帧表情贴图与火焰王座 / 星扇等道具；报告、首页、推演过场、分享海报与对话头像同步换新。星罗场景改用自己的观星室，不再借絮羽大厅。
+- **主题配色对齐定妆**：夕瑶调为更饱和的桃花粉 `#ff9ac6`；焱绒弃旧三文鱼红，改黑金掌柜 `#dfb36c` / `#0e0a07`；絮羽改梅子紫底 `#160d1a` ＋ 烛光金；玉宸强调色改翡翠金 `#d3dda6`。三处数据源（漏斗 CSS、预告页 PALETTES、主应用 trait.color）逐值一致。
+- **入口选择器**逐条标注六位引导方向；交接遮罩静态默认回到月白。
+- **版本口径**：产品版本与 npm 包版本维持 `wen6.0` / `6.0.0`（V6.1 是引路人革新规格，不是对外版本号）；Service Worker 缓存随本次路线功能升 `wenda-cache-v76`，`npm run check:copy` 继续校验原版本口径。
+
 ## [wen6.0] - 2026-11-10
 
 ### 文档（README 重写与产品定位统一）

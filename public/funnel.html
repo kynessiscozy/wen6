@@ -15,7 +15,7 @@
 <script>
   // Apply the saved palette before the page is painted, including in standalone PWA mode.
   (function () {
-    var backgrounds = { moonfox: '#090f17', diyan: '#130b0b', yuchen: '#10140e', xiyao: '#170d16', xingluo: '#0a0d20', muse: '#10182b' };
+    var backgrounds = { moonfox: '#090f17', diyan: '#0e0a07', yuchen: '#10140e', xiyao: '#1b0d18', xingluo: '#0a0d20', muse: '#160d1a' };
     window.__wenSetFunnelTheme = function (key) {
       if (!Object.prototype.hasOwnProperty.call(backgrounds, key)) key = 'moonfox';
       document.documentElement.dataset.funnelPersona = key;
@@ -46,27 +46,27 @@
     --backdrop-mobile:url('./art/moon-fox-study-mobile.webp'); --backdrop-wide:url('./art/moon-fox-study-wide.webp');
   }
   html[data-funnel-persona="diyan"]{
-    --bg:#130b0b; --shade-rgb:19,11,11; --accent-rgb:236,130,120;
-    --panel:rgba(30,15,14,.84); --line:rgba(236,130,120,.4);
-    --gold:#ec8278; --gold-soft:#f5c5bc; --red:#8a2015;
-    --button-top:#8a2015; --button-bottom:#5f130d; --ink:#fff1ed; --ink-dim:#dec3bb;
-    --card:#251411; --card-on:#4a211c;
+    --bg:#0e0a07; --shade-rgb:14,10,7; --accent-rgb:223,179,108;
+    --panel:rgba(26,19,12,.86); --line:rgba(223,179,108,.4);
+    --gold:#dfb36c; --gold-soft:#f0d6a6; --red:#6a4a1d;
+    --button-top:#8a6428; --button-bottom:#4a3212; --ink:#fbf3e4; --ink-dim:#dcc9a6;
+    --card:#1c140b; --card-on:#3a2a14;
     --backdrop-mobile:url('./art/earthfire-hall-mobile.webp'); --backdrop-wide:url('./art/earthfire-hall-wide.webp');
   }
   html[data-funnel-persona="yuchen"]{
-    --bg:#10140e; --shade-rgb:16,20,14; --accent-rgb:217,211,169;
-    --panel:rgba(24,30,21,.84); --line:rgba(217,211,169,.4);
-    --gold:#d9d3a9; --gold-soft:#eee9cc; --red:#4d5936;
-    --button-top:#566440; --button-bottom:#313e26; --ink:#f5f5e9; --ink-dim:#d2d5bf;
+    --bg:#10140e; --shade-rgb:16,20,14; --accent-rgb:211,221,166;
+    --panel:rgba(24,30,21,.84); --line:rgba(211,221,166,.4);
+    --gold:#d3dda6; --gold-soft:#e9efc8; --red:#4d5936;
+    --button-top:#566440; --button-bottom:#313e26; --ink:#f5f5e9; --ink-dim:#d7ddc2;
     --card:#1d251a; --card-on:#343f29;
     --backdrop-mobile:url('./art/yuchen-hall-mobile.webp'); --backdrop-wide:url('./art/yuchen-hall-wide.webp');
   }
   html[data-funnel-persona="xiyao"]{
-    --bg:#170d16; --shade-rgb:23,13,22; --accent-rgb:242,167,195;
-    --panel:rgba(38,20,32,.84); --line:rgba(242,167,195,.4);
-    --gold:#f2a7c3; --gold-soft:#fad3e1; --red:#65344c;
-    --button-top:#96506e; --button-bottom:#65344c; --ink:#fff3f7; --ink-dim:#e6c3d1;
-    --card:#2b1622; --card-on:#4a2a3a;
+    --bg:#1b0d18; --shade-rgb:27,13,24; --accent-rgb:255,154,198;
+    --panel:rgba(48,19,38,.84); --line:rgba(255,154,198,.42);
+    --gold:#ff9ac6; --gold-soft:#ffd6e8; --red:#7a2f59;
+    --button-top:#b05082; --button-bottom:#7a2f59; --ink:#fff3f8; --ink-dim:#f2c8dc;
+    --card:#301623; --card-on:#5c2b47;
     --backdrop-mobile:url('./art/xingling-room-mobile.webp'); --backdrop-wide:url('./art/xingling-room-wide.webp');
   }
   html[data-funnel-persona="xingluo"]{
@@ -78,11 +78,11 @@
     --backdrop-mobile:url('./art/xingluo-observatory-mobile.webp'); --backdrop-wide:url('./art/xingluo-observatory-wide.webp');
   }
   html[data-funnel-persona="muse"]{
-    --bg:#10182b; --shade-rgb:16,24,43; --accent-rgb:230,207,154;
-    --panel:rgba(20,28,48,.84); --line:rgba(230,207,154,.38);
-    --gold:#e6cf9a; --gold-soft:#f4e7c3; --red:#6b5a2e;
-    --button-top:#a68d4e; --button-bottom:#77622f; --ink:#faf3e0; --ink-dim:#d8d0b8;
-    --card:#171f33; --card-on:#2c3350;
+    --bg:#160d1a; --shade-rgb:22,13,26; --accent-rgb:230,207,154;
+    --panel:rgba(33,20,39,.86); --line:rgba(230,207,154,.38);
+    --gold:#e6cf9a; --gold-soft:#f4e7c3; --red:#5c3268;
+    --button-top:#6b3f7a; --button-bottom:#43224f; --ink:#faf3e0; --ink-dim:#d8cbe0;
+    --card:#24162b; --card-on:#40254a;
     --backdrop-mobile:url('./art/muse-hall-mobile.webp'); --backdrop-wide:url('./art/muse-hall-wide.webp');
   }
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -170,6 +170,14 @@
   .persona-perspective{max-width:320px;margin:0 auto;color:var(--ink);font-size:13px;line-height:1.6;text-shadow:0 1px 12px #000}
   .persona-perspective b{color:var(--gold-soft)}
   .persona-perspective small{display:block;margin-top:2px;color:var(--ink-dim);font-size:11px}
+  /* 入口页就把「这位引路人到底做什么」说清楚：四步 chips 与预告页 / 报告页同源。 */
+  .persona-route{max-width:440px;margin:10px auto 0;padding:9px 13px;border:1px solid var(--line);border-radius:12px;
+    background:rgba(var(--shade-rgb),.58);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+    text-align:left;font-size:12px;line-height:1.7;color:var(--ink);text-shadow:0 1px 10px #000}
+  .persona-route b{display:block;color:var(--gold-soft);font-size:10.5px;letter-spacing:.22em;font-weight:600}
+  .persona-route span{display:block;margin-top:3px;color:var(--ink)}
+  .persona-route small{display:block;margin-top:3px;color:var(--ink-dim);font-size:10.5px;opacity:.9}
+  .persona-route + .cta{margin-top:14px}
 
   .persona-options button.on::after{content:'✓';color:var(--gold-soft)}
   .persona-switch button:focus-visible{outline:2px solid var(--gold-soft);outline-offset:2px}
@@ -305,18 +313,23 @@
       <span class="persona-label" id="personaLabel">月白</span><span>切换</span><span class="persona-chevron" aria-hidden="true">⌄</span>
     </button>
     <div class="persona-options" id="personaOptions" role="group" aria-label="选择引路人" hidden>
-      <button type="button" data-persona="diyan" aria-pressed="false"><span>焱绒<small>财富</small></span></button>
-      <button type="button" data-persona="yuchen" aria-pressed="false"><span>玉宸<small>事业</small></span></button>
+      <button type="button" data-persona="diyan" aria-pressed="false"><span>焱绒<small>财富推演专家</small></span></button>
+      <button type="button" data-persona="yuchen" aria-pressed="false"><span>玉宸<small>事业推演专家</small></span></button>
       <button type="button" data-persona="moonfox" class="on" aria-pressed="true"><span>月白<small>神秘人 · 全能推演</small></span></button>
-      <button type="button" data-persona="xiyao" aria-pressed="false"><span>夕瑶<small>姻缘</small></span></button>
-      <button type="button" data-persona="xingluo" aria-pressed="false"><span>星罗<small>占星术</small></span></button>
-      <button type="button" data-persona="muse" aria-pressed="false"><span>絮羽<small>卡罗大师</small></span></button>
+      <button type="button" data-persona="xiyao" aria-pressed="false"><span>夕瑶<small>姻缘推演专家</small></span></button>
+      <button type="button" data-persona="xingluo" aria-pressed="false"><span>星罗<small>西方占星师</small></span></button>
+      <button type="button" data-persona="muse" aria-pressed="false"><span>絮羽<small>西方卡罗大师</small></span></button>
     </div>
   </div>
   <div class="entry-inner">
     <button class="menu-btn" id="btnMenu" type="button" aria-label="打开菜单" title="菜单"><span></span><span></span><span></span></button>
     <div class="entry-bottom">
-      <p class="persona-perspective rise" style="--d:.2s"><b id="personaPerspective">月白 · 全能推演</b><small>引路人改变阅读视角，不改变排盘结果</small></p>
+      <p class="persona-perspective rise" style="--d:.2s"><b id="personaPerspective">月白 · 全能推演</b><small>引路人决定先看哪张卡 / 打开哪款工具，不参与排盘</small></p>
+      <div class="persona-route rise" style="--d:.28s">
+        <b>这位引路人会带你走</b>
+        <span id="personaRoute">四柱与日主 → 星盘三核 → 答案之书 → 问问追问</span>
+        <small>预告页与报告里可直接点开这四步</small>
+      </div>
       <button class="cta rise" style="--d:.35s" id="btnStart">进入命盘厅</button>
       <p class="fineprint rise" style="--d:.5s">出生信息只保存在你的设备上，不上传、不注册<br>命理推演仅供文化研究与娱乐参考</p>
     </div>
@@ -418,7 +431,7 @@
     </div>
     <div class="about-section">
       <h3>在这里，你可以</h3>
-      <p>从漏斗首屏选择引路人、填写问卷与出生信息；进入报告后切换东方与西方，以及命盘、运势和关系。东方包含四柱八字、紫微斗数、流日与合盘等信息，西方包含本命星盘、行星宫位相位与生命灵数。</p>
+      <p>从漏斗首屏选择引路人、填写问卷与出生信息；引路人会按专长带你先读对应的卡片、工具与追问，再进入报告切换东方与西方，以及命盘、运势和关系。东方包含四柱八字、紫微斗数、流日与合盘等信息，西方包含本命星盘、行星宫位相位与生命灵数。</p>
       <p>工具页提供塔罗、MBTI、择日、合盘、起名、答案之书、日签等主题体验；「问问」对话可结合当前命盘上下文继续追问，长报告支持导出与分享海报。</p>
     </div>
     <div class="about-section">
@@ -843,7 +856,7 @@ var FM_GUIDE={
     "steps": [
       [
         "选择引路人",
-        "首次进入在漏斗首屏挑选同行形象。引路人只决定叙事语气与演出，不参与命盘计算；进入报告后，可在菜单点「返回入口页」重新选择。"
+        "首次进入在漏斗首屏挑选同行形象。每位引路人都有自己的阅读路线：决定先看哪张卡、切换东方或西方视图、打开哪款工具，以及带着什么问题去「问问」。引路人不参与命盘计算；进入报告后，可在菜单点「返回入口页」重新选择。"
       ],
       [
         "填写出生信息",
@@ -851,11 +864,11 @@ var FM_GUIDE={
       ],
       [
         "阅读报告",
-        "先看同行卡中的命盘信息；顶部切换东方与西方，底部切换命盘、运势和关系。每个分区先给「新手解读」速读，下方用标签浏览具体卡片；专业数值默认收起，点「查看专业数值」展开核对。"
+        "先看同行卡与「引路人指引」：四步路线可以直接跳到对应卡片、打开对应工具或预填一个追问。顶部切换东方与西方，底部切换命盘、运势和关系；专业数值默认收起，点「查看专业数值」展开核对。"
       ],
       [
         "继续探索",
-        "工具页提供塔罗、日签、答案之书等主题体验；「问问」可结合当前命盘上下文继续追问。档案与偏好保存在本机浏览器。"
+        "预告页与报告里的路线会按引路人分别打开答案之书、事业大师、合盘助手、择日助手、塔罗大师或星座助手；「问问」也可结合当前命盘上下文继续追问。档案与偏好保存在本机浏览器。"
       ]
     ]
   },
@@ -939,7 +952,7 @@ var FM_GUIDE={
       [
         "引路人",
         "体验",
-        "陪你阅读报告的叙事角色，只影响演出与语气，不参与计算。"
+        "陪你阅读报告的叙事角色：决定先看哪张卡、打开哪款工具与追问方向，不参与计算、不改结论。"
       ],
       [
         "速读与专业数值",
@@ -959,7 +972,7 @@ var FM_GUIDE={
       ],
       [
         "引路人会影响命盘吗？",
-        "不会。引路人只决定同行形象、叙事语气与演出，不参与命盘计算；在报告菜单点「返回入口页」可以重新选择。"
+        "不会。引路人决定的是阅读路线：先看哪张卡、用东方还是西方视图、打开哪款工具、预填哪个追问；排盘、评分与结论都不参与、不改写。在报告菜单点「返回入口页」可以重新选择。"
       ],
       [
         "报告里的专业数据在哪里看？",
@@ -1007,24 +1020,35 @@ document.querySelectorAll('#fmPanels [data-fmclose]').forEach(function(el){
 
 /* 首屏右上角选择引路人，全漏斗换人。 */
 var PERSONAS={
-  diyan:{name:'焱绒',focus:'财富推演',entry:'./art/diyan-entry2.mp4?v=76',entryPoster:'./art/diyan-entry2-poster.webp',
+  diyan:{name:'焱绒',title:'财富',focus:'财富推演',entry:'./art/diyan-entry2.mp4?v=76',entryPoster:'./art/diyan-entry2-poster.webp',
     ritual:'./art/diyan-ritual.mp4?v=76',ritualPoster:'./art/diyan-ritual-poster.webp',
     quiz:'./art/diyan-quiz.mp4?v=76',poster:'./art/diyan-lord.webp',firstLine:'焱绒正在为你算财…'},
-  yuchen:{name:'玉宸',focus:'事业推演',entry:'./art/yuchen-entry.mp4?v=76',entryPoster:'./art/yuchen-lord.webp',
+  yuchen:{name:'玉宸',title:'事业',focus:'事业推演',entry:'./art/yuchen-entry.mp4?v=76',entryPoster:'./art/yuchen-lord.webp',
     ritual:'./art/yuchen-ritual.mp4?v=76',ritualPoster:'./art/yuchen-lord.webp',
     quiz:'./art/yuchen-quiz.mp4?v=76',poster:'./art/yuchen-lord.webp',firstLine:'玉宸正在为你看事业…'},
-  moonfox:{name:'月白',focus:'全能推演',entry:'./art/yuebai-entry.mp4?v=76',entryPoster:'./art/yuebai-lord.webp',
+  moonfox:{name:'月白',title:'神秘人',focus:'全能推演',entry:'./art/yuebai-entry.mp4?v=76',entryPoster:'./art/yuebai-lord.webp',
     ritual:'./art/yuebai-ritual.mp4?v=76',ritualPoster:'./art/yuebai-lord.webp',
     quiz:'./art/yuebai-quiz.mp4?v=76',poster:'./art/yuebai-lord.webp',firstLine:'月白正在为你翻册…'},
-  xiyao:{name:'夕瑶',focus:'姻缘推演',entry:'./art/xiyao-entry.mp4?v=76',entryPoster:'./art/xiyao-lord.webp',
+  xiyao:{name:'夕瑶',title:'姻缘',focus:'姻缘推演',entry:'./art/xiyao-entry.mp4?v=76',entryPoster:'./art/xiyao-lord.webp',
     ritual:'./art/xiyao-ritual.mp4?v=76',ritualPoster:'./art/xiyao-lord.webp',
     quiz:'./art/xiyao-quiz.mp4?v=76',poster:'./art/xiyao-lord.webp',firstLine:'夕瑶正在为你看姻缘…'},
-  xingluo:{name:'星罗',focus:'占星推演',entry:'./art/xingluo-entry.mp4?v=76',entryPoster:'./art/xingluo-lord.webp',
+  xingluo:{name:'星罗',title:'占星术',focus:'占星推演',entry:'./art/xingluo-entry.mp4?v=76',entryPoster:'./art/xingluo-lord.webp',
     ritual:'./art/xingluo-ritual.mp4?v=76',ritualPoster:'./art/xingluo-lord.webp',
     quiz:'./art/xingluo-quiz.mp4?v=76',poster:'./art/xingluo-lord.webp',firstLine:'星罗正在为你观星…'},
-  muse:{name:'絮羽',focus:'塔罗推演',entry:'./art/muse-entry.mp4?v=76',entryPoster:'./art/muse-lord.webp',
+  muse:{name:'絮羽',title:'卡罗大师',focus:'塔罗推演',entry:'./art/muse-entry.mp4?v=76',entryPoster:'./art/muse-lord.webp',
     ritual:'./art/muse-ritual.mp4?v=76',ritualPoster:'./art/muse-lord.webp',
     quiz:'./art/muse-quiz.mp4?v=76',poster:'./art/muse-lord.webp',firstLine:'絮羽正在为你洗牌…'}
+};
+/* 引路人阅读路线：chips 与 src/ui/guide-route.js 的 GUIDE_ROUTES 逐值一致。
+   funnel.html 是 public/ 下的独立页，不能用 ES module 导入，故保留这份小表；
+   tools/test-guide-route.mjs 会校验两处不漂移。 */
+var GUIDE_ROUTES={
+  "moonfox":{"chips":["四柱与日主","星盘三核","答案之书","问问追问"]},
+  "yuchen":{"chips":["人生时间线","年度趋势","事业大师","问问追问"]},
+  "xiyao":{"chips":["亲密关系","八字合盘","合盘助手","问问追问"]},
+  "diyan":{"chips":["年度趋势","人生时间线","择日助手","问问追问"]},
+  "muse":{"chips":["当下关注","梅花易数","塔罗大师","问问追问"]},
+  "xingluo":{"chips":["星盘三核","十大星曜","星座助手","问问追问"]}
 };
 /* 沉浸过场三句与问卷中段过场：随引路人切换（V6.1 文案，一人一版）。 */
 var IMMERSION_BY_PERSONA={
@@ -1075,6 +1099,9 @@ function fmApplyPersona(key){
   var il=fm$('#s-inter .inter-line');if(il&&INTER_BY_PERSONA[key])il.innerHTML=INTER_BY_PERSONA[key];
   fm$('#personaLabel').textContent=P.name;
   fm$('#personaPerspective').textContent=P.name+' · '+P.focus;
+  var gr=GUIDE_ROUTES[key];
+  var routeEl=fm$('#personaRoute');
+  if(routeEl&&gr)routeEl.textContent=gr.chips.join(' → ');
   fm$('#personaToggle').setAttribute('aria-label','当前引路人：'+P.name+'，切换引路人');
   document.querySelectorAll('#personaOptions [data-persona]').forEach(function(b){
     var on=b.getAttribute('data-persona')===key;

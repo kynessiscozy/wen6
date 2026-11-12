@@ -141,8 +141,8 @@ try {
     const held = { yuchen: [], suyan: [] };
     let failMoon = false;
     page.on('request', request => {
-      if (failMoon && request.url().endsWith('/moonfox-cinema3d.webp')) request.abort('failed').catch(() => {});
-      else if (request.url().endsWith('/yuchen-cinema3d.webp')) held.yuchen.push(request);
+      if (failMoon && request.url().endsWith('/moonfox-v61.webp')) request.abort('failed').catch(() => {});
+      else if (request.url().endsWith('/yuchen-v61.webp')) held.yuchen.push(request);
       else if (request.url().endsWith('/suyan-fullbody.webp')) held.suyan.push(request);
       else request.continue().catch(() => {});
     });

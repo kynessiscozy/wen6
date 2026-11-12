@@ -208,7 +208,7 @@ try {
     assert.ok(choiceNames.some(name => name?.includes('转一转')), '屏幕阅读器可以操作随机转轮');
     assert.ok(!choiceNames.some(name => /姜姜|问问|月白|地炎|玉宸|青岚|星绫|陆野|苏言|绒绒|纸鸢/.test(name || '')), '屏幕阅读器也不暴露角色名');
     const fetched = await page.evaluate(() => performance.getEntriesByType('resource').map(entry => entry.name));
-    assert.ok(!fetched.some(name => /(?:(?:wenwen|moonfox|diyan|yuchen|qinglan|xingling|luye|suyan|rongrong|zhiya)-cinema3d|(?:luye|suyan)-fullbody)\.webp/.test(name)), '未选择前不应预加载任何主图');
+    assert.ok(!fetched.some(name => /(?:(?:wenwen|moonfox|diyan|yuchen|qinglan|xingling|luye|suyan|rongrong|zhiya)-(?:cinema3d|v61)|(?:luye|suyan)-fullbody)\.webp/.test(name)), '未选择前不应预加载任何主图');
     await page.keyboard.press('Tab');
     assert.equal(await page.evaluate(() => document.activeElement.id), 'traitSpin', '老虎机可以用键盘操作');
     await page.keyboard.press('Escape');
@@ -302,7 +302,7 @@ try {
     await page.setRequestInterception(true);
     const held = [];
     page.on('request', request => {
-      if (request.url().endsWith('/yuchen-cinema3d.webp')) held.push(request);
+      if (request.url().endsWith('/yuchen-v61.webp')) held.push(request);
       else request.continue().catch(() => {});
     });
     await spinFor(page, 'yuchen');
@@ -326,7 +326,7 @@ try {
     // in compact landscape, rather than empty background.
     wenwen: { character: WENWEN, room: 'sacred-study', prop: 'lantern', hit: [.24, .50] },
     moonfox: { character: MOON_FOX, room: 'moon-fox-study', prop: null, hit: [.20, .38] },
-    diyan: { character: EARTHFIRE_SOVEREIGN, room: 'earthfire-hall', prop: 'fireThrone', hit: [.20, .40] },
+    diyan: { character: EARTHFIRE_SOVEREIGN, room: 'earthfire-hall', prop: null, hit: [.20, .40] },
     yuchen: { character: JADE_EMPRESS, room: 'yuchen-hall', prop: null, hit: [.32, .40] },
     qinglan: { character: QINGLAN, room: 'qinglan-room', prop: null, hit: [.16, .43] },
     xingling: { character: XINGLING, room: 'xingling-room', prop: null, hit: [.24, .40] },
@@ -399,11 +399,8 @@ try {
         assert.ok(Math.abs(state.hero.height - reference.height) < 1 && Math.abs(state.hero.y - reference.y) < 1, '十角色使用同一近景画幅');
       } else reference = state.hero;
       if (config.prop) assert.ok(state.props.includes(config.prop), `${id}: 角色专属道具不可丢失`);
-      if (id !== 'diyan') assert.ok(!state.props.includes('fireThrone') && !state.props.includes('runes'));
-      if (id === 'diyan') {
-        assert.ok(state.props.includes('runes') && state.props.includes('runeSeal'));
-        assert.ok(Number(state.subjectZ) > Number(state.sceneryZ), '火椅与符文必须在人物后方');
-      }
+      assert.ok(!state.props.includes('fireThrone') && !state.props.includes('runes') && !state.props.includes('runeSeal'),
+        'V6.1 起旧火焰王座与符文不再出现在任何角色场景');
       if (id === 'yuchen') {
         assert.ok(state.landmarks.every(point => point.x > 0 && point.x < width && point.y > 0 && point.y < state.cta.top),
           `${id} ${width}x${height}: 放大近景仍应保留凤冠和玉印`);
@@ -462,13 +459,10 @@ try {
 
   // Every expression sprite should only cover its own eyes or mouth, never
   // a whole face or a mismatched portrait, and must actually be painted.
+  // V6.1 六位引路人已移除旧表情贴图；此契约继续由仍保留表情层的历史角色验证。
   for (const [id, limits] of Object.entries({
     wenwen: { blink: [370, 185, 485, 250], speak: [380, 230, 468, 276] },
-    moonfox: { blink: [300, 170, 390, 232], speak: [328, 195, 404, 245] },
-    diyan: { blink: [365, 201, 483, 267], speak: [385, 243, 468, 291] },
-    yuchen: { blink: [404, 191, 492, 244], speak: [417, 220, 479, 261] },
     qinglan: { blink: [307, 226, 410, 297], speak: [325, 272, 398, 315] },
-    xingling: { blink: [350, 226, 453, 286], speak: [364, 273, 430, 319] },
     rongrong: { blink: [374, 143, 477, 207], speak: [384, 178, 457, 221] },
     zhiya: { blink: [322, 285, 399, 356], speak: [350, 312, 434, 361] },
   })) {

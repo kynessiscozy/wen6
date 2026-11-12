@@ -4,16 +4,17 @@
    只优化「语气与句式」这类硬编码文案；四柱、评分、大运流年等真实
    推演数据仍由本地生成，不交给模型改写。
 
-   上传字段仅限：引路人名称 / 风格样例（通用话术）、日主天干（单字）、
-   问卷关注点标签。不含姓名、出生日期时辰、出生地、具体四柱或评分。
+   上传字段仅限：引路人名称 / 风格样例（通用话术）、该引路人的通用作用
+   与路线标签、日主天干（单字）、问卷关注点标签。不含姓名、出生日期时辰、
+   出生地、具体四柱或评分；路线标签只描述阅读顺序，不含任何计算结果。
 
    命中缓存直接返回，不发起调用；失败由调用方静默回退本地文案。
    ============================================================ */
 
 import { streamAskAnswer } from '../ai/index.js';
 
-const CACHE_KEY = 'wen_teaser_copy_v1';
-const CACHE_VERSION = 'v1';
+const CACHE_KEY = 'wen_teaser_copy_v2';
+const CACHE_VERSION = 'v2';
 const MAX_CACHE_ENTRIES = 12;
 
 const CONCERN_LABELS = Object.freeze({
@@ -30,6 +31,7 @@ const SYSTEM_PROMPT = [
   '3. 不得出现姓名、出生日期、出生时辰、出生地等个人信息。',
   '4. 不制造焦虑、不承诺结果、不涉及医疗、投资、法律建议。',
   '5. 语气贴合给定的引路人，温和、克制、有分寸，结尾自然引出下方已排好的真实内容。',
+  '6. 这位引路人现在有明确分工（见「具体作用」与「阅读路线」）：可呼应他会先带你看什么，但不得写出具体卡片名、工具名、数字或命理结论。',
 ].join('\n');
 
 /** 缓存键只由非敏感的通用维度组成，文案本身也不含个人信息。 */
@@ -79,6 +81,7 @@ function sanitize(text) {
  */
 export async function generateTeaserCopy({
   persona,
+  guideRoute,
   dayMaster,
   concerns = [],
   apiKey,
@@ -98,6 +101,8 @@ export async function generateTeaserCopy({
   const concernText = concerns.map(c => CONCERN_LABELS[c]).filter(Boolean).join('、') || '未指定';
   const question = [
     `引路人：${persona?.name || '引路人'}（语气参考：「${persona?.lead || ''}」）`,
+    `具体作用：${guideRoute?.role || '陪你按专长读报告'}`,
+    `阅读路线：${(guideRoute?.chips || []).join(' → ') || '按报告顺序阅读'}（只用于把握语气，禁止在输出中写出具体卡片名或工具名）`,
     `日主天干：${dayMaster || '未提供'}（仅用于把握语气，禁止在输出中出现该字或任何干支）`,
     `访客在问卷里最关心：${concernText}`,
     '请写出这段开场白。',

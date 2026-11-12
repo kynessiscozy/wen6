@@ -39,7 +39,7 @@ try {
     return { menuRight: menu.right, rolesLeft: roles.left, rolesRight: roles.right, width: innerWidth };
   });
   assert.ok(bounds.menuRight <= bounds.rolesLeft && bounds.rolesRight <= bounds.width, '窄屏菜单与角色切换不能重叠或溢出');
-  assert.equal(await page.$eval('#entryVideo', el => el.getAttribute('src')), './art/yuebai-entry.mp4');
+  assert.equal(await page.$eval('#entryVideo', el => el.getAttribute('src')), './art/yuebai-entry.mp4?v=75');
   assert.equal(await page.$eval('#entryVideo', el => el.getAttribute('poster')), './art/yuebai-lord.webp');
   assert.equal(await page.$eval('#personaLabel', el => el.textContent), '月白');
   assert.equal(await page.$eval('#personaToggle', el => el.getAttribute('aria-expanded')), 'false');
@@ -51,8 +51,8 @@ try {
   assert.equal(await page.evaluate(() => document.activeElement.id), 'personaToggle');
   const paletteGradients = new Set();
   for (const [key, name, video] of [
-    ['diyan', '焱绒', 'diyan-entry2.mp4'], ['yuchen', '玉宸', 'yuchen-entry.mp4'],
-    ['xiyao', '夕瑶', 'xiyao-entry.mp4'], ['moonfox', '月白', 'yuebai-entry.mp4'],
+    ['diyan', '焱绒', 'diyan-entry2.mp4?v=75'], ['yuchen', '玉宸', 'yuchen-entry.mp4?v=75'],
+    ['xiyao', '夕瑶', 'xiyao-entry.mp4?v=75'], ['moonfox', '月白', 'yuebai-entry.mp4?v=75'],
   ]) {
     await page.click('#personaToggle');
     await page.click(`#personaOptions [data-persona="${key}"]`);
@@ -189,7 +189,7 @@ try {
   assert.ok(await page.$eval('#characterResultHero [data-report-value="day-master"]', el => el.textContent.trim()));
   assert.equal(await page.evaluate(() => JSON.parse(localStorage.getItem('wen_funnel_v1')).trait), 'moonfox');
   assert.equal(await page.$eval('html', el => el.dataset.homeTheme), 'moonfox');
-  assert.equal(await page.$eval('.guide-perspective-title', el => el.textContent), '线索与依据');
+  assert.equal(await page.$eval('.guide-perspective-title', el => el.textContent), '全能推演');
   assert.ok((await page.$eval('.guide-perspective-facts.sys-eastern', el => el.textContent)).includes('日柱'));
   assert.ok((await page.$eval('.guide-perspective-note', el => el.textContent)).includes('不改变排盘或评分'));
   assert.deepEqual(errors, []);

@@ -4,13 +4,14 @@ import puppeteer from 'puppeteer';
 import { HOME_THEMES } from '../src/ui/home-theme.js';
 
 const BASE = process.env.BASE_URL || 'http://localhost:5173/index.html';
+const V61_NO_EXPRESSION = ['moonfox', 'yuchen', 'xingling', 'diyan', 'muse', 'xingluo'];
 const THEMES = {
   wenwen: { trait: '温柔', portrait: 'wenwen-cinema3d.webp', lead: '别急，我们慢慢看。' },
-  moonfox: { trait: '神秘', portrait: 'moonfox-cinema3d.webp', lead: '有意思，线索已经浮现。' },
-  diyan: { trait: '威严', portrait: 'diyan-cinema3d.webp', lead: '先定根基，再看全局。' },
-  yuchen: { trait: '从容', portrait: 'yuchen-cinema3d.webp', lead: '静下心，先看这一处。' },
+  moonfox: { trait: '神秘', portrait: 'moonfox-v61.webp', lead: '东西两面都看全，再下判断。' },
+  diyan: { trait: '威严', portrait: 'diyan-v61.webp', lead: '先看财路，再定进退。' },
+  yuchen: { trait: '从容', portrait: 'yuchen-v61.webp', lead: '事业这一局，先看势。' },
   qinglan: { trait: '洒脱', portrait: 'qinglan-cinema3d.webp', lead: '不妨换个角度。' },
-  xingling: { trait: '魅惑', portrait: 'xingling-cinema3d.webp', lead: '细看，线索藏在这里。' },
+  xingling: { trait: '魅惑', portrait: 'xingling-v61.webp', lead: '姻缘这一线，先看心。' },
   luye: { trait: '好奇', portrait: 'luye-fullbody.webp', lead: '发现一个有趣的起点。' },
   suyan: { trait: '自信', portrait: 'suyan-fullbody.webp', lead: '先把重点抓出来。' },
   rongrong: { trait: '可爱', portrait: 'rongrong-cinema3d.webp', lead: '把复杂的事拆小，也给自己一点暖意。' },
@@ -232,15 +233,19 @@ try {
     await page.click('#p2ThemeSeg [data-val="light"]');
     await page.click('.p2-menu-close');
     await page.waitForFunction(() => {
-      const image = document.querySelector('#characterResultHero .result-character-portrait');
-      return image.complete && image.naturalWidth > 0;
+      const node = document.querySelector('#characterResultHero .result-character-portrait');
+      if (!node) return false;
+      // V6.1 引路人头图是会动的 invite 视频，poster 先于视频解码显示。
+      if (node.tagName === 'VIDEO') return !!node.getAttribute('poster');
+      return node.complete && node.naturalWidth > 0;
     });
     await page.click('.result-character-hint-button');
     assert.equal(await page.$eval('.result-character-hint-button', el => el.getAttribute('aria-expanded')), 'true');
     const hint = await page.$eval('#characterResultHint .sys-eastern', el => el.textContent);
     assert.ok(hint.startsWith(config.lead), `${id} 应使用自己的提示语气`);
     assert.ok(hint.includes(result.actualDay) && hint.includes(result.actualUseful), '角色提示应引用实际计算结果');
-    assert.equal(!!(await page.$('#characterResultHero .result-character-speaking')), !['luye', 'suyan'].includes(id), '只显示与人物对应的说话表情');
+    assert.equal(!!(await page.$('#characterResultHero .result-character-speaking')),
+      !['luye', 'suyan', ...V61_NO_EXPRESSION].includes(id), 'V6.1 引路人不再叠旧表情贴图');
     await page.click('.result-character-hint-button');
     assert.equal(await page.$eval('#characterResultHint', el => el.hidden), true);
     await assertNoHorizontalOverflow(page, `${id} 命盘`);
