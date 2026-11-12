@@ -67,27 +67,38 @@ ok(!/ctx\s*\.\s*\w+\s*=/.test(reportUiJs.replace(/ctx\?\.[\w?.]+/g, 'X')),
 
 /* ---- 3. 布局确实重做 ---- */
 ok(reportCss.includes('.guide-companion-body {') &&
-   reportCss.includes('grid-template-columns: minmax(0, 1fr)'),
-  '内容层保持单列，速读与路线上下排布，不再互相挤压');
-ok(reportCss.includes('.guide-companion-visual {') && reportCss.includes('width: 38%') &&
-   reportCss.includes('width: 62%'), '宽屏 38% 画面 / 62% 内容分栏');
+   reportCss.includes('grid-template-columns: minmax(0, 1fr)') &&
+   reportCss.includes('grid-template-columns: minmax(0, .82fr) minmax(0, 1.18fr)'),
+  '窄屏按速读、路线分层；宽屏将两块内容并列，避免纵向堆成长卡');
+ok(reportCss.includes('.guide-companion-visual {') && reportCss.includes('width: 36%') &&
+   reportCss.includes('width: 64%'), '宽屏收窄人物画面，将更多空间留给报告内容');
 ok(reportCss.includes('.result-character-overview .qr-head') &&
    reportCss.includes('.result-character-overview .qr-grid') &&
    reportCss.includes('width: 100%') && reportCss.includes('max-width: none'),
-  '速读区占满内容列，不再沿用满幅画面时的 57% 宽度');
-ok(reportCss.includes('@media (max-width: 760px)') &&
-   reportCss.includes('height: clamp(220px, 60vw, 280px)') &&
-   reportCss.includes('grid-template-columns: 1fr'), '窄屏画面在上、内容单列且保留足够人物画面高度');
+  '速读区占满数据面板，不再沿用满幅画面时的 57% 宽度');
+ok(reportCss.includes('@media (max-width: 900px)') &&
+   reportCss.includes('height: clamp(176px, 47vw, 204px)') &&
+   reportCss.includes('grid-template-columns: minmax(0, 1fr)'),
+  '窄屏人物场景缩短并移至内容上方，速读与路线纵向分区');
 ok(reportCss.includes('grid-template-columns: repeat(2, minmax(0, 1fr))') &&
-   reportCss.includes('@media (max-width: 380px)'), '四步路线 2×2，极小屏再退成单列');
+   reportCss.includes('@media (max-width: 380px)') &&
+   reportCss.includes('guide-route-copy small { display: block;'),
+  '四步路线保持 2×2，窄屏也保留步骤说明');
 ok(reportCss.includes('.guide-perspective-title {') &&
    reportCss.includes('color: #fffaf4 !important') &&
    reportCss.includes('.guide-route-title {') &&
    reportCss.includes('color: var(--result-character-accent) !important'),
   '路线标题覆盖全局标题色，深色底上保持可读');
+ok(reportCss.includes('.guide-companion-data {') &&
+   reportCss.includes('border: 1px solid rgba(255, 249, 241, .13)') &&
+   reportCss.includes('.guide-perspective {'),
+  '速读与引路人路线使用独立面板和统一留白');
 ok(reportCss.includes('is-guide-companion-merged::before') &&
-   reportCss.includes('border-radius: 22px') && reportCss.includes('box-shadow'),
-  '主题色左轨 / 圆角 / 阴影取代旧白底小卡');
+   reportCss.includes('border-radius: 24px') && reportCss.includes('box-shadow'),
+  '主题色左轨 / 圆角 / 阴影强化主卡边界');
+ok(reportCss.includes('margin-bottom: calc(var(--ig-dock-height, 66px) + 20px + env(safe-area-inset-bottom, 0px))') &&
+   reportCss.includes('padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px))'),
+  '报告滚动区域在固定 Dock 上方结束，避免正文被遮挡');
 ok(reportCss.includes('@media (forced-colors: active)') &&
    reportCss.includes('background: Canvas !important'), '强制颜色回退到位');
 ok(reportCss.includes('.result-portrait-toggle') && reportCss.includes('top: 12px'),
