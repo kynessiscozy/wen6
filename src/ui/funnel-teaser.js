@@ -16,19 +16,6 @@ import { getApiKey } from './ai-settings.js';
 import { generateTeaserCopy } from './teaser-copy.js';
 import { guideRouteFor, buildGuideHooks, runGuideAction } from './guide-route.js';
 
-const DAY_MASTER_TONE = {
-  甲: '甲木参天，认准方向便不轻易回头，做事讲原则、有担当。',
-  乙: '乙木如藤，看似柔和，韧性极强，擅长在缝隙里找到自己的路。',
-  丙: '丙火如日，热情直接，藏不住心事，感染力是你的天赋。',
-  丁: '丁火如灯，外静内明，心思细、悟性高，认定的人和事会守很久。',
-  戊: '戊土如山，稳重可靠，答应的事一定做到，是身边人的定心丸。',
-  己: '己土如园，包容务实，手巧心细，擅长把日子过出秩序感。',
-  庚: '庚金如刃，快人快语，执行力强，越是难事越能显出锋芒。',
-  辛: '辛金如玉，精致敏锐，审美与直觉俱佳，对品质有自己的坚持。',
-  壬: '壬水如江，脑子转得快，格局大，不喜欢被小事困住手脚。',
-  癸: '癸水如雨，温润聪慧，洞察人心，常常一句话点中要害。',
-};
-
 /* 姓名、报告标题等来自档案 / DOM 的文本统一转义；钩子里的 <b> 是
    guide-route.js 自己拼好的受控标记，不在这里二次转义。 */
 const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, ch => ({
@@ -107,7 +94,7 @@ function ensureStyle() {
     color:var(--ft-ink);text-shadow:0 1px 10px rgba(0,0,0,.6);}
 
   #${OVERLAY_ID} .ft-hero-copy{padding:0 2px 6px;}
-  #${OVERLAY_ID} .ft-open{margin:0;font-size:clamp(17px,4.7vw,21px);line-height:2;letter-spacing:.02em;
+  #${OVERLAY_ID} .ft-open{margin:0;font-size:clamp(17px,4.7vw,21px);line-height:1.85;letter-spacing:.02em;
     color:#fff;text-shadow:0 2px 18px rgba(0,0,0,.75),0 0 1px rgba(0,0,0,.9);}
   #${OVERLAY_ID} .ft-open .hl{color:var(--ft-accent);}
   #${OVERLAY_ID} .ft-open.is-streaming::after{content:"▍";margin-left:2px;color:var(--ft-accent);
@@ -171,6 +158,16 @@ function ensureStyle() {
   #${OVERLAY_ID} .ft-toc .tv{font-size:12px;color:var(--ft-accent);white-space:nowrap;}
   #${OVERLAY_ID} .ft-toc-first{display:inline-block;margin-left:8px;padding:1px 7px;border-radius:999px;
     font-style:normal;font-size:10px;letter-spacing:.12em;color:var(--ft-bg);background:var(--ft-accent);vertical-align:1px;}
+  /* 完整目录默认收起：目录与四步路线重复，收起后内容层不再是一整屏文字墙。 */
+  #${OVERLAY_ID} .ft-toc-fold{padding:0;overflow:hidden}
+  #${OVERLAY_ID} .ft-toc-fold summary{display:flex;align-items:center;justify-content:space-between;gap:10px;
+    padding:18px 17px;list-style:none;cursor:pointer;font-size:11.5px;font-weight:600;
+    letter-spacing:.3em;color:var(--ft-accent-soft)}
+  #${OVERLAY_ID} .ft-toc-fold summary::-webkit-details-marker{display:none}
+  #${OVERLAY_ID} .ft-toc-fold summary small{font-size:10.5px;font-weight:400;letter-spacing:.08em;color:var(--ft-ink-dim)}
+  #${OVERLAY_ID} .ft-toc-fold summary:focus-visible{outline:2px solid var(--ft-accent-soft);outline-offset:-4px;border-radius:18px}
+  #${OVERLAY_ID} .ft-toc-fold[open] summary{border-bottom:1px solid rgba(var(--ft-accent-rgb),.2)}
+  #${OVERLAY_ID} .ft-toc-fold[open] .ft-toc{padding:4px 17px 16px}
 
   /* ---------- 引路人阅读路线：四步都真的可点 ---------- */
   #${OVERLAY_ID} .ft-route-intro{margin:0 0 14px;font-size:13px;line-height:1.8;color:var(--ft-ink-dim);}
@@ -311,9 +308,9 @@ export function showFunnelTeaserIfNeeded() {
     yearNow,
   });
   const toc = reportToc(route);
-  const tone = DAY_MASTER_TONE[ctx.dg] || '';
-  /* 本地兜底文案：首帧先显示它，云端文案不可用或请求中断时恢复它。 */
-  const localOpenHtml = `${route.opening}${tone ? `日主<b class="hl">${escapeHtml(ctx.dg)}（${escapeHtml(ctx.dw || '')}）</b>——${tone}` : ''}${PERSONA.lead}下面三处，${PERSONA.circle}。`;
+  /* 本地兜底开场白只留一句：去掉与 route.opening 重复的 lead、三十字日主
+     性格长句和「下面三处」的引导；真实数据交给下滑后的四柱 / 钩子卡片。 */
+  const localOpenHtml = `${route.opening}${ctx.dg ? `先看日主<b class="hl">${escapeHtml(ctx.dg)}</b>。` : ''}`;
   const dayunText = ctx.cDy ? `${ctx.cDy.g}${ctx.cDy.z}（${ctx.cDy.ys}–${ctx.cDy.ye}）` : '—';
 
   ensureStyle();
@@ -371,11 +368,11 @@ export function showFunnelTeaserIfNeeded() {
         <h3>${PERSONA.name} 的 阅 读 路 线</h3>
         <p class="ft-route-intro">${escapeHtml(route.role)}</p>
         <ol class="ft-route">${route.steps.map((step, i) => `<li><button class="ft-route-btn" type="button" data-guide-step="${i}" data-guide-key="${route.key}"><span class="ft-route-num">${String(i + 1).padStart(2, '0')}</span><span><b>${escapeHtml(step.label)}</b><small>${escapeHtml(step.detail)}</small></span><span class="ft-route-go" aria-hidden="true">›</span></button></li>`).join('')}</ol>
-        <p class="ft-note">点任一步会关掉预告并直接带到对应卡片 / 工具 / 问问；只改阅读顺序，不改排盘或评分。</p>
+        <p class="ft-note">点任一步直达对应内容；只改阅读顺序，不改结果。</p>
       </div>
-      ${toc.length ? `<div class="ft-card ft-reveal"><h3>完 整 报 告 目 录</h3><ul class="ft-toc">${toc.map(t => `<li><button class="ft-toc-btn" type="button" data-guide-toc="${t.id}" ${t.tool ? `data-guide-tool="${t.tool}"` : ''}><span class="tk">${escapeHtml(t.label)}</span><span>${escapeHtml(t.head)}${t.first ? '<i class="ft-toc-first">路线起点</i>' : ''}</span><span class="tv">${escapeHtml(t.score || '')}</span></button></li>`).join('')}</ul></div>` : ''}
+      ${toc.length ? `<details class="ft-card ft-toc-fold ft-reveal"><summary><span>完 整 报 告 目 录</span><small>${toc.length} 个分区 · 点开查看</small></summary><ul class="ft-toc">${toc.map(t => `<li><button class="ft-toc-btn" type="button" data-guide-toc="${t.id}" ${t.tool ? `data-guide-tool="${t.tool}"` : ''}><span class="tk">${escapeHtml(t.label)}</span><span>${escapeHtml(t.head)}${t.first ? '<i class="ft-toc-first">路线起点</i>' : ''}</span><span class="tv">${escapeHtml(t.score || '')}</span></button></li>`).join('')}</ul></details>` : ''}
       <button class="ft-skip ft-reveal" type="button">跳过预告，直接看报告</button>
-      <p class="ft-free ft-reveal">全程免费 · 无隐藏收费 · 报告已在下方备好</p>
+      <p class="ft-free ft-reveal">全程免费 · 报告已在下方备好</p>
     </div>
   </div>
   <div class="ft-bar"><button class="ft-cta" type="button">${escapeHtml(route.cta)}</button></div>`;

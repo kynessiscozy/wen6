@@ -167,17 +167,19 @@
   .persona-options button.on{background:var(--card-on);color:var(--ink)}
   .persona-options button span{display:grid;gap:2px}
   .persona-options button small{font-size:11px;line-height:1.3;color:var(--ink-dim);font-weight:400}
-  .persona-perspective{max-width:320px;margin:0 auto;color:var(--ink);font-size:13px;line-height:1.6;text-shadow:0 1px 12px #000}
-  .persona-perspective b{color:var(--gold-soft)}
-  .persona-perspective small{display:block;margin-top:2px;color:var(--ink-dim);font-size:11px}
-  /* 入口页就把「这位引路人到底做什么」说清楚：四步 chips 与预告页 / 报告页同源。 */
-  .persona-route{max-width:440px;margin:10px auto 0;padding:9px 13px;border:1px solid var(--line);border-radius:12px;
-    background:rgba(var(--shade-rgb),.58);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
-    text-align:left;font-size:12px;line-height:1.7;color:var(--ink);text-shadow:0 1px 10px #000}
-  .persona-route b{display:block;color:var(--gold-soft);font-size:10.5px;letter-spacing:.22em;font-weight:600}
-  .persona-route span{display:block;margin-top:3px;color:var(--ink)}
-  .persona-route small{display:block;margin-top:3px;color:var(--ink-dim);font-size:10.5px;opacity:.9}
-  .persona-route + .cta{margin-top:14px}
+  /* 首屏只留「谁 + 会带你走哪四步 + 一个动作」：作用说明改由「使用指南」按需展开。 */
+  .persona-perspective{max-width:440px;margin:0 auto;color:var(--ink);font-size:14px;letter-spacing:.1em;line-height:1.5;text-align:center;text-shadow:0 1px 12px #000}
+  .persona-perspective b{color:var(--gold-soft);font-weight:600}
+  /* 四步路线压成一行可点条：点开「使用指南」看完整解释，首屏不再堆小字与卡片边框。 */
+  .persona-route{display:flex;flex-direction:column;align-items:center;gap:6px;width:100%;max-width:440px;
+    margin:20px auto 0;padding:0;border:0;background:none;color:var(--ink);font:inherit;
+    text-align:center;cursor:pointer;text-shadow:0 1px 10px #000}
+  .persona-route b{color:var(--gold-soft);font-size:10.5px;letter-spacing:.24em;font-weight:600}
+  .persona-route span{display:block;max-width:100%;font-size:12px;letter-spacing:.04em;line-height:1.6;
+    color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .persona-route:hover span,.persona-route:focus-visible span{color:var(--gold-soft)}
+  .persona-route:focus-visible{outline:2px solid var(--gold-soft);outline-offset:5px;border-radius:10px}
+  .persona-route + .cta{margin-top:26px}
 
   .persona-options button.on::after{content:'✓';color:var(--gold-soft)}
   .persona-switch button:focus-visible{outline:2px solid var(--gold-soft);outline-offset:2px}
@@ -234,7 +236,7 @@
        transition:transform .15s ease;animation:ctaPulse 2.8s ease-in-out 1.2s infinite alternate}
   @keyframes ctaPulse{from{box-shadow:0 0 0 rgba(var(--accent-rgb),0)}to{box-shadow:0 0 26px rgba(var(--accent-rgb),.28)}}
   .cta:active{transform:scale(.98)}
-  .fineprint{margin-top:auto;padding-top:22px;font-size:12px;line-height:1.9;color:var(--ink-dim);opacity:.85;text-align:center}
+  .fineprint{margin-top:18px;padding-top:0;font-size:11.5px;line-height:1.6;color:var(--ink-dim);opacity:.85;text-align:center}
   /* An explicit exit remains available throughout data collection. */
   .funnel-exit{position:fixed;top:calc(14px + env(safe-area-inset-top, 0px));right:16px;z-index:200;min-height:40px;padding:8px 14px;border:1px solid var(--line);border-radius:999px;background:rgba(var(--shade-rgb),.9);color:var(--ink);font:inherit;font-size:13px;cursor:pointer}
   .funnel-exit[hidden]{display:none}
@@ -324,14 +326,13 @@
   <div class="entry-inner">
     <button class="menu-btn" id="btnMenu" type="button" aria-label="打开菜单" title="菜单"><span></span><span></span><span></span></button>
     <div class="entry-bottom">
-      <p class="persona-perspective rise" style="--d:.2s"><b id="personaPerspective">月白 · 全能推演</b><small>引路人决定先看哪张卡 / 打开哪款工具，不参与排盘</small></p>
-      <div class="persona-route rise" style="--d:.28s">
+      <p class="persona-perspective rise" style="--d:.2s"><b id="personaPerspective">月白 · 全能推演</b></p>
+      <button class="persona-route rise" type="button" style="--d:.28s" id="btnGuideRoute" title="点开查看引路人的作用与四步路线">
         <b>这位引路人会带你走</b>
         <span id="personaRoute">四柱与日主 → 星盘三核 → 答案之书 → 问问追问</span>
-        <small>预告页与报告里可直接点开这四步</small>
-      </div>
+      </button>
       <button class="cta rise" style="--d:.35s" id="btnStart">进入命盘厅</button>
-      <p class="fineprint rise" style="--d:.5s">出生信息只保存在你的设备上，不上传、不注册<br>命理推演仅供文化研究与娱乐参考</p>
+      <p class="fineprint rise" style="--d:.5s">出生信息只保存在本机，不上传、不注册</p>
     </div>
   </div>
 </section>
@@ -1125,9 +1126,19 @@ document.addEventListener('click',function(e){
   if(!personaOptions.hidden&&!e.target.closest('.persona-switch'))fmSetPersonaOpen(false,false);
 });
 document.addEventListener('keydown',function(e){
-  if(e.key==='Escape'&&!personaOptions.hidden){e.preventDefault();fmSetPersonaOpen(false,true);}
+  if(e.key!=='Escape')return;
+  if(!personaOptions.hidden){e.preventDefault();fmSetPersonaOpen(false,true);return;}
+  var panel=document.querySelector('#fmPanels .modal.open');
+  if(panel){e.preventDefault();panel.classList.remove('open');panel.setAttribute('aria-hidden','true');
+    if(guideRouteBtn)guideRouteBtn.focus();}
 });
 fmApplyPersona(fmPersona());
+/* 首屏不再复述「引路人做什么」：想看的人点路线条，进入已有的「使用指南」。 */
+var guideRouteBtn=fm$('#btnGuideRoute');
+if(guideRouteBtn)guideRouteBtn.addEventListener('click',function(){
+  fmOpenPanel('guide');
+  var close=fm$('#fmGuide .modal-close');if(close)close.focus();
+});
 })();
 </script>
 </body>

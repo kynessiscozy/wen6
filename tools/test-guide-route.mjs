@@ -166,11 +166,23 @@ ok(funnelHtml.includes('gr.chips.join(') && funnelHtml.includes('fmApplyPersona'
   '切换引路人时同步刷新路线 chips');
 ok(funnelHtml.includes(GUIDE_ROUTES.moonfox.chips.join(' → ')), '静态默认仍是月白路线');
 
+/* ---- 3b. 首屏内容流：解释性文案按需展开，不再堆在入口 ---- */
+ok(funnelHtml.includes('id="btnGuideRoute"') && funnelHtml.includes("fmOpenPanel('guide')"),
+  '路线条可点，四步路线的完整解释改由「使用指南」按需展开');
+ok(!funnelHtml.includes('引路人决定先看哪张卡 / 打开哪款工具，不参与排盘') &&
+   !funnelHtml.includes('预告页与报告里可直接点开这四步'),
+  '首屏删掉两行重复的作用说明');
+ok(funnelHtml.includes('出生信息只保存在本机，不上传、不注册') &&
+   !funnelHtml.includes('命理推演仅供文化研究与娱乐参考'),
+  '隐私提示压成一行，免责声明回到免责声明面板');
+
 /* ---- 4. 预告页 / 报告指引 / 跳转 / 文案 / 缓存接线 ---- */
 const teaserJs = await read('src/ui/funnel-teaser.js');
 const reportUiJs = await read('src/ui/character-report.js');
 const navJs = await read('src/ui/navigation.js');
 const copyJs = await read('src/product-copy.js');
+const teaserCopyJs = await read('src/ui/teaser-copy.js');
+const personaJs = await read('src/ui/entry-personas.js');
 const sw = await read('public/sw.js');
 const pkg = JSON.parse(await read('package.json'));
 
@@ -179,6 +191,15 @@ for (const needle of ['buildGuideHooks(', 'guideRouteFor(', 'runGuideAction(', '
   assert.ok(teaserJs.includes(needle), `预告页接线包含 ${needle}`);
 }
 ok(!teaserJs.includes('十二位大师工具箱'), '预告页不再用六人共用的笼统工具目录');
+ok(teaserJs.includes('<details class="ft-card ft-toc-fold') && teaserJs.includes('ft-toc-fold[open]'),
+  '完整报告目录默认收起，内容层不再一次铺满文字');
+ok(!teaserJs.includes('DAY_MASTER_TONE') && !teaserJs.includes('PERSONA.circle'),
+  '本地兜底开场白删掉重复 lead、三十字性格长句与「下面三处」');
+ok(teaserCopyJs.includes('40–60 字') && teaserCopyJs.includes("'wen_teaser_copy_v3'") &&
+   teaserCopyJs.includes("CACHE_VERSION = 'v3'"),
+  '云端开场白限 40–60 字并换新缓存键，旧长文案不会继续显示');
+ok(!personaJs.includes('hooksTitle:') && !personaJs.includes('circle:') && !personaJs.includes('lead:'),
+  '开场白 / 钩子标题收敛到 guide-route.js 单一数据源');
 ok(teaserJs.includes('personaFor(payload.trait)'), '预告页仍沿用共享人物表');
 ok(reportUiJs.includes('guideRouteFor(id)') && reportUiJs.includes('runGuideAction(step.action)') &&
    reportUiJs.includes('guide-route-btn'), '报告「引路人指引」渲染同一张可点路线');

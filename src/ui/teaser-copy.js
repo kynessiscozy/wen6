@@ -2,7 +2,8 @@
    命盘预告页 · 云端开场文案
    ------------------------------------------------------------
    只优化「语气与句式」这类硬编码文案；四柱、评分、大运流年等真实
-   推演数据仍由本地生成，不交给模型改写。
+   推演数据仍由本地生成，不交给模型改写。首屏文字预算为一段 40–60 字
+   的开场白，解释与数据一律放在下滑后的卡片里。
 
    上传字段仅限：引路人名称 / 风格样例（通用话术）、该引路人的通用作用
    与路线标签、日主天干（单字）、问卷关注点标签。不含姓名、出生日期时辰、
@@ -13,8 +14,8 @@
 
 import { streamAskAnswer } from '../ai/index.js';
 
-const CACHE_KEY = 'wen_teaser_copy_v2';
-const CACHE_VERSION = 'v2';
+const CACHE_KEY = 'wen_teaser_copy_v3';
+const CACHE_VERSION = 'v3';
 const MAX_CACHE_ENTRIES = 12;
 
 const CONCERN_LABELS = Object.freeze({
@@ -26,7 +27,7 @@ const CONCERN_LABELS = Object.freeze({
 const SYSTEM_PROMPT = [
   '你是「问问大师」的文案撰写助手，只负责润色命盘预告页的开场白，不做命理推算、不生成任何结论。',
   '硬性规则：',
-  '1. 只输出一段 80–120 字的中文开场白；不要标题、列表、JSON、引号或解释。',
+  '1. 只输出一段 40–60 字的中文开场白（一到两句，首屏不堆长段文字）；不要标题、列表、JSON、引号或解释。',
   '2. 不得出现任何具体数字、年份、评分、天干地支、四柱、大运、流年，也不得复述或编造命理结论。',
   '3. 不得出现姓名、出生日期、出生时辰、出生地等个人信息。',
   '4. 不制造焦虑、不承诺结果、不涉及医疗、投资、法律建议。',
@@ -120,7 +121,7 @@ export async function generateTeaserCopy({
   });
 
   const text = sanitize(result?.text);
-  if (!text || text.length < 20 || text.length > 400) {
+  if (!text || text.length < 16 || text.length > 160) {
     throw new Error('云端文案长度异常');
   }
   writeCache(id, text);
