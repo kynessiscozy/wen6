@@ -6,6 +6,16 @@
 
 ## [Unreleased] - 2026-11-12 · V6.1 引路人革新 / 首屏内容流 / 按钮元素化 / 卡片合并
 
+### 变更（首屏按钮改精致贴图，动效降到很轻）
+
+- **反馈**：用户指出「首屏的按钮很丑」，方向选「精致的贴图」，动效选「降到很轻」。上一版六套 `polygon` 锯齿轮廓 + 粗金边 + 双层内描边 + 连续呼吸在 390px 首屏显得碎、硬、吵；本轮推翻轮廓实现，但不撤销「六位对应元素」与已合并的同行 / 引路人主卡。
+- **贴图**：采用用户二选一选定的 `public/art/cta-foil.webp`（3840×640，132K）：近黑漆面、左右极细古金云水 / 星图箔纹、中央留白，无文字 / Logo / 人物。六位共用一张，`.cta::before` 以 `mix-blend-mode:screen` 叠在角色主题渐变上；各主题块只注入 `--cta-foil-hue` 旋相。统一 18px 圆角矩形、一圈极细金边；元素纹章收进 34px 小圆章，右侧补轻箭头。
+- **人物差异**：`GUIDE_ELEMENTS` / `CTA_ELEMENTS` 增 `texture` 与 `foilHue`；月白 `157deg` 月牙水波、玉宸 `26deg` 玉圭、夕瑶 `-71deg` 四瓣桃花、焱绒 `-8deg` 元宝金锭、絮羽 `-3deg` 斜角塔罗牌、星罗 `180deg` 星芒。`fmApplyPersona()` 仍同步写入元素说明与 `title`，主题渐变与六枚 SVG 纹章保留。
+- **动效**：删除 `ctaPulse` 与 `infinite alternate`，静止后不呼吸、不闪烁；入场沿用全局 `.rise`，只留 1px hover 位移、`.10` 阴影、active `scale(.99)` 与按钮自身 2px focus-visible 焦点环，全局 `prefers-reduced-motion` 回退不变。
+- **离线**：贴图写入 `public/sw.js` 的 `OPTIONAL_ASSETS`，`APP_CACHE_VERSION` / `wenda-cache-*` 同步升 `v79`；`tools/test-guide-route.mjs` 与 `tools/test-guide-v61.mjs` 的版本断言、README / `docs/content-flow.md` / `docs/v6.1-guides.md` 同步。视频 `v76` / `?v=76`、产品 `wen6.0` / npm `6.0.0` 不变。
+- **对照与回归**：重做 `tools/preview-cta-shapes.html`（六位贴图 + 改动前异形基准）；`tools/test-guide-cta-shape.mjs` 改为 25 项断言，校验共用贴图、六组色相、跨页小表、无旧 `clip-path` / 连续呼吸、纹章 / 换人 / 焦点环 / 离线缓存；`tools/test-guide-companion-card.mjs` 改查贴图色相。浏览器实跑覆盖 390×844 六位主题、键盘焦点、`prefers-reduced-motion`、贴图 200 与 `test:funnel-exit` / `test:home-offline`；旧浏览器回归里 5 处残留的 `?v=75` 视频断言同步到当前 `?v=76`。
+- **未动**：`#btnStart`、文案「进入命盘厅」、点击行为、阅读路线、报告合并卡、排盘 / 评分 / 结论 / 输入数据边界；未新增人物贴图，也未改动视频素材。
+
 ### 变更（同行卡与引路人卡合并，推翻重做报告首屏布局）
 
 - **此前**：`#s-ming` 顶部是两张紧挨着的卡——`.result-character-hero`（满幅人物场景 + 速读 + 3D 星盘）和 `.guide-perspective`（白底小卡：身份 / 专长 / 线索 / 反思 / 四步路线）。同一位引路人的身份与「带你读」的说明出现两遍，前者暗底满幅、后者白底窄卡，视觉与信息都被切成两段。
@@ -14,7 +24,7 @@
 - **不丢契约**：`#characterResultHero`、`.qr-card`、`.sys-eastern` / `.sys-western`、`#w3d-astro`、`.result-character-figure`、`.result-portrait-toggle`、`.guide-perspective-*`、`.guide-route-btn` 全部保留且仍在同一张卡内；四步按钮继续调 `runGuideAction()`，只改阅读顺序，不写输入、不重算、不碰评分 / 结论 / AI 改写。人物切换失败时原有速读与星盘仍按旧链路还原。
 - **文案口径**：`src/product-copy.js` 的「阅读报告」与「引路人」术语改为「合并后的同行 / 引路人指引卡」，`npm run sync:copy` 同步到 README 与漏斗页；README 体验流程、`docs/content-flow.md` 流程表同步。
 - **回归**：新增 `tools/test-guide-companion-card.mjs` 并纳入 `npm run test:unit`；`tools/test-guide-route.mjs` 增补合并结构断言。新增 `tools/preview-guide-companion-card.html` 静态对照页，不进构建产物。
-- **未动**：产品版本 `wen6.0` / `6.0.0`、视频 `v76` / `?v=76`、SW `wenda-cache-v78`；三处生成区块由 `npm run check:copy` 校验一致。上一轮「按钮按引路人元素换形状」的改动保留。
+- **未动**：产品版本 `wen6.0` / `6.0.0`、视频 `v76` / `?v=76`、当时的 SW `wenda-cache-v78`；三处生成区块由 `npm run check:copy` 校验一致。上一轮「按钮按引路人元素换形状」的改动当时保留（后续用户反馈已把异形轮廓换成精致贴图，见本节首条）。
 
 ### 变更（「进入命盘厅」按钮按引路人元素换形状）
 
@@ -23,7 +33,7 @@
 - **形状实现**：六个 `html[data-funnel-persona]` 主题块各注入一条百分比 `--cta-clip: polygon(...)`（随按钮宽度缩放、无新增素材）；`.cta-edge` 与 `.cta` 叠用同一轮廓做金边，`clip-path` 会裁掉元素自身外阴影 / outline，因此呼吸发光改由外层 `.cta-wrap` 的 `drop-shadow` 承担，焦点环也放在外层 `:has(.cta:focus-visible)`；入场 `riseIn` 与呼吸 `ctaPulse` 改成并行，避免 `animation` 相互覆盖。按钮本体仍保留角色主题 `linear-gradient`（配色回归依赖 computedStyle）。
 - **纹章**：按钮内新增 20px 描边 SVG，六位各一枚（月牙 / 玉圭 / 桃花 / 铜钱 / 塔罗牌 / 星芒），默认隐藏、按当前引路人显示一枚；`fmApplyPersona()` 同步写入 `data-guide-element` 与 `title`。文字「进入命盘厅」、入口动画、点击行为与全部计算 / 评分 / 结论边界不变。
 - **对照页**：新增 `tools/preview-cta-shapes.html`，并排摊开六套形状 / 纹章 / 配色与改动前的矩形基准，供无浏览器环境下逐位比对；不进构建产物。
-- **回归**：新增 `tools/test-guide-cta-shape.mjs`（19 项断言）并纳入 `npm run test:unit`，校验元素 / 形状 / 依据六位互异、跨页小表逐值一致、六条轮廓互异且全为百分比、形状真的接到 CSS、纹章与换人接线、对照页同源。
+- **回归**：新增 `tools/test-guide-cta-shape.mjs`（当时 19 项断言）并纳入 `npm run test:unit`，校验元素 / 形状 / 依据六位互异、跨页小表逐值一致、六条轮廓互异且全为百分比、形状真的接到 CSS、纹章与换人接线、对照页同源；后续贴图重做已改为 25 项断言。
 - **未动**：产品版本 `wen6.0` / `6.0.0`、视频 `v76` / `?v=76`、SW `wenda-cache-v78`（HTML network-first、静态资源带 hash，无需升缓存版本）；三处生成区块未改，`npm run check:copy` 保持一致。
 
 ### 变更（首屏内容流梳理）

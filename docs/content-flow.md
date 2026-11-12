@@ -40,11 +40,11 @@
 
 - 引路人的**功能**没变：`src/ui/guide-route.js` 仍是唯一数据源，六条路线、四步动作、真实卡片 / 工具 / 追问全部保留；报告里只是把同行卡与引路人卡合并成一张主卡并重排布局。
 - 计算边界没变：不写输入、不重算、不碰评分 / 结论 / AI 改写。
-- 版本没动：产品 `wen6.0` / npm `6.0.0`，视频素材 `v76` / `?v=76`，应用缓存 `wenda-cache-v78`。HTML 走 network-first，静态资源带 hash，因此本次不需要升 SW 缓存版本。
+- 本轮版本没动：产品 `wen6.0` / npm `6.0.0`，视频素材 `v76` / `?v=76`，当时应用缓存 `wenda-cache-v78`。HTML 走 network-first，静态资源带 hash，因此本次不需要升 SW 缓存版本；后续新增首屏贴图并纳入预缓存后，缓存已同步升到 `wenda-cache-v79`，产品与视频版本仍未动。
 
 ## 落地位置与校验
 
-- `public/funnel.html`：首屏 CSS / 结构、`#btnGuideRoute` → `fmOpenPanel('guide')`、Esc 关闭面板并归还焦点。主按钮的形状随后按引路人元素分版（见 `docs/v6.1-guides.md` 的「首屏按钮元素化」），只换轮廓与纹章，不增加文案。
+- `public/funnel.html`：首屏 CSS / 结构、`#btnGuideRoute` → `fmOpenPanel('guide')`、Esc 关闭面板并归还焦点。主按钮后续先按引路人元素做异形轮廓，又按「首屏的按钮很丑 / 精致的贴图」反馈推翻异形，改用共用箔纹贴图 + 元素徽章（见 `docs/v6.1-guides.md` 的「首屏按钮精致贴图」），始终不增加文案。
 - `src/ui/character-report.js` / `src/character-report.css`：2026-11-12 再把报告里的同行卡与引路人卡合并成一张主卡并重排布局；流程表「报告」一行随之更新。详见 `docs/v6.1-guides.md` 的「同行 / 引路人卡合并重排」。
 - `src/ui/funnel-teaser.js`：兜底开场白、`<details>` 目录、`ft-open` 行距、说明文案。
 - `src/ui/teaser-copy.js`：开场白字数、长度守卫、缓存键。
