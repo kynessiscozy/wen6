@@ -1,7 +1,7 @@
 import { HOME_THEMES } from './home-theme.js';
 import { buildGuidePerspective } from './guide-perspective.js';
 import { guideRouteFor, runGuideAction } from './guide-route.js';
-import { createGuideVideo, mountGuideVideo, syncGuideVideos } from './guide-video.js';
+import { syncGuideVideos } from './guide-video.js';
 
 // The report uses the same page-lifetime choice as the home and calculation
 // scene. No character identity or chart data is stored or sent anywhere here.
@@ -27,17 +27,11 @@ function imageFor(asset, className) {
   return image;
 }
 
-function makePortrait(character, className, withBlink = false, useVideo = false) {
+function makePortrait(character, className, withBlink = false) {
   const portrait = element('div', className);
   portrait.setAttribute('aria-hidden', 'true');
-  // V6.1：报告头图改用同一位引路人的 invite 视频，poster 是定妆图；
-  // 视频不可播时静态立绘接管，不叠任何表情静帧。
-  if (useVideo && character.motion?.src) {
-    const video = createGuideVideo(character.motion, 'result-character-portrait result-character-video');
-    portrait.append(video);
-    mountGuideVideo(video);
-    return portrait;
-  }
+  // 报告头图用静态立绘（用户 2026-11-12 定）：竖版视频放进头图版式不搭，
+  // 视频只留在漏斗入口 / 问卷 / 仪式等原生场景。
   portrait.append(imageFor(character.assets.portrait, 'result-character-portrait'));
   const blink = character.assets.blink;
   const original = character.assets.portrait;
@@ -205,7 +199,7 @@ function makeHero(id, theme, ctx, western, isDemo, overview, astro, perspective)
   background.alt = '';
   background.decoding = 'async';
   picture.append(mobile, background);
-  const figure = makePortrait(theme.character, 'result-character-figure', true, true);
+  const figure = makePortrait(theme.character, 'result-character-figure', true);
   scene.append(picture, figure);
   visual.append(scene);
   hero.append(visual);
@@ -267,6 +261,8 @@ function makeHero(id, theme, ctx, western, isDemo, overview, astro, perspective)
     '拖动星盘，探索星体位置。星盘按出生地时区及历史夏令时计算；夏令时切换时的重复或不存在的时间可能产生偏差。'));
   data.append(westernHeading);
   if (overview) {
+    // 速读自带的跳转 chips 与引路人路线四步作用重复，合并后只留路线四步。
+    if (perspective) overview.querySelector('.qr-acts')?.remove();
     const eastern = element('div', 'result-character-overview sys-eastern');
     // Keep a structural heading for assistive technology without adding a
     // second visible title above the calculated values.
@@ -315,7 +311,12 @@ function makeChapter(id, theme, section, westernText, theatreContainer, overview
 
 // A guide highlights existing chart facts and offers a distinct reflection.
 // This is presentation only: neither the input nor calculated context is changed.
-function makeGuidePerspective(id, ctx, western, isDemo) {
+// 速读瓷砖已经展示过的事实标签，不在线索行里重复出现。
+const dropKnownFacts = (facts, knownLabels) => facts
+  ? facts.split(' · ').filter(pair => !knownLabels.has(pair.split(' ')[0])).join(' · ')
+  : facts;
+
+function makeGuidePerspective(id, ctx, western, isDemo, knownLabels = new Set()) {
   const perspective = buildGuidePerspective(id, ctx, western);
   if (!perspective) return null;
   const route = guideRouteFor(id);
@@ -326,13 +327,19 @@ function makeGuidePerspective(id, ctx, western, isDemo) {
   card.setAttribute('aria-label', `${perspective.name}的同行与阅读路线`);
   card.append(element('p', 'guide-perspective-kicker', `阅读路线${isDemo ? ' · 示例' : ''}`));
   card.append(element('h2', 'guide-perspective-title', perspective.focus));
-  const easternEl = element('p', 'guide-perspective-facts sys-eastern',
-    perspective.eastern ? `命盘线索：${perspective.eastern}` : '命盘线索暂不可用，请查看完整报告。');
-  const westernEl = element('p', 'guide-perspective-facts sys-western',
-    perspective.western ? `星盘线索：${perspective.western}` : '星盘线索暂不可用，请查看完整报告。');
+  // 与命盘速读同卡合并：瓷砖里已有的事实（日主 / 用神等）从线索行剔除；
+  // 某侧事实被瓷砖全覆盖时整行省略，不显示「暂不可用」。
+  const easternText = dropKnownFacts(perspective.eastern, knownLabels);
+  const westernText = dropKnownFacts(perspective.western, knownLabels);
+  const easternEl = perspective.eastern
+    ? (easternText ? element('p', 'guide-perspective-facts sys-eastern', `命盘线索：${easternText}`) : null)
+    : element('p', 'guide-perspective-facts sys-eastern', '命盘线索暂不可用，请查看完整报告。');
+  const westernEl = perspective.western
+    ? (westernText ? element('p', 'guide-perspective-facts sys-western', `星盘线索：${westernText}`) : null)
+    : element('p', 'guide-perspective-facts sys-western', '星盘线索暂不可用，请查看完整报告。');
   // 西方系引路人（絮羽·塔罗、星罗·占星）以西方星象为主视角在先，东方命盘退为辅助；其余引路人维持命盘在先。
-  if (id === 'xingluo' || id === 'muse') card.append(westernEl, easternEl);
-  else card.append(easternEl, westernEl);
+  const factsInOrder = id === 'xingluo' || id === 'muse' ? [westernEl, easternEl] : [easternEl, westernEl];
+  factsInOrder.filter(Boolean).forEach(el => card.append(el));
   card.append(element('p', 'guide-perspective-prompt', perspective.prompt));
 
   // 之前这张卡只有一句反思问题；现在四步都能真的跳卡片 / 开工具 / 预填追问。
@@ -380,7 +387,9 @@ export function mountCharacterReport({ ctx, western = {}, isDemo = false } = {})
   }));
   let hero, luckChapter, relationChapter, perspective;
   try {
-    perspective = makeGuidePerspective(id, ctx, western, isDemo);
+    const tileLabels = new Set([...(overview?.querySelectorAll('.qr-item .qr-l') || [])]
+      .map(el => el.textContent.trim()).filter(Boolean));
+    perspective = makeGuidePerspective(id, ctx, western, isDemo, tileLabels);
     hero = makeHero(id, theme, ctx, western, isDemo, overview, astro, perspective);
     luckChapter = makeChapter(id, theme, 'yun',
       [isDemo ? '示例星象' : '星象一览', '拖动星象，探索十二星座示意。'], horo, luckOverview, isDemo);
