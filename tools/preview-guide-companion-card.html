@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>问问大师 · 同行 / 引路人合并主卡对照</title>
+<style>
+/* 静态对照页：只复刻 public 报告主卡的新布局，不加载业务脚本、不产生计算。
+   线上样式在 src/character-report.css 的「同行卡 + 引路人卡」段。 */
+*{margin:0;padding:0;box-sizing:border-box}
+body{min-height:100vh;background:#0b0d11;color:#eef1f5;font-family:"Noto Sans SC","PingFang SC",system-ui,sans-serif;padding:28px 20px 64px}
+h1{font-size:22px;letter-spacing:.06em;margin-bottom:8px}
+.lead{max-width:860px;font-size:13px;line-height:1.9;color:#9aa6b4;margin-bottom:18px}
+.palette{display:flex;flex-wrap:wrap;gap:8px;max-width:860px;margin-bottom:24px}
+.palette button{appearance:none;border:1px solid rgba(255,255,255,.18);background:#161b23;color:#dfe5ed;border-radius:999px;padding:7px 14px;font:inherit;font-size:12px;cursor:pointer}
+.palette button.on{border-color:var(--accent,#b9dbef);color:var(--accent,#b9dbef);background:rgba(255,255,255,.06)}
+.preview-grid{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(320px,.8fr);gap:20px;align-items:start;max-width:1280px}
+@media(max-width:980px){.preview-grid{grid-template-columns:1fr}}
+.preview-stage{min-width:0}
+.stage-label{font-size:12px;color:#8e9aa8;letter-spacing:.1em;margin-bottom:10px}
+.hero{
+  --accent:#b9dbef;--bg:#090f17;--top:#315d7a;--bottom:#18374e;--shade:9,15,23;
+  position:relative;isolation:isolate;width:100%;min-height:440px;overflow:hidden;
+  border:1px solid color-mix(in srgb,var(--accent) 34%,transparent);border-radius:22px;
+  background:var(--bg);box-shadow:0 18px 44px rgba(0,0,0,.28);color:#fff9f1;
+}
+.hero::before{content:'';position:absolute;z-index:4;inset:0 auto auto 0;width:4px;height:100%;
+  background:linear-gradient(180deg,var(--accent),transparent 82%);pointer-events:none}
+.guide-companion-visual{position:absolute;z-index:0;inset:0 0 0 auto;width:38%;overflow:hidden;background:var(--bg)}
+.result-character-scene{position:absolute;inset:0;background:
+  radial-gradient(circle at 62% 26%,color-mix(in srgb,var(--accent) 34%,transparent),transparent 58%),
+  linear-gradient(160deg,var(--bg),color-mix(in srgb,var(--accent) 12%,#07080d));}
+.result-character-scene::after{content:'';position:absolute;inset:0;
+  background:linear-gradient(90deg,rgba(var(--shade),.9),transparent 70%)}
+.visual-mark{position:absolute;right:8%;bottom:9%;font:700 clamp(64px,9vw,128px)/1 "Noto Serif SC",serif;
+  color:color-mix(in srgb,var(--accent) 70%,transparent);opacity:.42;letter-spacing:.1em}
+.visual-caption{position:absolute;left:14px;bottom:14px;font-size:11px;letter-spacing:.16em;color:rgba(255,249,241,.65)}
+.result-portrait-toggle{position:absolute;z-index:4;top:12px;right:12px;min-height:32px;padding:0 10px;
+  border:1px solid rgba(255,245,229,.42);border-radius:999px;background:rgba(7,10,24,.78);color:#fff9f1;
+  font:600 10px/1 system-ui,sans-serif;cursor:default}
+.guide-companion-shell{position:relative;z-index:3;display:grid;align-content:start;gap:14px;width:62%;min-height:440px;
+  padding:18px 20px 20px clamp(22px,4vw,34px);
+  background:linear-gradient(90deg,rgba(9,10,18,.96) 0%,rgba(9,10,18,.9) 72%,rgba(9,10,18,.55) 100%)}
+.guide-companion-head{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px}
+.result-character-kicker{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:650;letter-spacing:.04em;color:var(--accent)}
+.result-character-mark{display:grid;place-items:center;width:22px;height:22px;border:1px solid currentColor;border-radius:50%;font-size:10px}
+.result-character-controls{margin-left:auto}
+.result-character-hint-button{min-height:36px;border:0;background:transparent;color:var(--accent);font:600 11px/1 system-ui,sans-serif;cursor:default}
+.guide-companion-body{display:grid;grid-template-columns:minmax(0,1.04fr) minmax(0,.96fr);gap:12px;align-items:stretch}
+.guide-companion-data,.guide-companion-route{min-width:0}
+.guide-companion-data{display:grid;align-content:start;gap:10px}
+.result-character-title{font:600 clamp(20px,2.2vw,25px)/1.3 "Noto Serif SC",serif;color:#fffaf4;margin-bottom:6px}
+.result-character-description{font-size:11.5px;line-height:1.6;color:rgba(255,249,241,.78)}
+.qr-card{border:1px solid rgba(255,249,241,.18);border-radius:14px;padding:11px 12px;background:rgba(255,255,255,.045)}
+.qr-head{display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--accent);border-bottom:1px dashed rgba(255,255,255,.14);padding-bottom:7px;margin-bottom:8px}
+.qr-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px 10px}
+.qr-item{display:flex;justify-content:space-between;gap:6px;font-size:11px;color:rgba(255,249,241,.82)}
+.qr-item b{color:#fffaf4}
+.qr-summary{margin-top:8px;font-size:10.5px;line-height:1.5;color:rgba(255,249,241,.66)}
+.guide-perspective{padding:13px 14px;border:1px solid rgba(255,249,241,.16);border-left:3px solid var(--accent);
+  border-radius:16px;background:linear-gradient(160deg,rgba(255,255,255,.07),rgba(255,255,255,.025))}
+.guide-perspective-kicker,.guide-route-title{margin:0 0 6px;color:var(--accent);font-size:10.5px;letter-spacing:.14em}
+.guide-perspective-title{margin:0 0 7px;color:#fffaf4;font-size:16px;line-height:1.35}
+.guide-perspective-facts,.guide-perspective-prompt{margin:0 0 6px;color:rgba(255,249,241,.84);font-size:11.5px;line-height:1.55}
+.guide-route{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin:8px 0 0}
+.guide-route-btn{display:grid;grid-template-columns:20px minmax(0,1fr) 10px;gap:6px;align-items:center;
+  padding:7px;border:1px solid rgba(255,249,241,.18);border-radius:10px;background:rgba(255,255,255,.055);color:#fff9f1;text-align:left;font:inherit;cursor:default}
+.guide-route-num{display:grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--accent);color:#101018;font-size:9px;font-weight:700}
+.guide-route-copy b{display:block;font-size:11.5px;line-height:1.35}
+.guide-route-copy small{display:block;margin-top:1px;color:rgba(255,249,241,.68);font-size:10px;line-height:1.4}
+.guide-route-go{color:var(--accent);font-size:14px;text-align:center}
+.guide-perspective-note{margin:8px 0 0;color:rgba(255,249,241,.62);font-size:10px;line-height:1.45}
+.preview-stage--mobile{max-width:390px}
+.preview-stage--mobile .hero,.preview-stage--mobile .guide-companion-shell{min-height:0;border-radius:18px}
+.preview-stage--mobile .guide-companion-visual{position:relative;inset:auto;width:100%;height:170px}
+.preview-stage--mobile .guide-companion-shell{width:100%;padding:14px 16px 18px;
+  background:linear-gradient(180deg,rgba(9,10,18,.94),rgba(9,10,18,.84))}
+.preview-stage--mobile .guide-companion-body{grid-template-columns:1fr;gap:12px}
+.preview-stage--mobile .visual-mark{font-size:82px;right:6%}
+.before{max-width:1280px;margin-top:26px;padding:16px 18px;border:1px solid rgba(255,255,255,.12);border-radius:14px;background:#12161d}
+.before h2{font-size:14px;color:#dfe5ed;margin-bottom:10px}
+.before-row{display:flex;gap:10px;flex-wrap:wrap}
+.before-box{flex:1 1 240px;min-height:64px;display:grid;place-items:center;border-radius:10px;font-size:12px;line-height:1.6;text-align:center;padding:10px}
+.before-box.dark{border:1px solid rgba(255,255,255,.18);background:linear-gradient(135deg,#242b36,#10141c);color:#dfe5ed}
+.before-box.light{border:1px solid #d9d4c9;background:#f6f2e9;color:#3d3b37}
+.foot{max-width:1280px;margin-top:14px;font-size:11px;line-height:1.8;color:#7f8b99}
+</style>
+</head>
+<body>
+<h1>「同行卡 + 引路人卡」合并主卡 · 布局对照</h1>
+<p class="lead">推翻原来「暗底满幅同行卡 + 白底引路人小卡」两段式布局，改成一张主卡：宽屏右侧独立画面 / 左侧身份 → 速读 → 视角 → 四步路线；窄屏画面在上、内容单列。下面左侧是宽屏，右侧是 390px 窄屏；点引路人名字可换主题色与文案，均为示例数据，不触发任何计算。</p>
+<div class="palette" id="palette"></div>
+
+<div class="preview-grid">
+  <section class="preview-stage preview-stage--desktop">
+    <div class="stage-label">宽屏 · 62% 内容 / 38% 画面</div>
+    <div class="hero" id="heroDesktop"></div>
+  </section>
+  <section class="preview-stage preview-stage--mobile">
+    <div class="stage-label">窄屏 390px · 画面在上 / 内容单列</div>
+    <div class="hero" id="heroMobile"></div>
+  </section>
+</div>
+
+<section class="before">
+  <h2>改动前（推翻的布局）</h2>
+  <div class="before-row">
+    <div class="before-box dark">同行卡<br>满幅人物场景 + 速读 + 3D 星盘</div>
+    <div class="before-box light">引路人卡<br>再重复一次身份 / 专长 / 线索 / 四步路线</div>
+  </div>
+</section>
+<p class="foot">线上实现见 <code>src/ui/character-report.js</code> 与 <code>src/character-report.css</code>；结构回归由 <code>tools/test-guide-companion-card.mjs</code> 校验。本页只复刻版式与示例文案，不进构建产物。</p>
+
+<script>
+const GUIDES = {
+  moonfox: { name:'月白', title:'神秘人', focus:'全能推演', accent:'#b9dbef', bg:'#090f17', top:'#315d7a', bottom:'#18374e', shade:'9,15,23',
+    east:'命盘线索：日主 壬水 · 用神 金 · 月柱 辛亥 · 日柱 壬申', west:'星盘线索：太阳 天蝎 · 月亮 双鱼 · 上升 巨蟹',
+    prompt:'不预设方向，先把整张盘看全：哪些线索彼此印证，哪些还互相矛盾？',
+    steps:[['四柱与日主','先看四柱、日主与用神'],['星盘三核','切到西方，对照三核'],['答案之书','打开对应工具'],['问问追问','预填一个问题']] },
+  yuchen: { name:'玉宸', title:'事业', focus:'事业推演', accent:'#d3dda6', bg:'#10140e', top:'#566440', bottom:'#313e26', shade:'16,20,14',
+    east:'命盘线索：当前大运 丙子 · 流年 丙午', west:'星盘线索：太阳 天蝎 · 火星 处女',
+    prompt:'专看事业这一条线：眼下这步大运里，哪一件事最值得先押注？',
+    steps:[['人生时间线','先看大运窗口'],['年度趋势','对照今年流年'],['事业大师','打开对应工具'],['问问追问','预填一个问题']] },
+  xiyao: { name:'夕瑶', title:'姻缘', focus:'姻缘推演', accent:'#ff9ac6', bg:'#1b0d18', top:'#b05082', bottom:'#7a2f59', shade:'27,13,24',
+    east:'命盘线索：日支 申 · 日主 壬水', west:'星盘线索：金星 天秤 · 月亮 双鱼',
+    prompt:'专看姻缘这一条线：你心里那个人，和盘里写的缘分对得上吗？',
+    steps:[['亲密关系','先看关系画像'],['八字合盘','再对照合盘'],['合盘助手','打开对应工具'],['问问追问','预填一个问题']] },
+  diyan: { name:'焱绒', title:'财富', focus:'财富推演', accent:'#dfb36c', bg:'#0e0a07', top:'#8a6428', bottom:'#4a3212', shade:'14,10,7',
+    east:'命盘线索：日主 壬水 · 用神 金', west:'星盘线索：木星 巨蟹 · 太阳 天蝎',
+    prompt:'专看财富这一条线：你的财从哪里来，又最容易从哪里漏掉？',
+    steps:[['年度趋势','先看财路节奏'],['人生时间线','再看根基'],['择日助手','打开对应工具'],['问问追问','预填一个问题']] },
+  muse: { name:'絮羽', title:'卡罗大师', focus:'塔罗推演', accent:'#e6cf9a', bg:'#160d1a', top:'#6b3f7a', bottom:'#43224f', shade:'22,13,26',
+    east:'命盘线索：月柱 辛亥 · 当前流年 丙午', west:'星盘线索：月亮 双鱼 · 水星 天蝎',
+    prompt:'先把问题在心里问清楚，再去翻牌：牌面说的，和你盘里写的，是不是同一件事？',
+    steps:[['当下关注','先确认问题'],['梅花易数','换个东方框架'],['塔罗大师','打开对应工具'],['问问追问','预填一个问题']] },
+  xingluo: { name:'星罗', title:'占星术', focus:'占星推演', accent:'#a9bcf5', bg:'#0a0d20', top:'#46548c', bottom:'#2a3460', shade:'10,13,32',
+    east:'命盘线索：年柱 壬申 · 当前大运 丙子', west:'星盘线索：太阳 天蝎 · 上升 巨蟹 · 月亮 双鱼',
+    prompt:'先看星盘的骨架——太阳、月亮、上升落在哪里，你的底色就定在哪里。',
+    steps:[['星盘三核','先看太阳月亮上升'],['十大星曜','再展开行星'],['星座助手','打开对应工具'],['问问追问','预填一个问题']] },
+};
+
+function cardHtml(g) {
+  const stepHtml = g.steps.map((s, i) => `
+    <button class="guide-route-btn" type="button">
+      <span class="guide-route-num">${String(i + 1).padStart(2, '0')}</span>
+      <span class="guide-route-copy"><b data-route-label="${i}">${s[0]}</b><small>${s[1]}</small></span>
+      <span class="guide-route-go">›</span>
+    </button>`).join('');
+  return `
+  <div class="guide-companion-visual">
+    <div class="result-character-scene"><span class="visual-mark" data-guide-mark>${g.name.slice(0,1)}</span><span class="visual-caption">人物 / 场景 / 3D 星盘</span></div>
+    <button class="result-portrait-toggle" type="button">收起立绘</button>
+  </div>
+  <div class="guide-companion-shell">
+    <header class="guide-companion-head result-character-copy">
+      <p class="result-character-kicker"><span class="result-character-mark" data-guide-mark>${g.name.slice(0,1)}</span><span><span data-guide-name>${g.name}</span> · <span data-guide-title>${g.title}</span> · 同行</span></p>
+      <div class="result-character-controls"><button class="result-character-hint-button" type="button">看一条提示</button></div>
+    </header>
+    <div class="guide-companion-body">
+      <div class="guide-companion-data">
+        <div class="result-character-reading sys-western"><h1 class="result-character-title">星盘一览</h1><p class="result-character-description">拖动星盘，探索星体位置。星盘按出生地时区及历史夏令时计算。</p></div>
+        <div class="result-character-overview sys-eastern">
+          <div class="qr-card"><div class="qr-head"><span>速读 · 命盘</span><span>收起</span></div>
+            <div class="qr-grid"><span class="qr-item">日主 <b>壬水</b></span><span class="qr-item">用神 <b>金</b></span><span class="qr-item">当前大运 <b>丙子</b></span><span class="qr-item">流年 <b>丙午</b></span></div>
+            <p class="qr-summary">这里仍是原来的真实速读节点，合并后没有复制或重算任何数据。</p>
+          </div>
+        </div>
+      </div>
+      <aside class="guide-perspective guide-companion-route">
+        <p class="guide-perspective-kicker">阅读路线</p>
+        <h2 class="guide-perspective-title" data-guide-focus>${g.focus}</h2>
+        <p class="guide-perspective-facts sys-eastern" data-guide-east>${g.east}</p>
+        <p class="guide-perspective-facts sys-western" data-guide-west>${g.west}</p>
+        <p class="guide-perspective-prompt" data-guide-prompt>${g.prompt}</p>
+        <h3 class="guide-route-title"><span data-guide-name>${g.name}</span>会带你这样读</h3>
+        <nav class="guide-route">${stepHtml}</nav>
+        <p class="guide-perspective-note">引路人只决定先看哪张卡、用哪个体系、打开哪款工具与追问方向，不改变排盘或评分。</p>
+      </aside>
+    </div>
+  </div>`;
+}
+
+const heroes = [document.getElementById('heroDesktop'), document.getElementById('heroMobile')];
+function render(key) {
+  const g = GUIDES[key];
+  heroes.forEach(hero => {
+    hero.style.setProperty('--accent', g.accent);
+    hero.style.setProperty('--bg', g.bg);
+    hero.style.setProperty('--top', g.top);
+    hero.style.setProperty('--bottom', g.bottom);
+    hero.style.setProperty('--shade', g.shade);
+    hero.innerHTML = cardHtml(g);
+  });
+  document.querySelectorAll('#palette button').forEach(btn => btn.classList.toggle('on', btn.dataset.guide === key));
+}
+const palette = document.getElementById('palette');
+Object.entries(GUIDES).forEach(([key, g], i) => {
+  const btn = document.createElement('button');
+  btn.type = 'button'; btn.dataset.guide = key; btn.textContent = g.name;
+  if (!i) btn.classList.add('on');
+  btn.addEventListener('click', () => render(key));
+  palette.append(btn);
+});
+render('moonfox');
+</script>
+</body>
+</html>

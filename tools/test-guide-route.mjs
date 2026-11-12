@@ -179,6 +179,7 @@ ok(funnelHtml.includes('出生信息只保存在本机，不上传、不注册')
 /* ---- 4. 预告页 / 报告指引 / 跳转 / 文案 / 缓存接线 ---- */
 const teaserJs = await read('src/ui/funnel-teaser.js');
 const reportUiJs = await read('src/ui/character-report.js');
+const reportCss = await read('src/character-report.css');
 const navJs = await read('src/ui/navigation.js');
 const copyJs = await read('src/product-copy.js');
 const teaserCopyJs = await read('src/ui/teaser-copy.js');
@@ -204,11 +205,24 @@ ok(teaserJs.includes('personaFor(payload.trait)'), '预告页仍沿用共享人�
 ok(reportUiJs.includes('guideRouteFor(id)') && reportUiJs.includes('runGuideAction(step.action)') &&
    reportUiJs.includes('guide-route-btn'), '报告「引路人指引」渲染同一张可点路线');
 ok(reportUiJs.includes('不改变排盘或评分'), '报告指引保留不改写计算的边界说明');
+ok(reportUiJs.includes('is-guide-companion-merged') && reportUiJs.includes('guide-companion-shell') &&
+   reportUiJs.includes('guide-companion-route') && reportUiJs.includes('shell.append(body)') &&
+   !reportUiJs.includes('hero.after(perspective)'),
+  '同行卡与引路人卡合并进同一张主卡，不再并排两张卡');
+ok(reportUiJs.includes("ming.querySelectorAll('.guide-perspective').forEach(node => node.remove())") &&
+   reportUiJs.includes("addPortraitToggle(hero, figure, 'ming', visual)"),
+  '旧独立指引卡会清理，立绘开关仍挂在合并后的画面层');
+ok(reportCss.includes('.guide-companion-body {') && reportCss.includes('grid-template-columns: minmax(0, 1.04fr)') &&
+   reportCss.includes('@media (max-width: 760px)') && reportCss.includes('@media (forced-colors: active)'),
+  '合并卡有宽屏分栏 / 窄屏堆叠 / 强制颜色三套重做后的布局');
 ok(navJs.includes('wastro-pane') && navJs.includes('sec-pane') && navJs.includes('TJActivateWastroTab'),
   'jumpTo 能唤醒西方分区与新版分区标签里的卡片');
 ok(copyJs.includes('阅读路线') && copyJs.includes('引路人指引') &&
-   funnelHtml.includes('每位引路人都有自己的阅读路线') && (await read('README.md')).includes('阅读路线'),
-  '使用指南 / 关于 / FAQ / README 口径统一为「引路人决定阅读路线」');
+   copyJs.includes('合并后的「同行 / 引路人指引」卡') &&
+   funnelHtml.includes('每位引路人都有自己的阅读路线') &&
+   funnelHtml.includes('合并后的「同行 / 引路人指引」卡') &&
+   (await read('README.md')).includes('合并后的「同行 / 引路人指引」卡'),
+  '使用指南 / 关于 / FAQ / README 口径统一为「一张合并卡 + 引路人决定阅读路线」');
 ok(APP_CACHE_VERSION === 'v78' && GUIDE_VIDEO_VERSION === 'v76' && GUIDE_VIDEO_QUERY === '?v=76',
   '应用缓存升 v78，视频素材随表演版替换升 v76');
 ok(sw.includes(`const CACHE = 'wenda-cache-${APP_CACHE_VERSION}';`), 'SW 缓存与 APP_CACHE_VERSION 同步');

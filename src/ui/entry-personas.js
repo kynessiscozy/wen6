@@ -80,6 +80,19 @@ export const GUIDE_V61 = Object.freeze({
 
 export const GUIDE_KEYS = Object.freeze(Object.keys(GUIDE_V61));
 
+/* 每位引路人的「对应元素」：首屏「进入命盘厅」按钮按它换形状与纹章。
+   element 是元素意象，shape 是按钮轮廓名，motif 是 2D 定妆里已过审的道具 / 场景符号。
+   funnel.html 是 public/ 下的独立页面，保留同值小表；两处由
+   tools/test-guide-cta-shape.mjs 校验不漂移。 */
+export const GUIDE_ELEMENTS = Object.freeze({
+  moonfox: Object.freeze({ element: '月与水', shape: '月牙水波', motif: '蓝色狐火 / 水面 / 狐面具' }),
+  yuchen: Object.freeze({ element: '玉与木', shape: '玉圭', motif: '绿玉凤冠 / 玉印 / 竹影回廊' }),
+  xiyao: Object.freeze({ element: '桃花与红线', shape: '四瓣桃花', motif: '红线 / 桃花簪 / 同心结' }),
+  diyan: Object.freeze({ element: '金与铜钱', shape: '元宝金锭', motif: '金算盘 / 铜钱串 / 元宝' }),
+  muse: Object.freeze({ element: '羽与牌', shape: '斜角塔罗牌', motif: '悬浮牌弧 / 羽毛' }),
+  xingluo: Object.freeze({ element: '星与黄道', shape: '星芒', motif: '星图卷 / 黄道环 / 星座连线' }),
+});
+
 /* 人物主题配色：与 funnel.html 中 html[data-funnel-persona=...] 的变量逐值对齐。
    预告页用它生成 --ft-* 变量，让同一次问卷的漏斗页与预告页是同一个人物主题。 */
 const PALETTES = Object.freeze({
