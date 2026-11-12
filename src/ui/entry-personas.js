@@ -121,9 +121,6 @@ export const FUNNEL_PERSONAS = Object.freeze({
     palette: PALETTES.diyan, videos: GUIDE_V61.diyan.videos,
     poster: './art/diyan-lord.webp',
     video: videoFor('diyan', 'invite'),
-    lead: '先看财路，再定进退。',
-    circle: '是焱绒先替你圈出来的',
-    hooksTitle: '焱 绒 先 说 三 句',
     byline: '焱绒正在为你算财…',
   }),
   yuchen: Object.freeze({
@@ -131,9 +128,6 @@ export const FUNNEL_PERSONAS = Object.freeze({
     palette: PALETTES.yuchen, videos: GUIDE_V61.yuchen.videos,
     poster: './art/yuchen-lord.webp',
     video: videoFor('yuchen', 'invite'),
-    lead: '事业这一局，先看势。',
-    circle: '是玉宸先替你圈出来的',
-    hooksTitle: '玉 宸 先 说 三 句',
     byline: '玉宸正在为你看事业…',
   }),
   moonfox: Object.freeze({
@@ -141,9 +135,6 @@ export const FUNNEL_PERSONAS = Object.freeze({
     palette: PALETTES.moonfox, videos: GUIDE_V61.moonfox.videos,
     poster: './art/yuebai-lord.webp',
     video: videoFor('moonfox', 'invite'),
-    lead: '别急，先看清这一处。',
-    circle: '是月白先替你圈出来的',
-    hooksTitle: '月 白 先 说 三 句',
     byline: '月白正在为你翻册…',
   }),
   xiyao: Object.freeze({
@@ -151,9 +142,6 @@ export const FUNNEL_PERSONAS = Object.freeze({
     palette: PALETTES.xiyao, videos: GUIDE_V61.xiyao.videos,
     poster: './art/xiyao-lord.webp',
     video: videoFor('xiyao', 'invite'),
-    lead: '姻缘这一线，先看心。',
-    circle: '是夕瑶先替你圈出来的',
-    hooksTitle: '夕 瑶 先 说 三 句',
     byline: '夕瑶正在为你看姻缘…',
   }),
   xingluo: Object.freeze({
@@ -161,9 +149,6 @@ export const FUNNEL_PERSONAS = Object.freeze({
     palette: PALETTES.xingluo, videos: GUIDE_V61.xingluo.videos,
     poster: './art/xingluo-lord.webp',
     video: videoFor('xingluo', 'invite'),
-    lead: '星盘之上，自有答案。',
-    circle: '是星罗先替你圈出来的',
-    hooksTitle: '星 罗 先 说 三 句',
     byline: '星罗正在为你观星…',
   }),
   muse: Object.freeze({
@@ -171,9 +156,6 @@ export const FUNNEL_PERSONAS = Object.freeze({
     palette: PALETTES.muse, videos: GUIDE_V61.muse.videos,
     poster: './art/muse-lord.webp',
     video: videoFor('muse', 'invite'),
-    lead: '问题先放心里，牌会说话。',
-    circle: '是絮羽先替你圈出来的',
-    hooksTitle: '絮 羽 先 说 三 句',
     byline: '絮羽正在为你洗牌…',
   }),
 });

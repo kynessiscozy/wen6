@@ -107,6 +107,8 @@ ok(teaserJs.includes('buildGuideHooks(') && teaserJs.includes('guideRouteFor('),
   '预告页按引路人阅读路线挑钩子、重排目录并生成可点四步');
 ok(funnelHtml.includes('GUIDE_ROUTES') && funnelHtml.includes('id="personaRoute"'),
   '漏斗首屏先讲清楚这位引路人实际会带你做什么');
+ok(funnelHtml.includes('id="btnGuideRoute"') && funnelHtml.includes('出生信息只保存在本机'),
+  '首屏收敛为身份 / 路线 / 动作 / 隐私四段，解释按需展开');
 
 ok(funnelHtml.includes('window.__wenStatsMode') && funnelHtml.includes('if(window.__wenStatsMode)return;'),
   '?stats 统计页不再因空 DOM 抛错');
