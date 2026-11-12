@@ -46,36 +46,37 @@ h1{font-size:22px;letter-spacing:.06em;margin-bottom:8px}
 .result-character-mark{display:grid;place-items:center;width:22px;height:22px;border:1px solid currentColor;border-radius:50%;font-size:10px}
 .result-character-controls{margin-left:auto}
 .result-character-hint-button{min-height:36px;border:0;background:transparent;color:var(--accent);font:600 11px/1 system-ui,sans-serif;cursor:default}
-.guide-companion-body{display:grid;grid-template-columns:minmax(0,1.04fr) minmax(0,.96fr);gap:12px;align-items:stretch}
+.guide-companion-body{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;align-items:start}
 .guide-companion-data,.guide-companion-route{min-width:0}
-.guide-companion-data{display:grid;align-content:start;gap:10px}
+.guide-companion-data{display:grid;align-content:start;gap:12px}
 .result-character-title{font:600 clamp(20px,2.2vw,25px)/1.3 "Noto Serif SC",serif;color:#fffaf4;margin-bottom:6px}
 .result-character-description{font-size:11.5px;line-height:1.6;color:rgba(255,249,241,.78)}
 .qr-card{border:1px solid rgba(255,249,241,.18);border-radius:14px;padding:11px 12px;background:rgba(255,255,255,.045)}
-.qr-head{display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--accent);border-bottom:1px dashed rgba(255,255,255,.14);padding-bottom:7px;margin-bottom:8px}
-.qr-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px 10px}
+.qr-head{display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--accent);border-bottom:1px dashed rgba(255,255,255,.14);padding-bottom:7px;margin-bottom:8px;width:100%;max-width:none}
+.qr-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 10px;width:100%;max-width:none}
 .qr-item{display:flex;justify-content:space-between;gap:6px;font-size:11px;color:rgba(255,249,241,.82)}
 .qr-item b{color:#fffaf4}
 .qr-summary{margin-top:8px;font-size:10.5px;line-height:1.5;color:rgba(255,249,241,.66)}
-.guide-perspective{padding:13px 14px;border:1px solid rgba(255,249,241,.16);border-left:3px solid var(--accent);
+.guide-perspective{padding:16px 18px;border:1px solid rgba(255,249,241,.16);border-left:3px solid var(--accent);
   border-radius:16px;background:linear-gradient(160deg,rgba(255,255,255,.07),rgba(255,255,255,.025))}
-.guide-perspective-kicker,.guide-route-title{margin:0 0 6px;color:var(--accent);font-size:10.5px;letter-spacing:.14em}
-.guide-perspective-title{margin:0 0 7px;color:#fffaf4;font-size:16px;line-height:1.35}
-.guide-perspective-facts,.guide-perspective-prompt{margin:0 0 6px;color:rgba(255,249,241,.84);font-size:11.5px;line-height:1.55}
-.guide-route{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin:8px 0 0}
-.guide-route-btn{display:grid;grid-template-columns:20px minmax(0,1fr) 10px;gap:6px;align-items:center;
-  padding:7px;border:1px solid rgba(255,249,241,.18);border-radius:10px;background:rgba(255,255,255,.055);color:#fff9f1;text-align:left;font:inherit;cursor:default}
-.guide-route-num{display:grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--accent);color:#101018;font-size:9px;font-weight:700}
-.guide-route-copy b{display:block;font-size:11.5px;line-height:1.35}
-.guide-route-copy small{display:block;margin-top:1px;color:rgba(255,249,241,.68);font-size:10px;line-height:1.4}
-.guide-route-go{color:var(--accent);font-size:14px;text-align:center}
-.guide-perspective-note{margin:8px 0 0;color:rgba(255,249,241,.62);font-size:10px;line-height:1.45}
+.guide-perspective-kicker{margin:0 0 6px;color:var(--accent);font-size:11px;font-weight:700;letter-spacing:.14em}
+.guide-route-title{margin:14px 0 8px;color:var(--accent);font-size:11px;font-weight:700;letter-spacing:.14em}
+.guide-perspective-title{margin:0 0 8px;color:#fffaf4;font-size:18px;line-height:1.35}
+.guide-perspective-facts,.guide-perspective-prompt{margin:0 0 7px;color:rgba(255,249,241,.84);font-size:12.5px;line-height:1.7}
+.guide-route{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:0}
+.guide-route-btn{display:grid;grid-template-columns:22px minmax(0,1fr) 12px;gap:8px;align-items:center;
+  padding:9px 10px;border:1px solid rgba(255,249,241,.18);border-radius:10px;background:rgba(255,255,255,.055);color:#fff9f1;text-align:left;font:inherit;cursor:default}
+.guide-route-num{display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--accent);color:#101018;font-size:9.5px;font-weight:700}
+.guide-route-copy b{display:block;font-size:12.5px;line-height:1.4}
+.guide-route-copy small{display:block;margin-top:2px;color:rgba(255,249,241,.68);font-size:11.5px;line-height:1.5}
+.guide-route-go{color:var(--accent);font-size:15px;text-align:center}
+.guide-perspective-note{margin:10px 0 0;color:rgba(255,249,241,.62);font-size:11px;line-height:1.55}
 .preview-stage--mobile{max-width:390px}
 .preview-stage--mobile .hero,.preview-stage--mobile .guide-companion-shell{min-height:0;border-radius:18px}
-.preview-stage--mobile .guide-companion-visual{position:relative;inset:auto;width:100%;height:170px}
-.preview-stage--mobile .guide-companion-shell{width:100%;padding:14px 16px 18px;
+.preview-stage--mobile .guide-companion-visual{position:relative;inset:auto;width:100%;height:clamp(220px,60vw,280px)}
+.preview-stage--mobile .guide-companion-shell{width:100%;padding:16px 16px 20px;
   background:linear-gradient(180deg,rgba(9,10,18,.94),rgba(9,10,18,.84))}
-.preview-stage--mobile .guide-companion-body{grid-template-columns:1fr;gap:12px}
+.preview-stage--mobile .guide-companion-body{gap:16px}
 .preview-stage--mobile .visual-mark{font-size:82px;right:6%}
 .before{max-width:1280px;margin-top:26px;padding:16px 18px;border:1px solid rgba(255,255,255,.12);border-radius:14px;background:#12161d}
 .before h2{font-size:14px;color:#dfe5ed;margin-bottom:10px}
@@ -88,7 +89,7 @@ h1{font-size:22px;letter-spacing:.06em;margin-bottom:8px}
 </head>
 <body>
 <h1>「同行卡 + 引路人卡」合并主卡 · 布局对照</h1>
-<p class="lead">推翻原来「暗底满幅同行卡 + 白底引路人小卡」两段式布局，改成一张主卡：宽屏右侧独立画面 / 左侧身份 → 速读 → 视角 → 四步路线；窄屏画面在上、内容单列。下面左侧是宽屏，右侧是 390px 窄屏；点引路人名字可换主题色与文案，均为示例数据，不触发任何计算。</p>
+<p class="lead">推翻原来「暗底满幅同行卡 + 白底引路人小卡」两段式布局，改成一张主卡：宽屏右侧独立画面 / 左侧身份 → 速读 → 视角 → 四步路线；内容区保持单列，避免速读卡与路线按钮互相挤压。下面左侧是宽屏，右侧是 390px 窄屏；点引路人名字可换主题色与文案，均为示例数据，不触发任何计算。</p>
 <div class="palette" id="palette"></div>
 
 <div class="preview-grid">

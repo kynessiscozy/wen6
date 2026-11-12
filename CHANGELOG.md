@@ -4,7 +4,15 @@
 
 格式参照 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)。产品正式版本号以 `src/product-copy.js` 的 `PRODUCT.version` 为准；npm 包版本遵循[语义化版本](https://semver.org/lang/zh-CN/)。
 
-## [Unreleased] - 2026-11-12 · V6.1 引路人革新 / 首屏内容流 / 按钮元素化 / 卡片合并
+## [Unreleased] - 2026-11-12 · V6.1 引路人革新 / 首屏内容流 / 按钮元素化 / 卡片合并 / 结果页排版修正
+
+### 修复（结果页合并主卡排版回归）
+
+- **反馈**：用户指出「结果页面的排版被搞得乱七八糟」，要求重新理清。定位到上一轮合并主卡在宽屏把内容层再拆成「数据 / 路线」两列：62% 内容层只剩约 420px，路线按钮被压到 66px 宽并逐字竖排；速读区仍沿用满幅画面时代的 57% 宽度，四张速读卡各约 50px；窄屏画面被压到 170px，人物裁切突兀。
+- **重排**：`guide-companion-body` 恢复单列，速读在上、路线面板在下；合并卡内速读区改为 `width: 100%; max-width: none`；窄屏画面高度改为 `clamp(220px, 60vw, 280px)`；四步路线保持 2×2，≤380px 单列。
+- **可读性**：全局 `h1 / h2 / h3` 的 `color !important` 曾把「专长标题」与「会带你这样读」压成近黑色；现分别用 `#fffaf4 !important` 与主题色 `!important` 覆盖，并把路线按钮 / 线索 / 边界说明的字号与行高回调到可读区间。
+- **同步**：`tools/preview-guide-companion-card.html` 静态对照页、`docs/v6.1-guides.md` 布局说明、`tools/test-guide-companion-card.mjs` 与 `tools/test-guide-route.mjs` 的布局断言同步；合并卡结构、真实速读 DOM、四步动作、计算 / 评分 / 结论 / 输入数据边界均未改动。
+- **验证**：`npm run build`、`npm run test:unit`、`npm run check:copy`；浏览器实跑 360 / 430 / 1280 宽度，东方与西方模式，确认路线按钮恢复横向可读、无横向溢出，标题对比度正常。
 
 ### 变更（首屏按钮改精致贴图，动效降到很轻）
 

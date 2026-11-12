@@ -429,14 +429,14 @@ html[data-system-mode="western"] .is-portrait-hidden .result-chapter-figure { vi
 }
 
 /* ============================================================
-   同行卡 + 引路人卡：推翻旧的两卡并排，合并成一张重排后的主卡
+   同行卡 + 引路人卡：合并为一张主卡
    ------------------------------------------------------------
-   旧版：.result-character-hero 是一张满幅人物场景 + 速读，
-         .guide-perspective 是紧随其后的白底小卡，身份 / 标题 /
-         路线说明重复出现，且两张卡各自占一段滚动。
+   旧版：.result-character-hero 满幅人物场景 + 速读，
+         .guide-perspective 是紧随其后的白底小卡。
    新版：一个 #characterResultHero，右侧独立画面（人物 / 3D 星盘），
-         左侧「身份 → 真实速读 → 引路人视角 → 四步路线」一条动线；
-         宽屏左右分栏，窄屏上下堆叠。数据节点全部沿用原 DOM，
+         左侧「身份 → 真实速读 → 引路人视角 → 四步路线」一条动线。
+         宽屏左右分栏，窄屏上下堆叠；内容区保持单列，
+         避免速读卡与路线按钮互相挤压。数据节点全部沿用原 DOM，
          不重算、不复制结论，也不改变路线按钮的真实动作。
    ============================================================ */
 #page2 .result-character-hero.is-guide-companion-merged {
@@ -492,10 +492,10 @@ html[data-system-mode="western"] #page2 .result-character-hero.is-guide-companio
   z-index: 3;
   display: grid;
   align-content: start;
-  gap: 14px;
+  gap: 16px;
   width: 62%;
   min-height: 440px;
-  padding: 18px 20px 20px clamp(22px, 4vw, 34px);
+  padding: 18px 20px 22px clamp(22px, 4vw, 34px);
   background: linear-gradient(90deg, rgba(9, 10, 18, .96) 0%, rgba(9, 10, 18, .9) 72%, rgba(9, 10, 18, .55) 100%);
   pointer-events: none;
 }
@@ -534,15 +534,18 @@ html[data-system-mode="western"] #page2 .result-character-hero.is-guide-companio
   border-left: 2px solid var(--result-character-accent);
   background: rgba(10, 12, 20, .78);
 }
+
+/* 内容区单列：速读在上，路线在下，互不挤压。 */
 #page2 .is-guide-companion-merged .guide-companion-body {
   display: grid;
-  grid-template-columns: minmax(0, 1.04fr) minmax(0, .96fr);
-  gap: 12px;
-  align-items: stretch;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+  min-width: 0;
 }
 #page2 .is-guide-companion-merged .guide-companion-data,
 #page2 .is-guide-companion-merged .guide-companion-route { min-width: 0; }
-#page2 .is-guide-companion-merged .guide-companion-data { display: grid; align-content: start; gap: 10px; }
+#page2 .is-guide-companion-merged .guide-companion-data { display: grid; align-content: start; gap: 12px; }
 #page2 .is-guide-companion-merged .result-character-reading {
   grid-column: auto;
   grid-row: auto;
@@ -559,45 +562,64 @@ html[data-system-mode="western"] #page2 .result-character-hero.is-guide-companio
 }
 #page2 .is-guide-companion-merged .result-character-overview { padding: 0; }
 
+/* 合并卡里的速读区占满内容列：原来 57% 的宽度是给满幅画面让位的。 */
+#page2 .is-guide-companion-merged .result-character-overview .qr-head,
+#page2 .is-guide-companion-merged .result-character-overview .qr-grid {
+  width: 100%;
+  max-width: none;
+}
+#page2 .is-guide-companion-merged .result-character-overview .qr-grid {
+  gap: 8px !important;
+  margin-bottom: 12px;
+}
+#page2 .is-guide-companion-merged .result-character-overview .qr-summary { max-width: none; }
+
 /* 原来的白底小卡改成同一张卡里的「路线面板」。 */
 #page2 .is-guide-companion-merged .guide-perspective {
   margin: 0;
-  padding: 13px 14px;
+  padding: 16px 18px;
   border: 1px solid rgba(255, 249, 241, .16);
   border-left: 3px solid var(--result-character-accent);
   border-radius: 16px;
   background: linear-gradient(160deg, rgba(255, 255, 255, .07), rgba(255, 255, 255, .025));
   color: #fff9f1;
 }
-#page2 .is-guide-companion-merged .guide-perspective-kicker,
-#page2 .is-guide-companion-merged .guide-route-title {
+#page2 .is-guide-companion-merged .guide-perspective-kicker {
   margin: 0 0 6px;
-  color: var(--result-character-accent);
-  font-size: 10.5px;
+  color: var(--result-character-accent) !important;
+  font-size: 11px;
+  font-weight: 700;
   letter-spacing: .14em;
 }
 #page2 .is-guide-companion-merged .guide-perspective-title {
-  margin: 0 0 7px;
-  color: #fffaf4;
-  font-size: 16px;
+  margin: 0 0 8px;
+  color: #fffaf4 !important;
+  font-size: 18px;
   line-height: 1.35;
 }
 #page2 .is-guide-companion-merged .guide-perspective-facts,
 #page2 .is-guide-companion-merged .guide-perspective-prompt {
-  margin: 0 0 6px;
+  margin: 0 0 7px;
   color: rgba(255, 249, 241, .84);
-  font-size: 11.5px;
-  line-height: 1.55;
+  font-size: 12.5px;
+  line-height: 1.7;
+}
+#page2 .is-guide-companion-merged .guide-route-title {
+  margin: 14px 0 8px;
+  color: var(--result-character-accent) !important;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .14em;
 }
 #page2 .is-guide-companion-merged .guide-route {
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 6px;
-  margin: 8px 0 0;
+  gap: 8px;
+  margin: 0;
 }
 #page2 .is-guide-companion-merged .guide-route-btn {
-  grid-template-columns: 20px minmax(0, 1fr) 10px;
-  gap: 6px;
-  padding: 7px 7px;
+  grid-template-columns: 22px minmax(0, 1fr) 12px;
+  gap: 8px;
+  padding: 9px 10px;
   border-color: rgba(255, 249, 241, .18);
   background: rgba(255, 255, 255, .055);
   color: #fff9f1;
@@ -605,25 +627,25 @@ html[data-system-mode="western"] #page2 .result-character-hero.is-guide-companio
 }
 #page2 .is-guide-companion-merged .guide-route-btn:hover { border-color: var(--result-character-accent); }
 #page2 .is-guide-companion-merged .guide-route-num {
-  width: 20px;
-  height: 20px;
+  width: 22px;
+  height: 22px;
   background: var(--result-character-accent);
   color: #101018;
-  font-size: 9px;
+  font-size: 9.5px;
 }
-#page2 .is-guide-companion-merged .guide-route-copy b { font-size: 11.5px; line-height: 1.35; }
+#page2 .is-guide-companion-merged .guide-route-copy b { font-size: 12.5px; line-height: 1.4; }
 #page2 .is-guide-companion-merged .guide-route-copy small {
-  margin-top: 1px;
+  margin-top: 2px;
   color: rgba(255, 249, 241, .68);
-  font-size: 10px;
-  line-height: 1.4;
+  font-size: 11.5px;
+  line-height: 1.5;
 }
-#page2 .is-guide-companion-merged .guide-route-go { color: var(--result-character-accent); font-size: 14px; }
+#page2 .is-guide-companion-merged .guide-route-go { color: var(--result-character-accent); font-size: 15px; }
 #page2 .is-guide-companion-merged .guide-perspective-note {
-  margin: 8px 0 0;
+  margin: 10px 0 0;
   color: rgba(255, 249, 241, .62);
-  font-size: 10px;
-  line-height: 1.45;
+  font-size: 11px;
+  line-height: 1.55;
 }
 
 @media (max-width: 760px) {
@@ -638,15 +660,16 @@ html[data-system-mode="western"] #page2 .result-character-hero.is-guide-companio
     position: relative;
     inset: auto;
     width: 100%;
-    height: 170px;
+    height: clamp(220px, 60vw, 280px);
   }
   #page2 .is-guide-companion-merged .guide-companion-shell {
     width: 100%;
     min-height: 0;
-    padding: 14px 16px 18px;
+    padding: 16px 16px 20px;
     background: linear-gradient(180deg, rgba(9, 10, 18, .94), rgba(9, 10, 18, .84));
   }
-  #page2 .is-guide-companion-merged .guide-companion-body { grid-template-columns: 1fr; gap: 12px; }
+  #page2 .is-guide-companion-merged .guide-companion-body { gap: 16px; }
+  #page2 .is-guide-companion-merged .guide-perspective { padding: 14px 15px; }
   #page2 .is-guide-companion-merged .result-portrait-toggle { top: 10px; right: 10px; }
 }
 @media (max-width: 380px) {

@@ -65,14 +65,24 @@ ok(!/ctx\s*\.\s*\w+\s*=/.test(reportUiJs.replace(/ctx\?\.[\w?.]+/g, 'X')),
 
 /* ---- 3. 布局确实重做 ---- */
 ok(reportCss.includes('.guide-companion-body {') &&
-   reportCss.includes('grid-template-columns: minmax(0, 1.04fr) minmax(0, .96fr)'),
-  '宽屏内容层拆成数据 / 路线两列');
+   reportCss.includes('grid-template-columns: minmax(0, 1fr)'),
+  '内容层保持单列，速读与路线上下排布，不再互相挤压');
 ok(reportCss.includes('.guide-companion-visual {') && reportCss.includes('width: 38%') &&
    reportCss.includes('width: 62%'), '宽屏 38% 画面 / 62% 内容分栏');
-ok(reportCss.includes('@media (max-width: 760px)') && reportCss.includes('height: 170px') &&
-   reportCss.includes('grid-template-columns: 1fr'), '窄屏改为画面在上、内容单列');
+ok(reportCss.includes('.result-character-overview .qr-head') &&
+   reportCss.includes('.result-character-overview .qr-grid') &&
+   reportCss.includes('width: 100%') && reportCss.includes('max-width: none'),
+  '速读区占满内容列，不再沿用满幅画面时的 57% 宽度');
+ok(reportCss.includes('@media (max-width: 760px)') &&
+   reportCss.includes('height: clamp(220px, 60vw, 280px)') &&
+   reportCss.includes('grid-template-columns: 1fr'), '窄屏画面在上、内容单列且保留足够人物画面高度');
 ok(reportCss.includes('grid-template-columns: repeat(2, minmax(0, 1fr))') &&
    reportCss.includes('@media (max-width: 380px)'), '四步路线 2×2，极小屏再退成单列');
+ok(reportCss.includes('.guide-perspective-title {') &&
+   reportCss.includes('color: #fffaf4 !important') &&
+   reportCss.includes('.guide-route-title {') &&
+   reportCss.includes('color: var(--result-character-accent) !important'),
+  '路线标题覆盖全局标题色，深色底上保持可读');
 ok(reportCss.includes('is-guide-companion-merged::before') &&
    reportCss.includes('border-radius: 22px') && reportCss.includes('box-shadow'),
   '主题色左轨 / 圆角 / 阴影取代旧白底小卡');
