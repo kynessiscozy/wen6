@@ -178,12 +178,12 @@ function installPortraitInteraction() {
   }
 }
 
-function makeHero(id, theme, ctx, western, isDemo, onReselect, overview, astro) {
+function makeHero(id, theme, ctx, western, isDemo, overview, astro) {
   const hero = element('section', 'result-character-hero');
   hero.id = 'characterResultHero';
   hero.dataset.reportCharacter = id;
   hero.dataset.reportDemo = String(isDemo);
-  hero.style.setProperty('--result-character-accent', theme.trait.color);
+  hero.style.setProperty('--result-character-accent', theme.accent);
   hero.setAttribute('aria-label', isDemo ? '示例命盘与星盘一览' : '命盘与星盘一览');
   const theatre = makeTheatre(astro);
   if (theatre) hero.append(theatre);
@@ -205,19 +205,10 @@ function makeHero(id, theme, ctx, western, isDemo, onReselect, overview, astro) 
 
   const copy = element('div', 'result-character-copy');
   const kicker = element('p', 'result-character-kicker');
-  kicker.append(element('span', 'result-character-mark', theme.trait.mark),
-    element('span', '', `${theme.trait.label} · 同行`));
+  const displayName = theme.guide?.name || theme.character.name;
+  kicker.append(element('span', 'result-character-mark', displayName.slice(0, 1)),
+    element('span', '', `${displayName} · 同行`));
   if (isDemo) kicker.append(element('span', 'result-character-demo', '示例'));
-  if (typeof onReselect === 'function') {
-    const change = element('button', 'result-character-reselect', '换特质 ↻');
-    change.id = 'reportTraitReselect';
-    change.type = 'button';
-    change.setAttribute('aria-label', '重新选择特质');
-    change.setAttribute('aria-haspopup', 'dialog');
-    change.setAttribute('aria-controls', 'traitSelection');
-    change.addEventListener('click', () => onReselect(change));
-    kicker.append(change);
-  }
   copy.append(kicker);
 
   const dayMaster = [ctx?.dg, ctx?.dw].filter(Boolean).join('');
@@ -282,15 +273,15 @@ function makeChapter(id, theme, section, westernText, theatreContainer, overview
   const aside = element('aside', 'result-character-chapter');
   aside.dataset.reportCharacter = id;
   aside.dataset.reportChapter = section;
-  aside.style.setProperty('--result-character-accent', theme.trait.color);
-  aside.setAttribute('aria-label', `${theme.trait.label}同行解读`);
+  aside.style.setProperty('--result-character-accent', theme.accent);
+  aside.setAttribute('aria-label', `${theme.guide?.name || theme.character.name}同行解读`);
   const theatre = makeTheatre(theatreContainer);
   if (theatre) aside.append(theatre);
   const figure = makePortrait(theme.character, 'result-chapter-figure');
   aside.append(figure);
 
   const copy = element('div', 'result-chapter-copy');
-  copy.append(element('p', 'result-chapter-kicker', `${theme.trait.label} · 同行解读${isDemo ? ' · 示例' : ''}`));
+  copy.append(element('p', 'result-chapter-kicker', `${theme.guide?.name || theme.character.name} · 同行解读${isDemo ? ' · 示例' : ''}`));
   const reading = element('div', 'result-chapter-reading sys-western');
   reading.append(element('h2', '', westernText[0]), element('p', '', westernText[1]));
   copy.append(reading);
@@ -348,7 +339,7 @@ function makeGuidePerspective(id, ctx, western, isDemo) {
 }
 
 /** Rebuild the selected character's result surfaces after each actual calculation. */
-export function mountCharacterReport({ ctx, western = {}, isDemo = false, onReselect } = {}) {
+export function mountCharacterReport({ ctx, western = {}, isDemo = false } = {}) {
   const selected = selectedTheme();
   if (!selected || !ctx) return;
   const [id, theme] = selected;
@@ -370,7 +361,7 @@ export function mountCharacterReport({ ctx, western = {}, isDemo = false, onRese
   }));
   let hero, luckChapter, relationChapter, perspective;
   try {
-    hero = makeHero(id, theme, ctx, western, isDemo, onReselect, overview, astro);
+    hero = makeHero(id, theme, ctx, western, isDemo, overview, astro);
     perspective = makeGuidePerspective(id, ctx, western, isDemo);
     luckChapter = makeChapter(id, theme, 'yun',
       [isDemo ? '示例星象' : '星象一览', '拖动星象，探索十二星座示意。'], horo, luckOverview, isDemo);

@@ -24,11 +24,11 @@ export const DEFAULT_PERSONA = 'moonfox';
 export const GUIDE_VIDEO_VERSION = 'v76';
 export const GUIDE_VIDEO_QUERY = '?v=76';
 /* 引路人阅读路线上线后，funnel.html / 预告页 / 报告指引都需要刷新离线副本。 */
-export const APP_CACHE_VERSION = 'v77';
+export const APP_CACHE_VERSION = 'v78';
 
 /**
  * 六位引路人的完整定义。color 是跨页唯一的主题色：
- * funnel.html 的 --gold、PALETTES.accent、HOME_THEMES.trait.color 必须同值。
+ * funnel.html 的 --gold、PALETTES.accent、HOME_THEMES.accent 必须同值。
  */
 export const GUIDE_V61 = Object.freeze({
   moonfox: Object.freeze({

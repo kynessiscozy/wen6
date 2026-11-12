@@ -77,9 +77,8 @@ const flowCss = await read('src/entry-flow.css');
 
 ok(html.includes('data-entry="funnel"') && flowCss.includes('html[data-entry="funnel"] #page1'),
   '首页隐藏由唯一的入口开关控制');
-ok(/<section hidden class="trait-selection" id="traitSelection"/.test(html) &&
-  flowCss.includes('html[data-entry="funnel"] #traitSelection { display: none !important; }'),
-  '旧老虎机从静态首屏开始隐藏，即使旧脚本误打开也不显示');
+ok(!html.includes('id="traitSelection"') && !html.includes('trait-selection.css') && !flowCss.includes('#traitSelection'),
+  '特质轮盘界面与样式已删除，静态首屏不再包含旧老虎机');
 ok(!html.includes('#page1{display:none!important}'), '不再有 !important 内联覆盖');
 ok(!html.includes('setInterval'), '入口页不再用轮询抢屏');
 ok(html.includes('window.__wenEntryIntent') && html.includes('id="funnelVeil"'), '只采集一次意图 + 静态遮罩骨架');

@@ -83,7 +83,7 @@ function createStudio({ opener, title, filename, characterPoster, render }) {
   const details = root.querySelector('.share-studio-poster-controls');
   const intro = root.querySelector('.share-studio-intro p');
   details.hidden = !characterPoster;
-  intro.textContent = characterPoster ? '只展示特质与少量摘要，不包含姓名、出生时间或地点。' : '先预览，再选择分享或保存。';
+  intro.textContent = characterPoster ? '只展示同行者与少量摘要，不包含姓名、出生时间或地点。' : '先预览，再选择分享或保存。';
   document.body.appendChild(root);
 
   let disposed = false, serial = 0, objectURL = '', blob = null, file = null;
@@ -207,7 +207,7 @@ function createStudio({ opener, title, filename, characterPoster, render }) {
 export function openPosterShare({ kind = 'report', opener } = {}) {
   const ctx = window._ctx;
   const theme = HOME_THEMES[document.documentElement.dataset.homeTheme];
-  if (!ctx || !theme) throw new Error('请先选择特质并完成推演');
+  if (!ctx || !theme) throw new Error('请先完成推演');
   const state = { format: 'portrait', system: document.documentElement.dataset.systemMode === 'western' ? 'western' : 'eastern', includeSummary: true };
   if (kind !== 'report') state.system = 'eastern';
   const isDemo = document.querySelector('#characterResultHero')?.dataset.reportDemo === 'true';

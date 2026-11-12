@@ -75,7 +75,7 @@ export function beginCharacterCalculation({ autoAdvance = false } = {}) {
   const byline = document.getElementById('calculationByline');
   const title = document.getElementById('calculationTitle');
   const status = document.getElementById('calculationStatus');
-  if (byline) byline.textContent = `${theme.trait.label} · 命盘推演`;
+  if (byline) byline.textContent = `${theme.guide?.name || theme.character.name} · 命盘推演`;
   if (title) title.textContent = '正在推演';
   if (status) status.textContent = '排定四柱，合参星位…';
   overlay.querySelectorAll('[data-calculation-pillar]').forEach((item) => { item.textContent = '—'; });

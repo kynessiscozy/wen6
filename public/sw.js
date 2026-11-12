@@ -1,6 +1,6 @@
 /* 问问大师 PWA：离线可用 + 秒开的缓存策略。
    静态资源带 hash，可长期缓存；HTML 走 network-first 保证更新及时。 */
-const CACHE = 'wenda-cache-v77';
+const CACHE = 'wenda-cache-v78';
 const BASE = './';
 
 const OPTIONAL_ASSETS = [
@@ -17,10 +17,9 @@ const OPTIONAL_ASSETS = [
   'art/suyan-cinema3d.webp', 'art/suyan-cinema3d-avatar.webp', 'art/suyan-cinema3d-blink.webp', 'art/suyan-cinema3d-speak.webp',
   'art/rongrong-cinema3d.webp', 'art/rongrong-cinema3d-avatar.webp', 'art/rongrong-cinema3d-blink.webp', 'art/rongrong-cinema3d-speak.webp',
   'art/zhiya-cinema3d.webp', 'art/zhiya-cinema3d-avatar.webp', 'art/zhiya-cinema3d-blink.webp', 'art/zhiya-cinema3d-speak.webp',
-  'art/leizi-cinema3d.webp', 'art/leizi-cinema3d-avatar.webp', 'art/leizi-cinema3d-blink.webp', 'art/leizi-cinema3d-speak.webp',
   'art/muse-cinema3d.webp', 'art/muse-cinema3d-avatar.webp', 'art/muse-cinema3d-blink.webp', 'art/muse-cinema3d-speak.webp',
   'art/xingluo-cinema3d.webp', 'art/xingluo-cinema3d-avatar.webp', 'art/xingluo-lord.webp',
-  'art/leizi-hall-wide.webp', 'art/leizi-hall-mobile.webp', 'art/muse-hall-wide.webp', 'art/muse-hall-mobile.webp',
+  'art/muse-hall-wide.webp', 'art/muse-hall-mobile.webp',
   'art/xingluo-observatory-wide.webp', 'art/xingluo-observatory-mobile.webp',
   'manifest.webmanifest', 'pwa-install.js', 'icon.svg', 'icon-192.png', 'icon-512.png',
   'icon-twins-128.png', 'icon-twins-192.png', 'icon-twins-512.png',
@@ -52,7 +51,7 @@ const OPTIONAL_ASSETS = [
   'art/awakening-scroll.webp', 'art/awakening-fox-fan.webp', 'art/awakening-phoenix-wing.webp',
   // Funnel entry: posters/lords keep the four personas readable offline even
   // when their (large) MP4s are not cached.
-  'art/diyan-lord.webp', 'art/yuchen-lord.webp', 'art/yuebai-lord.webp', 'art/xiyao-lord.webp', 'art/leizi-lord.webp', 'art/muse-lord.webp',
+  'art/diyan-lord.webp', 'art/yuchen-lord.webp', 'art/yuebai-lord.webp', 'art/xiyao-lord.webp', 'art/muse-lord.webp',
   'art/diyan-entry2-poster.webp', 'art/diyan-ritual-poster.webp',
   // V6.1 全面换新：六位 2D 引路人的透明立绘与同版头像（报告/首页/推演共用）。
   'art/moonfox-v61.webp', 'art/moonfox-v61-avatar.webp',

@@ -6,16 +6,16 @@ const BASE = process.env.BASE_URL || 'http://localhost:5173/index.html';
 // V6.1 六位引路人已移除旧 3D 演出道具，仅校验人物立绘 / 四柱 / 锁定契约。
 const V61_GUIDES = new Set(['moonfox', 'yuchen', 'xingling', 'diyan', 'muse', 'xingluo']);
 const THEMES = {
-  wenwen: { trait: '温柔', portrait: 'wenwen-cinema3d.webp', art: 'awakening-scroll.webp', selector: '.calculation-scroll', animation: 'calculation-scroll' },
-  moonfox: { trait: '神秘', portrait: 'moonfox-v61.webp', art: 'awakening-fox-fan.webp', selector: '.calculation-tail--left img', animation: 'calculation-tail-left' },
-  diyan: { trait: '威严', portrait: 'diyan-v61.webp', art: 'earthfire-flame-seat.webp', selector: '.calculation-fire-seat', animation: 'calculation-fire-seat' },
-  yuchen: { trait: '从容', portrait: 'yuchen-v61.webp', art: 'awakening-phoenix-wing.webp', selector: '.calculation-wing--left', animation: 'calculation-wing-left' },
-  qinglan: { trait: '洒脱', portrait: 'qinglan-cinema3d.webp', art: 'qinglan-sword.webp', selector: '.calculation-sword', animation: 'calculation-sword-draw' },
-  xingling: { trait: '魅惑', portrait: 'xingling-v61.webp', art: 'xingling-fan.webp', selector: '.calculation-star-fan', animation: 'calculation-fan-unfold' },
-  luye: { trait: '好奇', portrait: 'luye-fullbody.webp', art: 'luye-turntable.svg', selector: '.calculation-turntable', animation: 'calculation-turntable-enter', detail: '.calculation-vinyl', detailAnimation: 'calculation-vinyl-spin' },
-  suyan: { trait: '自信', portrait: 'suyan-fullbody.webp', art: 'suyan-camera.svg', selector: '.calculation-camera-prop', animation: 'calculation-camera-focus', detail: '.calculation-camera-iris', detailAnimation: 'calculation-iris-focus' },
-  rongrong: { trait: '可爱', portrait: 'rongrong-cinema3d.webp', art: 'rongrong-pawbell.webp', selector: '.calculation-pawbell', animation: 'calculation-pawbell-swing' },
-  zhiya: { trait: '天真', portrait: 'zhiya-cinema3d.webp', art: 'zhiya-crane.webp', selector: '.calculation-crane', animation: 'calculation-crane-flight' },
+  wenwen: { name: '姜姜', portrait: 'wenwen-cinema3d.webp', art: 'awakening-scroll.webp', selector: '.calculation-scroll', animation: 'calculation-scroll' },
+  moonfox: { name: '月白', portrait: 'moonfox-v61.webp', art: 'awakening-fox-fan.webp', selector: '.calculation-tail--left img', animation: 'calculation-tail-left' },
+  diyan: { name: '焱绒', portrait: 'diyan-v61.webp', art: 'earthfire-flame-seat.webp', selector: '.calculation-fire-seat', animation: 'calculation-fire-seat' },
+  yuchen: { name: '玉宸', portrait: 'yuchen-v61.webp', art: 'awakening-phoenix-wing.webp', selector: '.calculation-wing--left', animation: 'calculation-wing-left' },
+  qinglan: { name: '青岚', portrait: 'qinglan-cinema3d.webp', art: 'qinglan-sword.webp', selector: '.calculation-sword', animation: 'calculation-sword-draw' },
+  xingling: { name: '夕瑶', portrait: 'xingling-v61.webp', art: 'xingling-fan.webp', selector: '.calculation-star-fan', animation: 'calculation-fan-unfold' },
+  luye: { name: '陆野', portrait: 'luye-fullbody.webp', art: 'luye-turntable.svg', selector: '.calculation-turntable', animation: 'calculation-turntable-enter', detail: '.calculation-vinyl', detailAnimation: 'calculation-vinyl-spin' },
+  suyan: { name: '苏言', portrait: 'suyan-fullbody.webp', art: 'suyan-camera.svg', selector: '.calculation-camera-prop', animation: 'calculation-camera-focus', detail: '.calculation-camera-iris', detailAnimation: 'calculation-iris-focus' },
+  rongrong: { name: '绒绒', portrait: 'rongrong-cinema3d.webp', art: 'rongrong-pawbell.webp', selector: '.calculation-pawbell', animation: 'calculation-pawbell-swing' },
+  zhiya: { name: '纸鸢', portrait: 'zhiya-cinema3d.webp', art: 'zhiya-crane.webp', selector: '.calculation-crane', animation: 'calculation-crane-flight' },
 };
 const browser = await puppeteer.launch({ headless: true, args: ['--no-sandbox', '--disable-setuid-sandbox'] });
 const errors = [];
@@ -28,7 +28,7 @@ async function newPage({ theme = 'wenwen', width = 390, height = 844, motion = '
   await page.setViewport({ width, height });
   await page.emulateMediaFeatures([{ name: 'prefers-reduced-motion', value: motion }]);
   await page.goto(BASE, { waitUntil: 'domcontentloaded', timeout: 15000 });
-  await page.waitForSelector('#traitMachine[data-ready="true"]');
+  await page.waitForFunction(() => document.documentElement.dataset.homeReady === 'true');
   await spinFor(page, theme);
   await page.waitForFunction((id, portrait) => {
     const image = document.querySelector('[data-character-asset="portrait"]');
@@ -109,7 +109,7 @@ try {
       }, id, config.selector);
       assert.ok(state.states.some(item => item.state === 'computing' && item.values.every(value => value === '—') && !item.report), `${id}: 先绘制推演中，再计算`);
       assert.deepEqual(state.values, state.actual, `${id}: 显示本次计算的真实四柱`);
-      assert.equal(state.byline, `${config.trait} · 命盘推演`, '推演提示只显示特质，不显示人物名称');
+      assert.equal(state.byline, `${config.name} · 命盘推演`, '推演提示只显示特质，不显示人物名称');
       assert.ok(state.portrait.endsWith('/' + config.portrait));
       assert.equal(state.title, 'rgb(255, 249, 239)', '深色场景中的标题必须清晰');
       if (!V61_GUIDES.has(id)) assert.equal(state.animation, config.animation);

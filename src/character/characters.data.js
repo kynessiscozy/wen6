@@ -49,18 +49,6 @@ export const JADE_EMPRESS = defineCharacter({
   motion: { src: './art/yuchen-invite.mp4?v=75', poster: './art/yuchen-lord.webp', width: 672, height: 1344 },
 });
 
-export const LEIZI = defineCharacter({
-  id: 'leizi',
-  name: '雷兹',
-  camera: { closeScale: 1.6, safeX: .5, safeInset: .05 },
-  assets: {
-    portrait: { src: './art/leizi-cinema3d.webp', alt: '雷兹站在奥林匹斯云端台阶上，指尖绕着一束闪电', width: 768, height: 1376 },
-    blink: { src: './art/leizi-cinema3d-blink.webp', alt: '', width: 768, height: 1376, forPortrait: './art/leizi-cinema3d.webp' },
-    speaking: { src: './art/leizi-cinema3d-speak.webp', alt: '', width: 768, height: 1376, forPortrait: './art/leizi-cinema3d.webp' },
-    avatar: { src: './art/leizi-cinema3d-avatar.webp', alt: '', width: 192, height: 192 },
-  },
-});
-
 /** 全身像，暂不提供与肖像对齐的表情层。 */
 export const LUYE = defineCharacter({
   id: 'luye',

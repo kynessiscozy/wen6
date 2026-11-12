@@ -6,6 +6,13 @@
 
 ## [Unreleased] - 2026-11-11 · V6.1 引路人革新（本地未上线）
 
+### 删除（雷兹与旧人物特质）
+
+- **雷兹整体删除**：角色数据（`characters.data.js`）、首页主题、推演仪式主题样式、离线缓存清单与全部 11 个素材文件（立绘/表情/头像/场景/四段视频）一并移除；引路人测试改为断言其不存在。
+- **旧人物特质体系删除**：`HOME_THEMES` 的 `trait`（标签/说明/标记）整表移除，主题色改为顶层 `accent`；首页摘要、推演署名、报告署名与分享海报改以角色本名（引路人优先）示人，海报标题由「我的特质」改为「我的同行者」。
+- **特质轮盘界面删除**：`index.html` 的 `#traitSelection` 整段、`src/trait-selection.css` 与 `home-theme.js` 内轮盘/抽选/遮罩逻辑全部移除；报告里从未接通的「换特质」按钮与 `onReselect` 管线一并删除。漏斗存储键 `trait` 为兼容旧档案保持不变。
+- **离线缓存**：`APP_CACHE_VERSION` 升 `v78`（`wenda-cache-v78`），视频素材版本 `v76` 不变。
+
 ### 新增（引路人真正起作用：阅读路线）
 
 - **单一功能契约** `src/ui/guide-route.js`：六位引路人各有 `role / opening / hookTitle / cta / chips / toc / entry / steps`。`steps` 是真实动作——跳报告卡片（`jumpTo`，可切东方 / 西方视图）、打开工具中心对应工具（`openToolPage`）、把问题预填进「问问」（不代发）。未知人物键回退月白；报告主题键 `xingling` 与漏斗人物键 `xiyao` 统一解析。

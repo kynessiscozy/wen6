@@ -81,7 +81,7 @@ export async function renderTraitPoster({ theme, ctx, western, system = 'eastern
   canvas.width = WIDTH; canvas.height = height;
   const g = canvas.getContext('2d');
   if (!g) throw new Error('当前浏览器无法生成图片');
-  const hue = hueFromHex(theme.trait.color);
+  const hue = hueFromHex(theme.accent);
 
   const base = g.createLinearGradient(0, 0, WIDTH, height);
   base.addColorStop(0, `hsl(${hue}, 32%, 18%)`);
@@ -124,11 +124,11 @@ export async function renderTraitPoster({ theme, ctx, western, system = 'eastern
 
   g.fillStyle = 'rgba(255,250,242,.8)';
   g.font = `500 24px ${SANS}`;
-  g.fillText('我的特质', 76, 177);
+  g.fillText('我的同行者', 76, 177);
   g.fillStyle = '#fffaf1';
   g.font = `700 100px ${SERIF}`;
-  g.fillText(theme.trait.label, 70, 220);
-  g.fillStyle = theme.trait.color;
+  g.fillText(theme.guide?.name || theme.character?.name || '', 70, 220);
+  g.fillStyle = theme.accent;
   g.fillRect(76, 352, 68, 3);
 
   const facts = includeSummary ? posterFacts({ kind, system, ctx, western }) : [];

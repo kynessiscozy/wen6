@@ -66,13 +66,15 @@ assert.equal(HOME_THEMES.wenwen.character, JIANGJIANG);
 assert.equal(CHAT_MASTER.name, '问问');
 assert.equal(CHAT_MASTER.twins.length, 2);
 assert.ok(CHAT_MASTER.twins.every(twin => masterAvatarMarkup().includes(twin.avatar)));
-assert.deepEqual(Object.values(HOME_THEMES).map(theme => theme.trait.label),
-  ['温柔', '神秘', '决断', '灵感', '威严', '从容', '洒脱', '魅惑', '占星', '好奇', '自信', '可爱', '天真']);
+assert.deepEqual(Object.values(HOME_THEMES).map(theme => theme.character.name),
+  ['姜姜', '月白', '絮羽', '焱绒', '玉宸', '青岚', '夕瑶', '星罗', '陆野', '苏言', '绒绒', '纸鸢']);
+assert.ok(!('leizi' in HOME_THEMES) && Object.values(HOME_THEMES).every(theme => !('trait' in theme)),
+  '雷兹与旧人物特质已删除');
 assert.equal(HOME_THEMES.rongrong.character.assets.pawbell.src, './art/rongrong-pawbell.webp');
 assert.equal(HOME_THEMES.zhiya.character.assets.crane.src, './art/zhiya-crane.webp');
-assert.equal(new Set(Object.values(HOME_THEMES).map(theme => theme.trait.label)).size, Object.keys(HOME_THEMES).length, '每个角色应有可扩展的代表特质');
+assert.equal(new Set(Object.values(HOME_THEMES).map(theme => theme.character.name)).size, Object.keys(HOME_THEMES).length, '每个角色以本名示人，不再挂特质标签');
 for (const theme of Object.values(HOME_THEMES)) {
-  assert.ok(theme.trait.mark && theme.trait.color && theme.character.assets.portrait && theme.backdrop.mobile && theme.backdrop.wide);
+  assert.ok(theme.accent && theme.character.assets.portrait && theme.backdrop.mobile && theme.backdrop.wide);
   for (const expression of ['blink', 'speaking']) {
     if (!theme.character.assets[expression]) { assert.ok(theme.character.camera.fullBody); continue; }
     assert.equal(theme.character.assets[expression].forPortrait, theme.character.assets.portrait.src, '表情必须来自对应重绘人物');
@@ -311,10 +313,10 @@ for (const character of [QINGLAN, XINGLING, LUYE, SUYAN]) {
   } else assert.equal(homeBlink.hidden, true, '没有对齐表情时不能沿用上一位人物的表情');
   assert.equal(nodes.get('characterPortraitButton').getAttribute('aria-label'), `点击${character.name}，开启探索`);
 }
-adapter.setHomeCharacter(QINGLAN, '洒脱');
-assert.equal(homeName.textContent, '洒脱', '特质界面不展示内部角色名');
-assert.equal(nodes.get('characterPortraitButton').getAttribute('aria-label'), '点击洒脱形象，开启探索', '读屏也只使用特质');
-assert.ok(homePortrait.alt.includes('洒脱特质') && !homePortrait.alt.includes('青岚'), '图片备用文案也仅显示特质');
+adapter.setHomeCharacter(QINGLAN);
+assert.equal(homeName.textContent, '青岚', '界面以角色本名示人，不再挂特质标签');
+assert.equal(nodes.get('characterPortraitButton').getAttribute('aria-label'), '点击青岚，开启探索', '读屏同样使用本名');
+assert.ok(homePortrait.alt.includes('青岚'), '图片备用文案使用本名');
 adapter.setHomeCharacter(WENWEN);
 assert.equal(nodes.get('characterScene').dataset.cameraCloseScale, '1.45', '新角色应采用自己的近景比例');
 assert.equal(nodes.get('characterScene').dataset.cameraSafeX, undefined);

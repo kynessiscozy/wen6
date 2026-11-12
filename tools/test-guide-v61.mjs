@@ -73,7 +73,7 @@ for (const key of GUIDE_KEYS) {
   const palette = paletteFor(key);
   const block = themeBlock(key);
   const theme = HOME_THEMES[themeForPersona(key)];
-  ok(palette.accent === guide.color && theme.trait.color === guide.color && cssVar(block, 'gold') === guide.color,
+  ok(palette.accent === guide.color && theme.accent === guide.color && cssVar(block, 'gold') === guide.color,
     `${key} 主题色三处同值（${guide.color}）`);
   ok(palette.bg === guide.bg && cssVar(block, 'bg') === guide.bg,
     `${key} 首屏底色与预刷一致`);
@@ -135,7 +135,7 @@ ok(sw.includes(`'art/xingluo-observatory-wide.webp'`) &&
 /* ---- 4. 版本、缓存与入口文案 ---- */
 const pkg = JSON.parse(await read('package.json'));
 const indexHtml = await read('index.html');
-ok(APP_CACHE_VERSION === 'v77' && sw.includes(`const CACHE = 'wenda-cache-${APP_CACHE_VERSION}';`),
+ok(APP_CACHE_VERSION === 'v78' && sw.includes(`const CACHE = 'wenda-cache-${APP_CACHE_VERSION}';`),
   'Service Worker 缓存版本与应用构建同步升级，不再绑死视频素材版本');
 ok(!funnel.includes('?v=75') && (funnel.match(/\?v=76/g) || []).length === 23,
   '漏斗 23 处视频引用全部换到 v=76，旧 v=75 已清零');

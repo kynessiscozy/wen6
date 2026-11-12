@@ -266,9 +266,9 @@ function refreshCharacterReport(isDemo=!!window._ctx?.isDemoPreview){
     console.warn('[report] 角色导览暂不可用',error);
   }
 }
-// Switching traits updates the already calculated report without recalculating
+// Switching themes updates the already calculated report without recalculating
 // it, discarding inputs, or changing the separate 问问 assistant.
-window.addEventListener('tj:trait-change',()=>{
+window.addEventListener('tj:theme-change',()=>{
   if(window._ctx && document.getElementById('s-ming'))refreshCharacterReport();
 });
 

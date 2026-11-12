@@ -12,7 +12,7 @@ export function initCharacterCompanion({
   const scene = document.getElementById('characterScene');
   const portrait = document.getElementById('characterPortraitButton');
 
-  function applyToScene(nextCharacter, root, traitLabel = '') {
+  function applyToScene(nextCharacter, root) {
     applyCharacterAssets(root, nextCharacter);
     const artwork = nextCharacter.assets?.portrait;
     if (portrait && artwork) {
@@ -44,18 +44,9 @@ export function initCharacterCompanion({
         scene.dispatchEvent?.(new CustomEvent('character-assets-changed'));
       }
     }
-    const publicLabel = traitLabel || nextCharacter.name;
+    const publicLabel = nextCharacter.name;
     root.querySelectorAll('[data-character-name]').forEach(el => { el.textContent = publicLabel; });
-    portrait?.setAttribute('aria-label', `点击${publicLabel}${traitLabel ? '形象' : ''}，开启探索`);
-    if (traitLabel) {
-      // Keep a meaningful visual description if an image fails, without
-      // exposing the internal character name in its fallback or alt text.
-      root.querySelectorAll('[data-character-asset]').forEach(image => {
-        if (image.dataset.characterAsset === 'portrait' && image.tagName === 'IMG') {
-          image.alt = (image.alt || `${traitLabel}特质同行形象`).replace(nextCharacter.name, `${traitLabel}特质同行`);
-        }
-      });
-    }
+    portrait?.setAttribute('aria-label', `点击${publicLabel}，开启探索`);
   }
 
   // The report keeps its own identity. The home waits for an explicit trait
@@ -93,10 +84,10 @@ export function initCharacterCompanion({
   });
 
   return {
-    setHomeCharacter(nextCharacter, traitLabel = '') {
+    setHomeCharacter(nextCharacter) {
       // Do not change the report/chat identity when only the home theme changes.
       const home = document.getElementById('page1');
-      if (home && nextCharacter?.assets?.portrait) applyToScene(nextCharacter, home, traitLabel);
+      if (home && nextCharacter?.assets?.portrait) applyToScene(nextCharacter, home);
     },
     onReportReady({ isDemo = false } = {}) {
       // A sample chart must not be presented as the user's personal report.
