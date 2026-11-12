@@ -77,6 +77,8 @@ const flowCss = await read('src/entry-flow.css');
 
 ok(html.includes('data-entry="funnel"') && flowCss.includes('html[data-entry="funnel"] #page1'),
   '首页隐藏由唯一的入口开关控制');
+ok(flowCss.includes('.ef-btn[hidden] { display: none !important; }'),
+  '兜底卡中的隐藏按钮不会被通用按钮样式误显示');
 ok(!html.includes('id="traitSelection"') && !html.includes('trait-selection.css') && !flowCss.includes('#traitSelection'),
   '特质轮盘界面与样式已删除，静态首屏不再包含旧老虎机');
 ok(!html.includes('#page1{display:none!important}'), '不再有 !important 内联覆盖');

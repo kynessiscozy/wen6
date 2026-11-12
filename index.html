@@ -123,6 +123,7 @@
 <link rel="stylesheet" href="/src/guide.css">
 <link rel="stylesheet" href="/src/share-studio.css">
 <link rel="stylesheet" href="/src/entry-flow.css">
+<link rel="stylesheet" href="/src/unslop.css">
 <style>
 .result-style-heading{display:flex;align-items:baseline;gap:8px;margin-bottom:7px;min-width:0}
 .result-style-label{font-size:.72em;font-weight:500;color:var(--c-text-2);white-space:nowrap}
@@ -412,7 +413,7 @@
                     <span class="character-prop character-rune character-rune--four" hidden><img data-character-asset="runes" data-character-scene-optional fetchpriority="low" alt="" width="512" height="512" decoding="async" hidden></span>
                   </div>
                 </div>
-                <button class="character-portrait" id="characterPortraitButton" type="button" aria-label="点击同行形象，开启探索" aria-controls="formModal" aria-haspopup="dialog" title="开启探索">
+                <button class="character-portrait" id="characterPortraitButton" type="button" aria-label="点击同行形象，填写出生信息" aria-controls="formModal" aria-haspopup="dialog" title="填写出生信息">
                   <span class="character-camera-subject">
                     <span class="character-aura" aria-hidden="true"></span>
                     <span class="character-puppet">
@@ -513,7 +514,7 @@
                   <path class="character-btn-flourish" d="M12 38c0-5 5-8 9-6 4 2 3 6 0 6-2 0-3-2-1-3M168 38c0-5-5-8-9-6-4 2-3 6 0 6 2 0 3-2 1-3M20 47c5 3 10 3 14 1m126-1c-5 3-10 3-14 1"/>
                 </svg>
                 <svg class="character-btn-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8.5"/><path d="M12 6.5l1.4 4.1 4.1 1.4-4.1 1.4-1.4 4.1-1.4-4.1L6.5 12l4.1-1.4Z"/></svg>
-                <span>开启探索</span>
+                <span>填写生辰</span>
               </button>
               <button class="character-btn character-btn-secondary" id="homeCtaCal" type="button" onclick="openCalendarMode()">
                 <svg class="character-btn-art" viewBox="0 0 180 64" preserveAspectRatio="none" aria-hidden="true" focusable="false">
@@ -544,22 +545,22 @@
   <div class="form-modal-sheet">
     <button class="form-modal-close" type="button" onclick="TJCloseForm()" aria-label="关闭表单">×</button>
     <div class="home-card" id="formCard">
-      <div class="form-modal-kicker">A LITTLE ABOUT YOU &nbsp; ✦</div>
-      <h2 class="form-modal-tt" id="formModalTitle" tabindex="-1">让我们从认识你开始</h2>
-      <p class="form-modal-intro">填写出生信息，生成一份专属命盘。</p>
+      <div class="form-modal-kicker">起盘资料</div>
+      <h2 class="form-modal-tt" id="formModalTitle" tabindex="-1">出生信息</h2>
+      <p class="form-modal-intro">出生日期、时间和地点用于生成命盘。</p>
       <div class="form-grid">
         <div class="fd"><label for="bDate">出生日期</label><input type="date" id="bDate" value="1990-06-15" aria-describedby="formDefaults formError"></div>
         <div class="fd"><label for="bTime">出生时间</label><input type="time" id="bTime" value="09:00" aria-describedby="formDefaults formError" style="font-family:var(--sf)"></div>
         <div class="fd"><label for="cInp">出生地点</label><div class="cw"><input type="text" id="cInp" placeholder="搜索并选择城市…" autocomplete="off" value="上海" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="cDD" aria-describedby="formDefaults formError"><input type="hidden" id="bPlace" value="shanghai"><div class="cdd" id="cDD" role="listbox" aria-label="出生城市候选"></div></div></div>
         <div class="fd"><label for="bGen">性别</label><select id="bGen"><option value="male">男（乾造）</option><option value="female">女（坤造）</option></select></div>
-        <div class="fd full result-style-field"><div class="result-style-heading"><div class="result-style-label">选择你希望的风格</div><small class="result-style-hint" id="resultStyleHint">先接住当下感受，再一起把问题拆小。</small></div><input type="hidden" id="bResultStyle" value="companion"><div class="result-style-options" id="resultStyleOptions" role="radiogroup" aria-label="结果风格"><button type="button" class="result-style-option active" data-style="companion" role="radio" aria-checked="true" onclick="selectResultStyle('companion')">陪伴型</button><button type="button" class="result-style-option" data-style="rigorous" role="radio" aria-checked="false" onclick="selectResultStyle('rigorous')">严谨型</button><button type="button" class="result-style-option" data-style="traditional" role="radio" aria-checked="false" onclick="selectResultStyle('traditional')">传统型</button><button type="button" class="result-style-option" data-style="advisory" role="radio" aria-checked="false" onclick="selectResultStyle('advisory')">建议型</button></div></div>
+        <div class="fd full result-style-field"><div class="result-style-heading"><div class="result-style-label">解读语气</div><small class="result-style-hint" id="resultStyleHint">先接住当下感受，再一起把问题拆小。</small></div><input type="hidden" id="bResultStyle" value="companion"><div class="result-style-options" id="resultStyleOptions" role="radiogroup" aria-label="结果风格"><button type="button" class="result-style-option active" data-style="companion" role="radio" aria-checked="true" onclick="selectResultStyle('companion')">陪伴型</button><button type="button" class="result-style-option" data-style="rigorous" role="radio" aria-checked="false" onclick="selectResultStyle('rigorous')">严谨型</button><button type="button" class="result-style-option" data-style="traditional" role="radio" aria-checked="false" onclick="selectResultStyle('traditional')">传统型</button><button type="button" class="result-style-option" data-style="advisory" role="radio" aria-checked="false" onclick="selectResultStyle('advisory')">建议型</button></div></div>
       </div>
       <input type="hidden" id="bQ" value="">
       <p class="character-form-defaults" id="formDefaults">首次打开时预填示例日期和地点，请核对；时间默认 09:00，不确定时相关结果可能有偏差。</p>
       <div class="switch-row" style="margin-top:6px"><button type="button" class="switch" id="swTrueSolar" role="switch" aria-checked="false" aria-labelledby="swText" onclick="this.classList.toggle('on');this.setAttribute('aria-checked',this.classList.contains('on'));document.getElementById('swText').textContent=(this.classList.contains('on')?'开启':'关闭')+'真太阳时（按时区、经度和均时差估算）'"></button><span id="swText">关闭真太阳时（按时区、经度和均时差估算）</span></div>
       <p class="character-form-error" id="formError" role="alert" hidden></p>
-      <button class="character-form-submit" type="button" onclick="calc()">开始推演 <span aria-hidden="true">↗</span></button>
-      <p class="character-form-privacy" id="formPrivacy">✧ &nbsp; 保存的档案存放在本机，可随时管理</p>
+      <button class="character-form-submit" type="button" onclick="calc()">生成命盘 <span aria-hidden="true">↗</span></button>
+      <p class="character-form-privacy" id="formPrivacy">保存的档案存放在本机，可随时管理</p>
     </div>
   </div>
 </div>
@@ -754,7 +755,7 @@
         <span class="ai-identity-mark" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M12 2.5 14.1 9l6.4 2.1-6.4 2.2L12 19.8l-2.2-6.5-6.4-2.2L9.8 9 12 2.5Zm6.6 13.1.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7.7-2Z"/></svg></span>
         <div class="ai-identity-text">
           <div class="ai-title"><span id="aiTitleText" tabindex="-1">问问大师</span></div>
-          <div class="ai-identity-detail"><span class="ai-identity-subtitle">双星 · 同行</span><span class="evolve-gen" id="evolveGenBadge" hidden></span></div>
+          <div class="ai-identity-detail"><span class="ai-identity-subtitle">命盘与星盘 · 同行</span><span class="evolve-gen" id="evolveGenBadge" hidden></span></div>
         </div>
       </div>
       <div class="ai-actions">
@@ -765,9 +766,9 @@
     </div>
     <div class="ai-hero" id="aiHero">
       <div class="ai-hero-copy">
-        <span class="ai-hero-kicker">一束星光 · 一段对话</span>
-        <p class="ai-hero-heading">把心事，<br>慢慢说。</p>
-        <p class="ai-hero-caption">有问题，我们一起想。</p>
+        <span class="ai-hero-kicker">命盘、星盘与现实选择</span>
+        <p class="ai-hero-heading">把眼前的事，<br>说具体些。</p>
+        <p class="ai-hero-caption">我会结合所选体系与这张盘回答。</p>
       </div>
       <div class="ai-master-twins" aria-hidden="true">
         <svg class="ai-twin-orbit" viewBox="0 0 240 150" preserveAspectRatio="none" focusable="false"><ellipse cx="120" cy="77" rx="101" ry="46" transform="rotate(-15 120 77)"/><circle cx="26" cy="95" r="2"/><circle cx="217" cy="48" r="2.5"/><path d="m35 35 2 5 5 2-5 2-2 5-2-5-5-2 5-2zm166 63 1.5 4 4 1.5-4 1.5-1.5 4-1.5-4-4-1.5 4-1.5z"/></svg>
@@ -797,7 +798,7 @@
   <!-- 自由提问 + 实时联想 -->
   <div class="ai-input-row">
     <div class="ai-input-wrap">
-      <textarea class="ai-input" id="askInput" aria-label="输入想和问问聊的问题" placeholder="说说你想聊的事…" autocomplete="off" rows="1"></textarea>
+      <textarea class="ai-input" id="askInput" aria-label="输入想请问问分析的问题" placeholder="写下你正在考虑的问题…" autocomplete="off" rows="1"></textarea>
       <div class="ai-suggest" id="aiSuggest"></div>
     </div>
     <button class="ai-send" type="button" onclick="doAskCustom()" title="发送" aria-label="发送"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></button>
@@ -953,7 +954,7 @@
   <div class="modal-sheet glass about-sheet" role="dialog" aria-modal="true" aria-labelledby="aboutTitle" tabindex="0">
     <button class="modal-close" type="button" onclick="closeAboutModal()" aria-label="关闭关于">×</button>
     <!-- PRODUCT:ABOUT:BEGIN -->
-    <p class="about-kicker">ABOUT · 问问大师</p>
+    <p class="about-kicker">版本与使用说明</p>
     <h2 id="aboutTitle">关于问问大师</h2>
     <p class="about-lead">用不同的视角，给自己一点思考的空间。</p>
     <div class="about-section">
@@ -985,6 +986,7 @@
     </div>
     <div class="about-note"><b>请理性看待</b><p>推演内容仅供文化体验、娱乐消遣与自我反思，不构成医疗、法律、财务、心理咨询等专业建议，也不对人生事件作出确定预测。重要选择请结合现实情况独立判断。</p></div>
 <!-- PRODUCT:ABOUT:END -->
+    <p class="unslop-credit">界面精修致谢：unslop by @heydamir（CC BY 4.0）</p>
   </div>
 </div>
 

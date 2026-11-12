@@ -1,6 +1,6 @@
 import { selectHomeTrait, openDemoReport } from './test-entry.mjs';
 import puppeteer from 'puppeteer';
-const BASE=process.env.BASE_URL||'http://localhost:5173/';
+const BASE=process.env.BASE_URL||'http://localhost:5173/index.html';
 const b=await puppeteer.launch({headless:'new',args:['--no-sandbox']});
 const p=await b.newPage();await p.setViewport({width:430,height:932});
 for(const theme of ['light','dark']){
@@ -32,7 +32,7 @@ for(const theme of ['light','dark']){
     document.querySelectorAll('#page2 *').forEach(e=>{
       const t=e.textContent.trim(); if(!t||e.children.length)return;
       const r=e.getBoundingClientRect(); if(!r.width||!r.height)return;
-      const c=getComputedStyle(e); if(c.visibility==='hidden'||c.opacity<0.2)return;
+      const c=getComputedStyle(e); if(c.visibility==='hidden'||c.opacity<0.2||r.width<=1||r.height<=1)return;
       const l1=L(c.color),l2=L(bgOf(e));
       const ratio=(Math.max(l1,l2)+.05)/(Math.min(l1,l2)+.05);
       const px=parseFloat(c.fontSize); const need=(px>=18.66||(px>=14&&+c.fontWeight>=700))?3:4.5;

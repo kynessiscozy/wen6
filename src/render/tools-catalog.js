@@ -193,7 +193,7 @@ export function renderToolsHubHtml() {
       </div>
       <div class="tc-p-footer">
         <div class="tc-p-btn">
-          <span>立即开启</span>
+          <span>打开工具</span>
           <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
         </div>
       </div>
@@ -201,15 +201,13 @@ export function renderToolsHubHtml() {
   }).join('');
 
   return `<div class="glass card-1 tool-hub view-mode-ring" data-card="toolHub" id="toolHubRoot">
-    <div class="card-hd">
-      <div style="flex:1">
-        <div class="card-tt">决策与命理工具中心</div>
-        <div class="card-st">3D 弧面轮播 ｜ 磨砂玻璃通透质感 · 支持一键平铺模式</div>
+    <div class="tool-hub-visible-head">
+      <div class="tool-hub-heading">
+        <h2 class="tool-hub-title">命理与生活工具</h2>
+        <p class="tool-hub-subtitle">13 项工具 · 可按分类浏览，也可切换网格</p>
       </div>
       <div class="tool-hub-controls">
-        <button type="button" class="tool-ctrl-btn active" id="toolRingPlayBtn" onclick="window._tools3DRing && window._tools3DRing.toggleAutoPlay()" title="切换自动轮播">⟲ 自轮播</button>
-        <button type="button" class="tool-ctrl-btn tool-ctrl-nav" onclick="window._tools3DRing && window._tools3DRing.prev()" title="上一个">‹</button>
-        <button type="button" class="tool-ctrl-btn tool-ctrl-nav" onclick="window._tools3DRing && window._tools3DRing.next()" title="下一个">›</button>
+        <button type="button" class="tool-ctrl-btn active" id="toolRingPlayBtn" onclick="window._tools3DRing && window._tools3DRing.toggleAutoPlay()" title="暂停自动轮播" aria-label="暂停自动轮播" aria-pressed="true">⟳ 自动轮播</button>
       </div>
     </div>
 
@@ -226,7 +224,7 @@ export function renderToolsHubHtml() {
     <div class="tool-ring-bottom-bar">
       <div class="tool-ring-dots" id="toolRingDots"></div>
       <div class="tool-ring-hint">
-        <span>✦ 提示：鼠标左键/触控拖拽 3D 转盘，滚轮平滑旋转，点击卡片直接开启</span>
+        <span>拖动转盘浏览；点击卡片打开工具</span>
       </div>
     </div>
 

@@ -29,6 +29,7 @@ class MockElement {
   removeAttribute(name) { delete this.attributes[name]; }
   focus() {}
   querySelector(sel) {
+    if (sel.includes('toolRingPlayBtn')) return this.playButton || (this.playButton = new MockElement('button'));
     if (sel.includes('stage')) return this.stage || (this.stage = new MockElement('div'));
     if (sel.includes('carousel') || sel.includes('track')) return this.track || (this.track = new MockElement('div'));
     if (sel.includes('dots')) return new MockElement('div');
@@ -76,6 +77,12 @@ async function runTests() {
   const bottomBarPosition = catalogHtml.indexOf('class="tool-ring-bottom-bar"');
   assert.ok(stagePosition < bottomBarPosition && bottomBarPosition < toolbarPosition, '环形模式的筛选栏必须位于完整卡片轮播及其指示区下方');
   assert.doesNotMatch(catalogHtml, /tools?-search|toolsToolbar|<input\b/i, '工具页不得残留搜索栏结构或输入框');
+  assert.match(catalogHtml, /class="tool-hub-visible-head"/, '工具中心标题与轮播控制应在实际界面可见');
+  assert.match(catalogHtml, /class="tool-hub-title">命理与生活工具/, '工具中心标题应说明内容');
+  assert.match(catalogHtml, /13 项工具 · 可按分类浏览，也可切换网格/, '副标题应简要说明工具数量与浏览方式');
+  assert.match(catalogHtml, /id="toolRingPlayBtn"[^>]*aria-label="暂停自动轮播"[^>]*aria-pressed="true"/, '默认轮播状态应能被读屏识别');
+  assert.match(catalogHtml, /拖动转盘浏览；点击卡片打开工具/, '交互提示应适用于触控与鼠标');
+  assert.doesNotMatch(catalogHtml, /磨砂玻璃通透质感|立即开启|自轮播/, '工具中心文案不使用装饰性卖点或含糊 CTA');
   assert.strictEqual((catalogHtml.match(/class="tc-p-icon"/g) || []).length, 0, '工具卡片不得再渲染图标');
   assert.strictEqual((catalogHtml.match(/class="tc-p-title"/g) || []).length, 13, '13 款工具都必须保留主标题');
   const styles = readAllStylesSync();
@@ -90,6 +97,11 @@ async function runTests() {
   assert.ok(ring, '3D 卡片轮播实例必须创建成功');
   assert.strictEqual(ring.cards.length, 13, '必须成功绑定 13 款工具卡片');
   assert.strictEqual(ring.viewMode, 'ring', '初始视图模式应为 3D 环形');
+  ring.toggleAutoPlay();
+  assert.strictEqual(mockContainer.playButton.attributes['aria-pressed'], 'false', '暂停后读屏状态应同步');
+  assert.strictEqual(mockContainer.playButton.attributes['aria-label'], '继续自动轮播', '暂停后操作提示应说明可继续');
+  ring.toggleAutoPlay();
+  assert.strictEqual(mockContainer.playButton.attributes['aria-pressed'], 'true', '继续后读屏状态应同步');
   console.log('  ✓ 3D 卡片轮播实例初始化成功 (绑定 13 款工具)');
 
   console.log('\n【2】3D 空间坐标变换与 10% 通透质感验证');

@@ -110,6 +110,7 @@ html[data-handoff="done"] #funnelVeil { display: none; }
   -webkit-appearance: none;
 }
 .ef-btn:disabled { opacity: .5; cursor: not-allowed; }
+.ef-btn[hidden] { display: none !important; }
 .ef-primary {
   border: 1px solid var(--c-accent, #d97757);
   background: var(--c-accent, #d97757);

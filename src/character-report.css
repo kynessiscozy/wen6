@@ -46,6 +46,12 @@
 /* One continuous overview: the selected figure accompanies the actual chart. */
 #page2 .result-character-hero {
   --result-character-accent: #ecc1ae;
+  /* 这张报告主卡始终是深色场景；即使全局切到浅色，也使用适合深底的五行文字色。 */
+  --wx-mu: #7fc45f;
+  --wx-huo: #e87a5f;
+  --wx-tu: #d9a34e;
+  --wx-jin: #cfc08a;
+  --wx-shui: #63b6dc;
   position: relative;
   isolation: isolate;
   min-height: 320px;

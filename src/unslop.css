@@ -1,0 +1,368 @@
+/*
+ * Unslop pass — 01. spacing
+ * Keep the existing sections and page flow intact; align the gaps that were
+ * drifting between the character home, chart, guide, and tool carousel.
+ * This file is loaded after the product-specific stylesheets so the values
+ * here remain the final spacing layer without replacing their components.
+ */
+
+/* Character-led entry */
+#page1 .p1-inner {
+  padding-inline: clamp(20px, 4vw, 28px);
+}
+#page1 .character-hero {
+  gap: var(--sp-2, 8px);
+  padding-top: var(--sp-3, 12px);
+}
+#page1 .character-actions {
+  gap: var(--sp-2, 8px);
+  margin-top: var(--sp-3, 12px);
+}
+#page1 .character-text-actions {
+  gap: var(--sp-3, 12px);
+  margin-top: var(--sp-1, 4px);
+}
+#page1 .character-footer {
+  margin-top: var(--sp-4, 16px);
+  padding-top: var(--sp-3, 12px);
+}
+@media (max-width: 650px) {
+  #page1 .p1-inner { padding-inline: 20px; }
+}
+@media (max-width: 360px) {
+  #page1 .p1-inner { padding-inline: 16px; }
+}
+
+/* Birth details form: keep related fields together and avoid oversized gaps. */
+#formModal .form-modal-sheet { padding: 28px 28px 24px; }
+#formModal .form-modal-intro { margin-bottom: var(--sp-4, 16px); }
+#formModal .form-grid { column-gap: var(--sp-4, 16px); row-gap: var(--sp-4, 16px); }
+#formModal .character-form-submit { margin-top: var(--sp-4, 16px); }
+#formModal .character-form-defaults { margin-top: var(--sp-2, 8px); }
+@media (max-width: 650px) {
+  #formModal .form-modal-sheet { padding: 24px 20px 20px; }
+}
+
+/* Report rhythm: maintain the established card hierarchy and scenic chapters. */
+#page2 .p2-inner { padding-inline: var(--sp-4, 16px); }
+#page2 .result-character-hero { margin-bottom: var(--sp-4, 16px); }
+#page2 .card-hd { gap: var(--sp-3, 12px); }
+#page2 .guide-perspective { padding: var(--sp-4, 16px) var(--sp-5, 20px); }
+#page2 .guide-route { gap: var(--sp-2, 8px); }
+#page2 .guide-route-btn { gap: var(--sp-2, 8px); padding: var(--sp-2, 8px) var(--sp-3, 12px); }
+#page2 .character-prompt { gap: var(--sp-3, 12px); }
+#page2 .character-prompt--form { padding: var(--sp-2, 8px) var(--sp-3, 12px); }
+#page2 .character-prompt--report { padding: var(--sp-3, 12px); }
+@media (max-width: 420px) {
+  #page2 .guide-route-btn { gap: var(--sp-2, 8px); padding: var(--sp-2, 8px); }
+}
+
+/* Keep the 3D carousel as the default; give its cards and controls a calmer,
+   more consistent inset without changing the stage, autoplay, or grid switch. */
+#toolHubRoot { padding: 20px 16px 16px !important; }
+#toolHubRoot .tool-hub-visible-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3, 12px);
+  margin: 0 0 var(--sp-2, 8px);
+}
+#toolHubRoot .tool-hub-heading { min-width: 0; }
+#toolHubRoot .tool-hub-title {
+  margin: 0;
+  color: var(--c-text-hi);
+  font: 650 16px/1.3 var(--serif);
+  letter-spacing: 0;
+}
+#toolHubRoot .tool-hub-subtitle {
+  margin: 4px 0 0;
+  color: var(--c-text-3);
+  font-size: 11px;
+  line-height: 1.45;
+}
+#toolHubRoot .tool-hub-controls { flex: 0 0 auto; gap: 0; }
+#toolHubRoot #toolRingPlayBtn {
+  min-height: 36px;
+  height: 36px;
+  padding-inline: 10px;
+  font-size: 11px;
+  white-space: nowrap;
+}
+#toolHubRoot .tool-ring-stage,
+#toolHubRoot .tool-row-stage { margin-block: 12px 8px; }
+#toolHubRoot .tool-catalog-toolbar { gap: var(--sp-2, 8px); }
+#toolHubRoot .tool-ring-bottom-bar { gap: var(--sp-2, 8px); margin-top: var(--sp-3, 12px); }
+#toolHubRoot .tool-ring-dots { gap: var(--sp-2, 8px); }
+#toolHubRoot .tool-card-portrait { padding: 20px 18px 16px !important; }
+#toolHubRoot .tool-card-portrait .tc-p-footer { margin-top: var(--sp-4, 16px); }
+@media (max-width: 560px) {
+  #toolHubRoot .tool-card-portrait { padding: 18px 16px 14px !important; }
+}
+
+/* Handoff / fallback cards use the same 8pt rhythm as the app. */
+#funnelVeil { padding-inline: var(--sp-6, 24px); }
+.ef-card { padding: 28px 24px 24px; }
+.ef-desc { margin-bottom: var(--sp-5, 20px); }
+.ef-btn { margin-bottom: var(--sp-2, 8px); }
+.ef-links { gap: var(--sp-2, 8px) var(--sp-4, 16px); margin-top: var(--sp-4, 16px); }
+
+/*
+ * Unslop pass — 02. color
+ * Paper, ink, and night-mode surfaces stay shared across guides. The selected
+ * character keeps the illustrated scene and a restrained accent for identity,
+ * selection, and chart data — not a tint over every surface.
+ */
+html[data-theme] body {
+  background-color: var(--c-bg);
+  color: var(--c-text);
+}
+html[data-theme] body.home .mesh,
+html[data-theme] body.home .particles,
+html[data-theme] body.report-active .mesh,
+html[data-theme] body.report-active .particles,
+html[data-theme] body .cursor-dot,
+html[data-theme] body .cursor-ring {
+  display: none !important;
+  animation: none !important;
+}
+html[data-theme] body[data-glass] :is(
+  .glass, .home-card, .qr-card, .ai-sum, .beginner-brief, .tool-panel,
+  .tj-result, .tj-tool-intro, .modal-sheet, .mm-sheet, .tool-sheet,
+  .ai-settings-panel
+) {
+  background: var(--c-surface) !important;
+  background-image: none !important;
+  border-color: var(--c-border) !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+html[data-theme] body[data-glass] .lg-panel { display: none !important; }
+
+/* The selected 3D card may signal focus; the rest of the carousel stays quiet. */
+html[data-theme] body[data-glass] #toolHubRoot {
+  background: var(--c-surface) !important;
+  background-image: none !important;
+  border-color: var(--c-border) !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+html[data-theme] body[data-glass] #toolHubRoot .tool-card-portrait {
+  background: var(--c-surface) !important;
+  background-image: none !important;
+  border-color: var(--c-border) !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+html[data-theme] body[data-glass] #toolHubRoot .tool-card-portrait.is-active-center {
+  border-color: var(--c-border-2) !important;
+  box-shadow: 0 10px 26px rgba(20, 20, 19, .10) !important;
+}
+
+/* Shared navigation and chat surfaces are opaque enough to remain legible. */
+html[data-theme] body .ig-dock.tab-bar {
+  background: var(--c-surface) !important;
+  border-color: var(--c-border) !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+html[data-theme] body .ai-sheet {
+  background: var(--c-surface) !important;
+  border-color: var(--c-border) !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+html[data-theme] body .ai-sheet .ai-actions,
+html[data-theme] body .ai-sheet .ai-context,
+html[data-theme] body .ai-sheet .ai-input-row,
+html[data-theme] body .ai-settings-panel {
+  background: var(--c-surface-2) !important;
+  border-color: var(--c-border) !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+html[data-theme] body .ai-sheet .ai-answer-wrap,
+html[data-theme] body .ai-sheet .chat-bubble-ai {
+  background: var(--c-surface-2) !important;
+  border-color: var(--c-border) !important;
+  box-shadow: none !important;
+}
+html[data-theme] body .ai-sheet .ai-user-bubble,
+html[data-theme] body .ai-sheet .chat-bubble-user {
+  background: var(--c-accent-soft) !important;
+  border-color: color-mix(in srgb, var(--c-accent) 28%, var(--c-border)) !important;
+  box-shadow: none !important;
+}
+
+/* Remove the animated shine layer from shared controls; preserve solid active
+   states and the custom character artwork on the landing screen. */
+html[data-theme] body :is(
+  .home-cta, .home-cta-ghost, .home-menu-footer button, .pf-io-btn,
+  .ai-send, .save-btn, .ai-basis-pill, .mode-top-switch,
+  .result-style-option, .tool-cta-btn, .tool-hub-cta,
+  .beginner-primary, .gs-seg .gs-opt
+)::before {
+  content: none !important;
+  display: none !important;
+  animation: none !important;
+}
+html[data-theme] body :is(.home-cta, .ai-send, .save-btn, .tool-cta-btn, .tool-hub-cta, .beginner-primary) {
+  background-image: none !important;
+  box-shadow: none !important;
+}
+html[data-theme] body .mode-top-switch.active,
+html[data-theme] body .result-style-option.active,
+html[data-theme] body .tool-category-chip.is-active,
+html[data-theme] body .tool-ctrl-btn.active {
+  background-image: none !important;
+  box-shadow: none !important;
+}
+
+/*
+ * Unslop pass — 03. iconography
+ * A quiet, single-ink mark travels with each of the six guides. The character
+ * art remains the expressive asset; these small glyphs are only wayfinding.
+ */
+.persona-options button {
+  position: relative;
+  justify-content: flex-start;
+  padding-left: 42px;
+}
+.persona-options button::before,
+.persona-toggle[data-persona]::before {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  color: var(--ink);
+  font: 400 14px/1 "Segoe UI Symbol", "Noto Sans Symbols 2", sans-serif;
+  text-shadow: none;
+  pointer-events: none;
+}
+.persona-options button::before { left: 10px; }
+.persona-toggle[data-persona]::before { left: 12px; }
+.persona-toggle[data-persona] { position: relative; padding-left: 42px; }
+.persona-options button[data-persona="moonfox"]::before,
+.persona-toggle[data-persona="moonfox"]::before { content: "☾"; }
+.persona-options button[data-persona="yuchen"]::before,
+.persona-toggle[data-persona="yuchen"]::before { content: "♧"; }
+.persona-options button[data-persona="xiyao"]::before,
+.persona-toggle[data-persona="xiyao"]::before { content: "✿"; }
+.persona-options button[data-persona="diyan"]::before,
+.persona-toggle[data-persona="diyan"]::before { content: "◎"; }
+.persona-options button[data-persona="muse"]::before,
+.persona-toggle[data-persona="muse"]::before { content: "▱"; }
+.persona-options button[data-persona="xingluo"]::before,
+.persona-toggle[data-persona="xingluo"]::before { content: "✦"; }
+
+#homeTraitLabel::before {
+  display: inline-block;
+  margin-right: 7px;
+  color: #fff8ec;
+  font: 400 14px/1 "Segoe UI Symbol", "Noto Sans Symbols 2", sans-serif;
+  text-shadow: none;
+  vertical-align: -1px;
+}
+html[data-home-theme="moonfox"] #homeTraitLabel::before,
+html[data-home-theme="moonfox"] .result-character-mark::before { content: "☾"; }
+html[data-home-theme="yuchen"] #homeTraitLabel::before,
+html[data-home-theme="yuchen"] .result-character-mark::before { content: "♧"; }
+html[data-home-theme="xingling"] #homeTraitLabel::before,
+html[data-home-theme="xingling"] .result-character-mark::before { content: "✿"; }
+html[data-home-theme="diyan"] #homeTraitLabel::before,
+html[data-home-theme="diyan"] .result-character-mark::before { content: "◎"; }
+html[data-home-theme="muse"] #homeTraitLabel::before,
+html[data-home-theme="muse"] .result-character-mark::before { content: "▱"; }
+html[data-home-theme="xingluo"] #homeTraitLabel::before,
+html[data-home-theme="xingluo"] .result-character-mark::before { content: "✦"; }
+.result-character-mark {
+  color: #f6f2ea !important;
+  font-size: 0 !important;
+}
+.result-character-mark::before {
+  font: 400 13px/1 "Segoe UI Symbol", "Noto Sans Symbols 2", sans-serif;
+  text-shadow: none;
+}
+
+/*
+ * Unslop pass — 05. typography
+ * Use installed system stacks rather than requesting a non-bundled display
+ * face; keep serif emphasis for editorial moments and readable sans for UI.
+ */
+html[data-theme] body,
+html[data-theme] body :is(button, input, select, textarea) {
+  font-family: var(--sf) !important;
+}
+html[data-theme] body { line-height: 1.65; }
+#page2 .card-tt,
+#page2 .guide-perspective-title,
+#page2 .result-character-title {
+  text-wrap: balance;
+}
+#page2 .at,
+#page2 .at p,
+#page2 .guide-perspective-facts,
+#page2 .guide-perspective-prompt {
+  line-height: 1.75;
+}
+#page2 .guide-perspective-kicker,
+#page2 .guide-route-title,
+.about-kicker,
+.form-modal-kicker {
+  letter-spacing: .02em !important;
+}
+.form-modal-kicker { font-size: 11px !important; }
+#toolHubRoot .tool-card-portrait .tc-p-title {
+  font-size: 19px !important;
+  font-weight: 650 !important;
+  line-height: 1.3;
+  letter-spacing: 0;
+}
+#toolHubRoot .tool-card-portrait .tc-p-group { font-size: 12px; line-height: 1.5; }
+#toolHubRoot .tool-card-portrait .tc-p-pills span { font-size: 11px; line-height: 1.4; }
+#toolHubRoot .tool-card-portrait .tc-p-desc { font-size: 13px; line-height: 1.65; }
+#toolHubRoot .tool-card-portrait .tc-p-badge { font-size: 11px; letter-spacing: 0; }
+.unslop-credit {
+  margin: 16px 0 0;
+  padding-top: 12px;
+  border-top: 1px solid var(--c-border);
+  color: var(--c-text-3);
+  font-size: 11px;
+  line-height: 1.5;
+  text-align: center;
+}
+
+/*
+ * Unslop pass — 06. layout
+ * Preserve the report's chapter order and the tool hub's 3D stage; reflow only
+ * the narrow conversation header so the more specific copy does not overflow.
+ */
+#aiSheet .ai-hero {
+  min-height: 136px;
+  padding-inline: 22px 18px;
+}
+#aiSheet .ai-hero-copy { flex-basis: 46%; }
+#aiSheet .ai-hero-caption {
+  max-width: 20em;
+  white-space: normal;
+  text-wrap: pretty;
+}
+#aiSheet .ai-master-twins { height: 136px; }
+#page2 .result-character-chapter { margin-bottom: var(--sp-4, 16px); }
+@media (max-width: 560px) {
+  #aiSheet .ai-hero { min-height: 136px; padding-inline: 18px 14px; }
+  #aiSheet .ai-hero-copy { flex-basis: 47%; }
+  #aiSheet .ai-master-twins { height: 136px; }
+}
+@media (max-width: 380px) {
+  #aiSheet .ai-hero { padding-inline: 14px 10px; }
+  #aiSheet .ai-hero-copy { flex-basis: 50%; }
+}

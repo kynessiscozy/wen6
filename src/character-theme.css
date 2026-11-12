@@ -491,7 +491,7 @@ html[data-home-theme="suyan"] .character-btn-secondary .character-btn-flourish {
 html[data-home-theme="yuchen"] .character-camera-subject { will-change: auto; }
 /* In close-up the portrait's outer outline may be off-screen; keep keyboard focus visible without framing the artwork. */
 .character-scene:focus-within::after {
-  content: '↵ 开启探索';
+  content: '↵ 填写生辰';
   position: absolute;
   z-index: 3;
   left: 12px;

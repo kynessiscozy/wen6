@@ -98,7 +98,7 @@ export const GUIDE = Object.freeze({
 
 /* 关于问问大师 */
 export const ABOUT = Object.freeze({
-  kicker: 'ABOUT · 问问大师',
+  kicker: '版本与使用说明',
   title: '关于问问大师',
   lead: '用不同的视角，给自己一点思考的空间。',
   sections: [

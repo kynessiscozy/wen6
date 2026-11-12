@@ -162,7 +162,7 @@ function _updateHomeIntro() {
   }
   const heading = document.createElement('div');
   heading.className = 'chat-home-intro-title';
-  heading.textContent = hasKey ? '准备好了' : '开始之前';
+  heading.textContent = !hasKey ? '需要配置 AI' : hasChart ? '命盘已载入' : '可以直接提问';
   const message = document.createElement('p');
   message.textContent = !hasKey
     ? (hasChart ? '配置 AI 后可以开始对话。' : '配置 AI 后可以开始对话；如需命盘解读，也可以先填写出生信息。')
@@ -188,9 +188,9 @@ function _updateHomeIntro() {
 
 // A suggestion is only a draft: it never submits or replaces existing text.
 const STARTER_PROMPTS = [
-  ['聊聊迷茫', '我最近有些迷茫，可以陪我理一理吗？'],
-  ['关系困惑', '我想聊聊关系里遇到的困惑。'],
-  ['做个选择', '我想理清一个正在面对的选择。'],
+  ['事业下一步', '我在考虑下一步职业选择，想先理清哪些现实因素？'],
+  ['关系沟通', '我和对方在……上有分歧，怎样把问题说清楚？'],
+  ['比较选择', '我在 A 与 B 之间犹豫，能按成本、风险和时间帮我比较吗？'],
 ];
 
 function _syncStarters() {
@@ -215,7 +215,7 @@ function _renderStarters(body) {
     group.setAttribute('aria-label', '提问灵感');
     const title = document.createElement('div');
     title.className = 'chat-starters-title';
-    title.textContent = '不知道从哪开始？';
+    title.textContent = '可以从这些具体问题开始';
     const list = document.createElement('div');
     list.className = 'chat-starters-list';
     STARTER_PROMPTS.forEach(([label, prompt]) => {
