@@ -238,6 +238,7 @@
   #s-immersion .story-choices{position:relative;z-index:1;margin-top:36px;display:flex;gap:12px;flex-wrap:wrap;justify-content:center;opacity:0;transform:translateY(10px);pointer-events:none;transition:opacity .6s ease,transform .6s ease}
   #s-immersion .story-choices.show{opacity:1;transform:none;pointer-events:auto}
   #s-immersion .story-choices button{appearance:none;border:none;cursor:pointer;font:inherit;font-size:15.5px;letter-spacing:.08em;color:#2a1c10;background:rgba(243,233,220,.93);padding:13px 26px;border-radius:999px;box-shadow:0 8px 24px rgba(0,0,0,.45)}
+  #s-immersion.branching .line,#s-immersion.branching .story-choices{opacity:0!important;pointer-events:none!important;transition:opacity .45s ease}
   #s-loading img{display:none}
   #s-loading .load-shade{position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(var(--shade-rgb),.25),rgba(var(--shade-rgb),.78))}
   #s-loading .load-inner{position:relative;z-index:1;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
@@ -724,9 +725,26 @@
     lines.forEach(function(el,i){setTimeout(function(){el.classList.add('show')},500+i*1250);});
     storyTimer=setTimeout(function(){$('#storyChoices').classList.add('show');},500+lines.length*1250+350);
   });
-  $('#btnSkipStory').addEventListener('click',function(){if(storyTimer)clearTimeout(storyTimer);startQuiz();});
+  $('#btnSkipStory').addEventListener('click',function(){if(storyTimer)clearTimeout(storyTimer);branchDone=true;if(branchTimer)clearTimeout(branchTimer);startQuiz();});
+  var branchTimer=null,branchDone=false;
+  function playBranch(src){
+    var iv=$('#immVideo');if(!iv||!src){startQuiz();return;}
+    branchDone=false;
+    document.getElementById('s-immersion').classList.add('branching');
+    iv.loop=false;iv.src=src;iv.load();
+    try{iv.currentTime=0;}catch(e){}
+    var pr=iv.play();if(pr&&pr.catch)pr.catch(function(){});
+    var finish=function(){if(branchDone)return;branchDone=true;if(branchTimer)clearTimeout(branchTimer);iv.removeEventListener('ended',finish);startQuiz();};
+    iv.addEventListener('ended',finish);
+    branchTimer=setTimeout(finish,9000);
+  }
   [].slice.call(document.querySelectorAll('#storyChoices button')).forEach(function(b){
-    b.addEventListener('click',function(){if(storyTimer)clearTimeout(storyTimer);bump('story_'+b.getAttribute('data-act'));startQuiz();});
+    b.addEventListener('click',function(){
+      if(storyTimer)clearTimeout(storyTimer);
+      var act=b.getAttribute('data-act');bump('story_'+act);
+      var B=window.__wenBranchSrc||{};var src=B[act]||'';
+      if(src)playBranch(src);else startQuiz();
+    });
   });
 
   /* 问卷定义 */
@@ -1144,7 +1162,7 @@ var PERSONAS={
     ritual:'./art/yuchen-ritual.mp4?v=76',ritualPoster:'./art/yuchen-lord.webp',
     quiz:'./art/yuchen-quiz.mp4?v=76',poster:'./art/yuchen-lord.webp',firstLine:'玉宸正在为你看事业…'},
   moonfox:{name:'月白',title:'神秘人',focus:'全能推演',entry:'./art/yuebai-entry.mp4?v=76',entryPoster:'./art/yuebai-lord.webp',
-    ritual:'./art/yuebai-ritual.mp4?v=76',ritualPoster:'./art/yuebai-lord.webp',
+    ritual:'./art/yuebai-ritual.mp4?v=76',ritualPoster:'./art/yuebai-lord.webp',look:'./art/yuebai-look.mp4?v=76',sit:'./art/yuebai-sit.mp4?v=76',
     quiz:'./art/yuebai-quiz.mp4?v=76',poster:'./art/yuebai-lord.webp',firstLine:'月白正在为你翻册…'},
   xiyao:{name:'夕瑶',title:'姻缘',focus:'姻缘推演',entry:'./art/xiyao-entry.mp4?v=76',entryPoster:'./art/xiyao-lord.webp',
     ritual:'./art/xiyao-ritual.mp4?v=76',ritualPoster:'./art/xiyao-lord.webp',
@@ -1210,6 +1228,8 @@ function fmApplyPersona(key){
   var P=PERSONAS[key];if(!P)return;
   window.__wenSetFunnelTheme(key);
   window.__wenSelectedPersona=key;
+  window.__wenBranchSrc={look:P.look||'',sit:P.sit||''};
+  [P.look,P.sit].forEach(function(u){if(u){try{fetch(u).catch(function(){});}catch(e){}}});
   try{localStorage.setItem('wen_funnel_persona',key);}catch(e){}
   fmSetVideo('#entryVideo',P.entry,P.entryPoster);
   var bn=fm$('#brandName');if(bn)bn.textContent=P.name;

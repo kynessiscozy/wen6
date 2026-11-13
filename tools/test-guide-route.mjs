@@ -224,8 +224,8 @@ ok(copyJs.includes('阅读路线') && copyJs.includes('引路人指引') &&
    funnelHtml.includes('合并后的「同行 / 引路人指引」卡') &&
    (await read('README.md')).includes('合并后的「同行 / 引路人指引」卡'),
   '使用指南 / 关于 / FAQ / README 口径统一为「一张合并卡 + 引路人决定阅读路线」');
-ok(APP_CACHE_VERSION === 'v83' && GUIDE_VIDEO_VERSION === 'v76' && GUIDE_VIDEO_QUERY === '?v=76',
-  '应用缓存升 v83，视频素材保持 v76');
+ok(APP_CACHE_VERSION === 'v84' && GUIDE_VIDEO_VERSION === 'v76' && GUIDE_VIDEO_QUERY === '?v=76',
+  '应用缓存升 v84，视频素材保持 v76');
 ok(sw.includes(`const CACHE = 'wenda-cache-${APP_CACHE_VERSION}';`), 'SW 缓存与 APP_CACHE_VERSION 同步');
 ok(pkg.scripts['test:guide-route'] === 'node tools/test-guide-route.mjs' &&
    pkg.scripts['test:unit'].includes('node tools/test-guide-route.mjs'),
