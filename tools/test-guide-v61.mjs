@@ -135,10 +135,10 @@ ok(sw.includes(`'art/xingluo-observatory-wide.webp'`) &&
 /* ---- 4. 版本、缓存与入口文案 ---- */
 const pkg = JSON.parse(await read('package.json'));
 const indexHtml = await read('index.html');
-ok(APP_CACHE_VERSION === 'v86' && sw.includes(`const CACHE = 'wenda-cache-${APP_CACHE_VERSION}';`),
+ok(APP_CACHE_VERSION === 'v87' && sw.includes(`const CACHE = 'wenda-cache-${APP_CACHE_VERSION}';`),
   'Service Worker 缓存版本与应用构建同步升级，不再绑死视频素材版本');
-ok(!funnel.includes('?v=75') && (funnel.match(/\?v=76/g) || []).length === 29,
-  '漏斗 29 处视频引用全部在 v=76（含月白/玉宸/焱绒沉浸分支 look/sit 六条），旧 v=75 已清零');
+ok(!funnel.includes('?v=75') && (funnel.match(/\?v=76/g) || []).length === 35,
+  '漏斗 35 处视频引用全部在 v=76（六位引路人沉浸分支 look/sit 十二条齐全），旧 v=75 已清零');
 ok(PRODUCT.version === 'wen6.0' && pkg.productVersion === 'wen6.0' && pkg.version === '6.0.0',
   'V6.1 是引路人革新规格，对外产品版本仍为 wen6.0 / npm 6.0.0');
 ok(indexHtml.includes('wen6.0') && funnel.includes('wen6.0') && (await read('README.md')).includes('wen6.0'),
