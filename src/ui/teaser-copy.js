@@ -14,8 +14,8 @@
 
 import { streamAskAnswer } from '../ai/index.js';
 
-const CACHE_KEY = 'wen_teaser_copy_v3';
-const CACHE_VERSION = 'v3';
+const CACHE_KEY = 'wen_teaser_copy_v4';
+const CACHE_VERSION = 'v4';
 const MAX_CACHE_ENTRIES = 12;
 
 const CONCERN_LABELS = Object.freeze({
@@ -121,7 +121,7 @@ export async function generateTeaserCopy({
   });
 
   const text = sanitize(result?.text);
-  if (!text || text.length < 16 || text.length > 160) {
+  if (!text || text.length < 16 || text.length > 60) {
     throw new Error('云端文案长度异常');
   }
   writeCache(id, text);

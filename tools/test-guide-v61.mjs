@@ -135,7 +135,7 @@ ok(sw.includes(`'art/xingluo-observatory-wide.webp'`) &&
 /* ---- 4. 版本、缓存与入口文案 ---- */
 const pkg = JSON.parse(await read('package.json'));
 const indexHtml = await read('index.html');
-ok(APP_CACHE_VERSION === 'v80' && sw.includes(`const CACHE = 'wenda-cache-${APP_CACHE_VERSION}';`),
+ok(APP_CACHE_VERSION === 'v81' && sw.includes(`const CACHE = 'wenda-cache-${APP_CACHE_VERSION}';`),
   'Service Worker 缓存版本与应用构建同步升级，不再绑死视频素材版本');
 ok(!funnel.includes('?v=75') && (funnel.match(/\?v=76/g) || []).length === 23,
   '漏斗 23 处视频引用全部换到 v=76，旧 v=75 已清零');

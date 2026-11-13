@@ -196,8 +196,8 @@ ok(teaserJs.includes('<details class="ft-card ft-toc-fold') && teaserJs.includes
   '完整报告目录默认收起，内容层不再一次铺满文字');
 ok(!teaserJs.includes('DAY_MASTER_TONE') && !teaserJs.includes('PERSONA.circle'),
   '本地兜底开场白删掉重复 lead、三十字性格长句与「下面三处」');
-ok(teaserCopyJs.includes('40–60 字') && teaserCopyJs.includes("'wen_teaser_copy_v3'") &&
-   teaserCopyJs.includes("CACHE_VERSION = 'v3'"),
+ok(teaserCopyJs.includes('40–60 字') && teaserCopyJs.includes("'wen_teaser_copy_v4'") &&
+   teaserCopyJs.includes("CACHE_VERSION = 'v4'"),
   '云端开场白限 40–60 字并换新缓存键，旧长文案不会继续显示');
 ok(!personaJs.includes('hooksTitle:') && !personaJs.includes('circle:') && !personaJs.includes('lead:'),
   '开场白 / 钩子标题收敛到 guide-route.js 单一数据源');
@@ -224,8 +224,8 @@ ok(copyJs.includes('阅读路线') && copyJs.includes('引路人指引') &&
    funnelHtml.includes('合并后的「同行 / 引路人指引」卡') &&
    (await read('README.md')).includes('合并后的「同行 / 引路人指引」卡'),
   '使用指南 / 关于 / FAQ / README 口径统一为「一张合并卡 + 引路人决定阅读路线」');
-ok(APP_CACHE_VERSION === 'v80' && GUIDE_VIDEO_VERSION === 'v76' && GUIDE_VIDEO_QUERY === '?v=76',
-  '应用缓存升 v80，视频素材保持 v76');
+ok(APP_CACHE_VERSION === 'v81' && GUIDE_VIDEO_VERSION === 'v76' && GUIDE_VIDEO_QUERY === '?v=76',
+  '应用缓存升 v81，视频素材保持 v76');
 ok(sw.includes(`const CACHE = 'wenda-cache-${APP_CACHE_VERSION}';`), 'SW 缓存与 APP_CACHE_VERSION 同步');
 ok(pkg.scripts['test:guide-route'] === 'node tools/test-guide-route.mjs' &&
    pkg.scripts['test:unit'].includes('node tools/test-guide-route.mjs'),
