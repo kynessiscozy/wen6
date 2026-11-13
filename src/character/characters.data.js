@@ -162,6 +162,7 @@ export const XINGLUO = defineCharacter({
   camera: { closeScale: 1.04, fullBody: true },
   assets: {
     portrait: { src: './art/xingluo-v61.webp', alt: '星罗身着白衬衫与午夜蓝占星袍褂，佩黄铜星盘吊坠，手持羊皮纸星图卷', width: 1000, height: 1800 },
+    hero: { src: './art/xingluo-action.webp', alt: '星罗指尖轻点，身侧星空连成星座，臂下夹着星图卷', width: 900, height: 1800 },
     avatar: { src: './art/xingluo-v61-avatar.webp', alt: '', width: 192, height: 192 },
   },
   motion: { src: './art/xingluo-invite.mp4?v=75', poster: './art/xingluo-lord.webp', width: 672, height: 1344 },
