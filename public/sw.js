@@ -1,6 +1,6 @@
 /* 问问大师 PWA：离线可用 + 秒开的缓存策略。
    静态资源带 hash，可长期缓存；HTML 走 network-first 保证更新及时。 */
-const CACHE = 'wenda-cache-v82';
+const CACHE = 'wenda-cache-v83';
 const BASE = './';
 
 const OPTIONAL_ASSETS = [
@@ -62,6 +62,9 @@ const OPTIONAL_ASSETS = [
   'art/diyan-v61.webp', 'art/diyan-v61-avatar.webp',
   'art/muse-v61.webp', 'art/muse-v61-avatar.webp',
   'art/xingluo-v61.webp', 'art/xingluo-v61-avatar.webp',
+  // 动作版头图插画（东方视图整幅呈现；星罗待补）。
+  'art/moonfox-action.webp', 'art/yuchen-action.webp', 'art/xingling-action.webp',
+  'art/diyan-action.webp', 'art/muse-action.webp',
 ];
 
 self.addEventListener('install', (e) => {

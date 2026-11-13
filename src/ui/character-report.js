@@ -201,6 +201,17 @@ function makeHero(id, theme, ctx, western, isDemo, overview, astro, perspective)
   picture.append(mobile, background);
   const figure = makePortrait(theme.character, 'result-character-figure', true);
   scene.append(picture, figure);
+  // 动作版完整插画（2026-11-13 用户定）：东方视图下整幅压场呈现，不再抠图合成；
+  // 西方视图仍是 3D 星盘 + 定妆立绘（CSS 按体系切换）。星罗待补，补齐后自动生效。
+  const heroAsset = theme.character.assets.hero;
+  if (heroAsset?.src) {
+    const heroArt = element('img', 'result-character-heroart');
+    heroArt.src = heroAsset.src;
+    heroArt.alt = '';
+    heroArt.decoding = 'async';
+    scene.classList.add('has-heroart');
+    scene.append(heroArt);
+  }
   visual.append(scene);
   hero.append(visual);
 

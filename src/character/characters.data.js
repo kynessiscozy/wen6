@@ -30,6 +30,7 @@ export const EARTHFIRE_SOVEREIGN = defineCharacter({
   camera: { closeScale: 1.04, fullBody: true },
   assets: {
     portrait: { src: './art/diyan-v61.webp', alt: '焱绒身着黑金长袍，垂金铜钱串立于藏宝阁', width: 1000, height: 1800 },
+    hero: { src: './art/diyan-action.webp', alt: '焱绒掌心托金元宝向镜头递出', width: 900, height: 1350 },
     avatar: { src: './art/diyan-v61-avatar.webp', alt: '', width: 192, height: 192 },
   },
   motion: { src: './art/diyan-invite.mp4?v=75', poster: './art/diyan-lord.webp', width: 672, height: 1344 },
@@ -44,6 +45,7 @@ export const JADE_EMPRESS = defineCharacter({
   camera: { closeScale: 1.04, fullBody: true },
   assets: {
     portrait: { src: './art/yuchen-v61.webp', alt: '玉宸头戴绿玉凤冠，身着墨绿描金凤凰袍，手捧玉印', width: 1000, height: 1800 },
+    hero: { src: './art/yuchen-action.webp', alt: '玉宸将玉印托至胸前向镜头送出', width: 900, height: 1800 },
     avatar: { src: './art/yuchen-v61-avatar.webp', alt: '', width: 192, height: 192 },
   },
   motion: { src: './art/yuchen-invite.mp4?v=75', poster: './art/yuchen-lord.webp', width: 672, height: 1344 },
@@ -67,6 +69,7 @@ export const MOON_FOX = defineCharacter({
   camera: { closeScale: 1.04, fullBody: true },
   assets: {
     portrait: { src: './art/moonfox-v61.webp', alt: '月白身着银白冰蓝丝缎袍，执狐面具悬浮于水面，蓝色狐火环绕', width: 1000, height: 1800 },
+    hero: { src: './art/moonfox-action.webp', alt: '月白将狐面具举在脸侧，指尖萦绕狐火', width: 900, height: 1800 },
     avatar: { src: './art/moonfox-v61-avatar.webp', alt: '', width: 192, height: 192 },
   },
   motion: { src: './art/yuebai-invite.mp4?v=75', poster: './art/yuebai-lord.webp', width: 672, height: 1344 },
@@ -79,6 +82,7 @@ export const TAROT_MASTER = defineCharacter({
   camera: { closeScale: 1.04, fullBody: true },
   assets: {
     portrait: { src: './art/muse-v61.webp', alt: '絮羽身着梅子紫缎裙与黑西装披肩，指尖悬起一张卡罗牌，四周牌弧环绕', width: 1000, height: 1800 },
+    hero: { src: './art/muse-action.webp', alt: '絮羽将一张塔罗牌向镜头递出', width: 900, height: 1800 },
     avatar: { src: './art/muse-v61-avatar.webp', alt: '', width: 192, height: 192 },
   },
   motion: { src: './art/muse-invite.mp4?v=75', poster: './art/muse-lord.webp', width: 672, height: 1344 },
@@ -129,6 +133,7 @@ export const XIYAO = defineCharacter({
   camera: { closeScale: 1.04, fullBody: true },
   assets: {
     portrait: { src: './art/xingling-v61.webp', alt: '夕瑶身着粉白襦裙，执姻缘簿与一缕红线，立于桃花愿树下', width: 1000, height: 1800 },
+    hero: { src: './art/xingling-action.webp', alt: '夕瑶向镜头伸手牵红线，另一手抱着姻缘簿', width: 900, height: 1800 },
     avatar: { src: './art/xingling-v61-avatar.webp', alt: '', width: 192, height: 192 },
   },
   motion: { src: './art/xiyao-invite.mp4?v=75', poster: './art/xiyao-lord.webp', width: 672, height: 1344 },

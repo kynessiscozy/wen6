@@ -788,3 +788,22 @@ body.report-active #page2 .p2-scroll {
   #page2 .is-guide-companion-merged .result-character-figure,
   #page2 .is-guide-companion-merged .result-character-backdrop { animation: none; }
 }
+
+/* 动作版头图：东方视图整幅插画压场，西方视图回定妆立绘＋星盘。 */
+#page2 .result-character-heroart {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 16%;
+}
+#page2 .has-heroart .result-character-backdrop { opacity: 0; }
+#page2 .has-heroart .result-character-figure { display: none; }
+html[data-system-mode="western"] #page2 .result-character-heroart { display: none; }
+html[data-system-mode="western"] #page2 .has-heroart .result-character-figure { display: block; }
+#page2 .is-guide-companion-merged .result-character-heroart { animation: hero-backdrop-drift 26s ease-in-out infinite alternate; }
+@media (prefers-reduced-motion: reduce) {
+  #page2 .is-guide-companion-merged .result-character-heroart { animation: none; }
+}
