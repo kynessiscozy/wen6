@@ -727,9 +727,21 @@
   });
   $('#btnSkipStory').addEventListener('click',function(){if(storyTimer)clearTimeout(storyTimer);branchDone=true;if(branchTimer)clearTimeout(branchTimer);startQuiz();});
   var branchTimer=null,branchDone=false;
+  var branchBg=null;
+  var PAN_LOOKS=['xiyao-look','muse-look','xingluo-look'];
+  function isPanSrc(src){for(var i=0;i<PAN_LOOKS.length;i++){if(src.indexOf(PAN_LOOKS[i])>=0)return true;}return false;}
+  function branchLoopFrom(v){if(!branchBg||branchBg.pan)return 0;var d=v.duration||6;return Math.max(0,d-1.6);}
+  function useBranchBg(v){
+    if(!branchBg||!v)return;
+    if(v.getAttribute('src')!==branchBg.src){v.src=branchBg.src;try{v.load();}catch(e){}}
+    v.loop=false;
+    try{v.currentTime=branchLoopFrom(v);}catch(e){}
+    var pr=v.play();if(pr)pr.catch(function(){});
+  }
   function playBranch(src){
     var iv=$('#immVideo');if(!iv||!src){startQuiz();return;}
     branchDone=false;
+    branchBg={src:src,pan:isPanSrc(src)};
     document.getElementById('s-immersion').classList.add('branching');
     iv.loop=false;iv.src=src;iv.load();
     try{iv.currentTime=0;}catch(e){}
@@ -763,7 +775,17 @@
       {v:'family',t:'家人关系'},{v:'direction',t:'人生方向'}],skip:true}
   ];
   var qi=-1;
-  function startQuiz(){var iv=$('#immVideo');if(iv)iv.pause();show('quiz');qi=0;renderQ();}
+  function startQuiz(){
+    var iv=$('#immVideo');if(iv)iv.pause();
+    show('quiz');qi=0;renderQ();
+    var qv=document.querySelector('#s-quiz .quiz-bg');
+    if(branchBg&&qv){
+      useBranchBg(qv);
+      if(!qv.__branchLoop){qv.__branchLoop=true;qv.addEventListener('timeupdate',function(){
+        if(branchBg&&qv.getAttribute('src')===branchBg.src&&qv.duration&&qv.currentTime>=qv.duration-0.08){try{qv.currentTime=branchLoopFrom(qv);}catch(e){}}
+      });}
+    }
+  }
   /* 选项层叠入场：问卷挂载区内的直接子元素逐个升起 */
   function staggerIn(){
     var nodes=document.querySelectorAll('#qmount .opts .opt, #qmount .field, #qmount .rowbtns');
@@ -851,7 +873,10 @@
     flowLocked=true;pendingNav=null;qAnimating=false;
     show('inter');
     var v=document.querySelector('#s-inter .inter-video');
-    if(v){try{v.currentTime=0;}catch(e){}var pr=v.play();if(pr)pr.catch(function(){});}
+    if(v){
+      if(branchBg){useBranchBg(v);}
+      else{v.loop=true;try{v.currentTime=0;}catch(e){}var pr=v.play();if(pr)pr.catch(function(){});}
+    }
     setTimeout(function(){flowLocked=false;show('quiz');qi=target;renderQ();},2300);
   }
   function transitionTo(target,dir){
