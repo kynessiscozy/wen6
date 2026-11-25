@@ -4,6 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>问问大师 · 命盘厅</title>
+<script>
+  // 入口可经 ?provider=<id> 指定主应用的默认 AI 提供方（如空间版带 ?provider=exaone）：
+  // 本页跳转 index.html 时不带参数，故先把合法值写入本地，主应用读取同一键沿用。
+  (function(){try{var p=new URLSearchParams(location.search).get('provider');if(p&&['cloudbase','workbuddy','deepseek','openrouter','exaone'].indexOf(p)>=0)localStorage.setItem('tj_ai_provider',p);}catch(_){}})();
+</script>
 <meta name="description" content="选择同行引路人，回答几个小问题，探索你的命盘报告。">
 <meta name="theme-color" content="#090f17">
 <meta name="apple-mobile-web-app-capable" content="yes">

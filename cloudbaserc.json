@@ -1,0 +1,13 @@
+{
+  "envId": "cloudbase-d7ggqek66e8db0d6b",
+  "functionRoot": "cloudfunctions",
+  "functions": [
+    {
+      "name": "exaone-proxy",
+      "runtime": "Nodejs18.13",
+      "timeout": 60,
+      "memorySize": 256,
+      "handler": "index.main"
+    }
+  ]
+}

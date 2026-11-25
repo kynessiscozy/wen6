@@ -10,11 +10,21 @@ import * as openrouter from './openrouter.js';
 import * as deepseek from './deepseek.js';
 import * as workbuddy from './workbuddy-cloud.js';
 import * as cloudbaseAi from './cloudbase-ai.js';
+import * as exaone from './exaone.js';
 
 const LS_PROVIDER = 'tj_ai_provider';
-const PROVIDERS = ['cloudbase', 'workbuddy', 'deepseek', 'openrouter'];
+const PROVIDERS = ['cloudbase', 'workbuddy', 'deepseek', 'openrouter', 'exaone'];
 
 export function getProvider() {
+  // 入口可经 ?provider=<id> 指定默认提供方（如空间版嵌入地址带 ?provider=exaone）：
+  // 命中合法值即写入本地并沿用，漏斗页的同名参数由 funnel.html 的内联脚本先行写入。
+  try {
+    const q = new URLSearchParams(location.search).get('provider');
+    if (q && PROVIDERS.includes(q)) {
+      try { localStorage.setItem(LS_PROVIDER, q); } catch (_) {}
+      return q;
+    }
+  } catch (_) {}
   try { return localStorage.getItem(LS_PROVIDER) || 'cloudbase'; } catch (_) { return 'cloudbase'; }
 }
 export function setProvider(p) {
@@ -28,6 +38,7 @@ function active() {
   if (p === 'openrouter') return openrouter;
   if (p === 'deepseek') return deepseek;
   if (p === 'workbuddy') return workbuddy;
+  if (p === 'exaone') return exaone;
   return cloudbaseAi;
 }
 
@@ -44,11 +55,13 @@ export function onConnChange(fn) {
   const offDeepseek = deepseek.onConnChange(fn);
   const offWorkbuddy = workbuddy.onConnChange(fn);
   const offCloudbase = cloudbaseAi.onConnChange(fn);
+  const offExaone = exaone.onConnChange(fn);
   return () => {
     offOpenrouter && offOpenrouter();
     offDeepseek && offDeepseek();
     offWorkbuddy && offWorkbuddy();
     offCloudbase && offCloudbase();
+    offExaone && offExaone();
   };
 }
 
