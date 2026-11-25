@@ -7,7 +7,7 @@
    maxTokens}，返回 {text, model} 或 {error, code}，与
    src/ai/exaone.js 的约定一致）。Key 只随请求转发，不落盘、
    不写日志。仅监听 127.0.0.1:8080，供 Box 桌面浏览器本机访问。
-   运行：node deploy/box-server.js（工作目录任意，根目录按本文件位置推导）
+   运行：node deploy/box-server.cjs（工作目录任意，根目录按本文件位置推导）
    ============================================================ */
 const http = require('http');
 const fs = require('fs');

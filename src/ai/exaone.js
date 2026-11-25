@@ -4,7 +4,7 @@
    与其它提供方保持同一接口签名，由 ai/index.js 统一路由。
    EXAONE 接口（https://api.exaone.ai/v1）不允许浏览器跨域直连
    （CORS 预检被拒），故浏览器不直接请求它：请求发给本站同源的
-   中转端点 /api/exaone（部署服务器实现，见 deploy/box-server.js），
+   中转端点 /api/exaone（部署服务器实现，见 deploy/box-server.cjs），
    由服务器转发。用户的 Key 只随请求经中转转发，不落盘、不写
    日志；Key 本身仅存本地浏览器（ai-settings 的 tj_ai_apikey_exaone）。
    中转为一次性返回（非流式），回答整段到达后一次回传 UI。
