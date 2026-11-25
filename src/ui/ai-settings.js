@@ -113,7 +113,7 @@ function _providerInfo(p) {
     return '自行填写的 Key 保存在本机浏览器；使用 AI 或检测连接时会发送给所选服务商。对话与工具解读还会发送问题及相关上下文，请避免输入敏感信息。<br>获取地址：<a href="https://platform.deepseek.com/api_keys" target="_blank" rel="noopener">platform.deepseek.com/api_keys</a>';
   }
   if (p === 'exaone') {
-    return 'EXAONE 是 LG 的大模型（K-EXAONE 2.5）。其接口不允许浏览器直连，请求会经本站云函数中转：Key 保存在本机浏览器、使用时随请求发给云函数转发，不落盘。对话与工具解读还会发送问题及相关上下文，请避免输入敏感信息。<br>获取地址：<a href="https://exaone.ai" target="_blank" rel="noopener">exaone.ai</a>（登录后在控制台创建 API Key）';
+    return 'EXAONE 是 LG 的大模型（K-EXAONE 2.5）。其接口不允许浏览器直连，请求会经本站同源中转接口转发：Key 保存在本机浏览器、使用时随请求转发，不落盘。对话与工具解读还会发送问题及相关上下文，请避免输入敏感信息。<br>获取地址：<a href="https://exaone.ai" target="_blank" rel="noopener">exaone.ai</a>（登录后在控制台创建 API Key）';
   }
   return '自行填写的 Key 保存在本机浏览器；使用 AI 或检测连接时会发送给所选服务商。对话与工具解读还会发送问题及相关上下文，请避免输入敏感信息。<br>获取地址：<a href="https://openrouter.ai/keys" target="_blank" rel="noopener">openrouter.ai/keys</a>';
 }

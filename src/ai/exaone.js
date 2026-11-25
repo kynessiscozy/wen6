@@ -3,35 +3,19 @@
    ------------------------------------------------------------
    与其它提供方保持同一接口签名，由 ai/index.js 统一路由。
    EXAONE 接口（https://api.exaone.ai/v1）不允许浏览器跨域直连
-   （CORS 预检被拒），故浏览器不直接请求它：请求先经自有云开发
-   环境的云函数 exaone-proxy 中转（见 cloudfunctions/），用户的
-   Key 只随请求传入云函数，不落盘、不写日志；Key 本身仅存本地
-   浏览器（ai-settings 的 tj_ai_apikey_exaone）。
-   云函数为一次性返回（非流式），回答整段到达后一次回传 UI。
+   （CORS 预检被拒），故浏览器不直接请求它：请求发给本站同源的
+   中转端点 /api/exaone（部署服务器实现，见 deploy/box-server.js），
+   由服务器转发。用户的 Key 只随请求经中转转发，不落盘、不写
+   日志；Key 本身仅存本地浏览器（ai-settings 的 tj_ai_apikey_exaone）。
+   中转为一次性返回（非流式），回答整段到达后一次回传 UI。
    ============================================================ */
-
-import cloudbase from '@cloudbase/js-sdk';
-import { cloudbaseConfig } from './cloudbase-config.js';
 
 export const ASK_MODELS = ['k-exaone_v2.5'];
 export const TOOL_MODELS = ['k-exaone_v2.5'];
 export const MODEL_LABELS = Object.freeze({
   'k-exaone_v2.5': 'EXAONE 2.5',
 });
-const FN_NAME = 'exaone-proxy';
-
-/* 独立客户端（长超时）：云函数要等 EXAONE 整段生成完才返回。 */
-let _app = null;
-function getApp() {
-  if (_app) return _app;
-  _app = cloudbase.init({
-    env: cloudbaseConfig.env,
-    region: cloudbaseConfig.region,
-    accessKey: cloudbaseConfig.accessKey,
-    timeout: 90000,
-  });
-  return _app;
-}
+const RELAY_URL = '/api/exaone';
 
 /* ============================================================
    连接状态探针
@@ -81,22 +65,21 @@ function abortError() {
   return e;
 }
 
-/**
- * 调云函数中转。SDK 的 callFunction 不吃 AbortSignal：
- * 用 Promise.race 实现取消（云端调用会自然跑完，结果被丢弃）。
- */
+/** 调本站同源中转端点；fetch 原生支持 AbortSignal。 */
 async function callProxy(data, signal) {
-  if (signal?.aborted) throw abortError();
-  const p = getApp().callFunction({ name: FN_NAME, data });
-  const res = signal
-    ? await Promise.race([
-        p,
-        new Promise((_, reject) => {
-          signal.addEventListener('abort', () => reject(abortError()), { once: true });
-        }),
-      ])
-    : await p;
-  const result = (res && res.result) || {};
+  let res;
+  try {
+    res = await fetch(RELAY_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+      signal,
+    });
+  } catch (err) {
+    if (err?.name === 'AbortError' || signal?.aborted) throw abortError();
+    throw new Error('EXAONE 中转接口不可达：请确认本站以带中转端点的服务方式运行');
+  }
+  const result = await res.json().catch(() => ({}));
   if (result.error) {
     if (result.code === 'missing_key') throw new Error('未配置 EXAONE API 密钥：请在 AI 设置中粘贴你的 EXAONE Key');
     if (result.code === 'upstream_401' || result.code === 'upstream_403') throw new Error('EXAONE 密钥无效或已过期：请在 AI 设置中更新 Key');
@@ -106,7 +89,7 @@ async function callProxy(data, signal) {
 }
 
 /* ============================================================
-   流式问答 — 云函数整段返回，签名与其它提供方一致
+   流式问答 — 中转整段返回，签名与其它提供方一致
    返回 { text, model }
    ============================================================ */
 export async function streamAskAnswer({
