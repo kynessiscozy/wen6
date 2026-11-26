@@ -96,7 +96,7 @@ ok(funnelHtml.includes('id="btnStart"') && funnelHtml.includes('进入命盘厅'
 ok(sw.includes(`const CACHE = 'wenda-cache-${APP_CACHE_VERSION}';`) &&
    sw.includes("'art/cta-foil.webp'"),
   '新贴图纳入 SW 预缓存，缓存版本随素材升位');
-ok(APP_CACHE_VERSION === 'v88' && GUIDE_VIDEO_VERSION === 'v76' && GUIDE_VIDEO_QUERY === '?v=76',
+ok(APP_CACHE_VERSION === 'v89' && GUIDE_VIDEO_VERSION === 'v76' && GUIDE_VIDEO_QUERY === '?v=76',
   '应用缓存升 v88，视频素材版本保持 v76');
 ok(preview.includes('cta-foil.webp') && preview.includes('cta-seal') &&
    preview.includes('cta-arrow') && preview.includes('改动前'),

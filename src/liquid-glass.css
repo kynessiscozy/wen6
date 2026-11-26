@@ -234,66 +234,11 @@ html[data-theme] body .gs-seg .gs-opt.active::before {
 }
 
 /* ghost 按钮用 surface 流光，避免盖过文字 */
-html[data-theme] body .home-cta-ghost::before {
-  background: linear-gradient(
-    115deg,
-    transparent 30%,
-    color-mix(in srgb, var(--c-surface-3) 55%, transparent) 46%,
-    color-mix(in srgb, var(--c-surface-4) 75%, transparent) 54%,
-    transparent 70%
-  );
-  background-size: 200% 100%;
-}
 
 /* ---------- 4.1 首页 CTA 质感增强（玻璃高光 + 立体阴影 + 更强液态流光） ---------- */
 /* 主按钮：实色底叠加玻璃顶部高光与底部内阴影，强化液态光泽与体积感 */
-html[data-theme] body .home-cta::before {
-  background: linear-gradient(
-    115deg,
-    transparent 28%,
-    rgba(255, 255, 255, .42) 46%,
-    rgba(255, 255, 255, .62) 54%,
-    transparent 72%
-  );
-  opacity: 0.5;
-}
-html[data-theme] body .home-cta {
-  box-shadow:
-    0 10px 28px color-mix(in srgb, var(--c-accent) 46%, transparent),
-    inset 0 1.5px 0 rgba(255, 255, 255, .45),
-    inset 0 -3px 9px rgba(0, 0, 0, .16) !important;
-}
-html[data-theme] body .home-cta:hover {
-  box-shadow:
-    0 15px 38px color-mix(in srgb, var(--c-accent) 56%, transparent),
-    inset 0 1.5px 0 rgba(255, 255, 255, .52),
-    inset 0 -3px 9px rgba(0, 0, 0, .16) !important;
-}
-html[data-theme] body .home-cta:active {
-  box-shadow:
-    0 6px 18px color-mix(in srgb, var(--c-accent) 42%, transparent),
-    inset 0 1.5px 0 rgba(255, 255, 255, .32),
-    inset 0 2px 9px rgba(0, 0, 0, .26) !important;
-}
+
 /* 幽灵按钮（日历模式）：升级为玻璃质感，与整体玻璃语言统一，文字更清晰 */
-html[data-theme] body .home-cta-ghost {
-  background: var(--glass-tint) !important;
-  backdrop-filter: blur(12px) saturate(135%) !important;
-  -webkit-backdrop-filter: blur(12px) saturate(135%) !important;
-  color: var(--c-text-2) !important;
-  border: 1px solid var(--glass-border) !important;
-  box-shadow: var(--glass-shadow) !important;
-}
-html[data-theme] body .home-cta-ghost:hover {
-  background: color-mix(in srgb, var(--c-surface-3) 50%, var(--glass-tint)) !important;
-  border-color: color-mix(in srgb, var(--c-text-4) 75%, transparent) !important;
-  box-shadow: var(--glass-shadow) !important;
-}
-html[data-theme] body .home-cta-ghost:active {
-  box-shadow:
-    var(--glass-shadow),
-    inset 0 2px 9px rgba(0, 0, 0, .2) !important;
-}
 
 /* ---------- 5. 首页标题轻盈化 ---------- */
 html[data-theme] body.home .home-hero {
@@ -325,55 +270,13 @@ html[data-theme="dark"] body.home .home-hero-sub {
 }
 
 /* ---------- 6. 中央液态光球 ---------- */
-.liquid-orb {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  z-index: 1;
-  pointer-events: none;
-  filter: blur(9px) saturate(125%);
-  will-change: filter; /* 提示浏览器独立合成层，避免 blur 重算时连带重绘整页 */
-  opacity: 1;
-  transition: opacity 0.6s ease;
-}
+
 body:not(.home) .liquid-orb,
 body.report-active .liquid-orb {
   opacity: 0;
 }
 
 /* 静态回退：无 JS 或 reduced-motion 时显示 CSS 渐变球 */
-.liquid-orb-static {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  width: 38vmin;
-  height: 38vmin;
-  transform: translate(-50%, -54%);
-  border-radius: 50%;
-  background:
-    radial-gradient(circle at 38% 32%, var(--orb-core) 0%, transparent 46%),
-    radial-gradient(circle at 62% 68%, color-mix(in srgb, var(--orb-b) 60%, transparent) 0%, transparent 50%),
-    radial-gradient(circle at 50% 50%, var(--orb-a) 0%, color-mix(in srgb, var(--orb-c) 55%, transparent) 72%, transparent 100%);
-  filter: blur(28px);
-  opacity: 0.42;
-  z-index: 0;
-  pointer-events: none;
-}
-
-@media (min-width: 768px) {
-  .liquid-orb-static {
-    width: 22vmin;
-    height: 22vmin;
-    top: 50%;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .liquid-orb { opacity: 0 !important; }
-  .liquid-orb-static { opacity: 0.38 !important; }
-}
 
 /* ---------- 7. 菜单抽屉 ----------
    首页与结果页侧边栏统一使用 enhance.css 的基础实色样式，
@@ -385,103 +288,16 @@ html[data-theme] body:not(.home) .home-orb-palette-btn,
 html[data-theme] body:not(.home) .home-orb-palette-panel {
   display: none !important;
 }
-html[data-theme] body .home-orb-palette-btn {
-  position: fixed !important;
-  top: max(14px, env(safe-area-inset-top)) !important;
-  right: 64px !important;
-  z-index: 1100 !important;
-  width: 42px !important;
-  height: 42px !important;
-  min-width: 42px !important;
-  min-height: 42px !important;
-  padding: 0 !important;
-  border-radius: 50% !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  background: var(--glass-tint) !important;
-  backdrop-filter: blur(10px) saturate(120%) !important;
-  -webkit-backdrop-filter: blur(10px) saturate(120%) !important;
-  border: 1px solid var(--glass-border) !important;
-  box-shadow: var(--glass-shadow) !important;
-  cursor: pointer !important;
-  transition: transform .2s var(--ig-dock-ease, ease), box-shadow .18s ease !important;
-  -webkit-tap-highlight-color: transparent;
-}
-html[data-theme] body .home-orb-palette-btn:hover {
-  transform: translateY(-1px) !important;
-  border-color: color-mix(in srgb, var(--glass-border) 68%, rgba(255,255,255,.3)) !important;
-  box-shadow: var(--glass-shadow), 0 6px 18px rgba(0,0,0,.14) !important;
-}
-html[data-theme] body .home-orb-palette-btn:active {
-  transform: translateY(0) scale(.94) !important;
-}
-html[data-theme] body .home-orb-palette-btn .home-orb-palette-icon {
-  width: 24px !important;
-  height: 24px !important;
-  display: block !important;
-  fill: none !important;
-  animation: aiOrbBreath 3.6s ease-in-out infinite !important;
-}
-html[data-theme] body .home-orb-palette-btn .home-orb-palette-core {
-  transform-origin: 12px 12px;
-}
 
 /* 调色面板：玻璃卡片，位于右上角按钮下方 */
-html[data-theme] body .home-orb-palette-panel {
-  position: fixed !important;
-  top: calc(max(14px, env(safe-area-inset-top)) + 54px) !important;
-  right: 64px !important;
-  z-index: 1150 !important;
-  width: 240px !important;
-  padding: 14px !important;
-  border-radius: 18px !important;
-  background: color-mix(in srgb, var(--c-surface) 46%, transparent) !important;
-  backdrop-filter: blur(26px) saturate(140%) !important;
-  -webkit-backdrop-filter: blur(26px) saturate(140%) !important;
-  border: 1px solid var(--glass-border) !important;
-  box-shadow: 0 20px 50px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.10) !important;
-  opacity: 0 !important;
-  visibility: hidden !important;
-  transform: translateY(-8px) !important;
-  transition: opacity .22s ease, transform .22s ease, visibility .22s !important;
-  pointer-events: none !important;
-}
+
 html[data-theme] body .home-orb-palette-panel.open {
   opacity: 1 !important;
   visibility: visible !important;
   transform: translateY(0) !important;
   pointer-events: auto !important;
 }
-html[data-theme] body .home-orb-palette-head {
-  font-size: 13px !important;
-  font-weight: 700 !important;
-  color: var(--c-text-2) !important;
-  margin-bottom: 12px !important;
-  letter-spacing: .04em !important;
-}
-html[data-theme] body .home-orb-palette-grid {
-  display: grid !important;
-  grid-template-columns: repeat(4, 1fr) !important;
-  gap: 10px !important;
-}
-html[data-theme] body .home-orb-palette-swatch {
-  width: 100% !important;
-  aspect-ratio: 1 !important;
-  border-radius: 12px !important;
-  border: 1px solid var(--glass-border) !important;
-  box-shadow: inset 0 1px rgba(255,255,255,.25), 0 3px 8px rgba(0,0,0,.14) !important;
-  cursor: pointer !important;
-  position: relative !important;
-  transition: transform .16s ease, box-shadow .16s ease !important;
-}
-html[data-theme] body .home-orb-palette-swatch:hover {
-  transform: translateY(-2px) !important;
-  box-shadow: inset 0 1px rgba(255,255,255,.25), 0 6px 14px rgba(0,0,0,.2) !important;
-}
-html[data-theme] body .home-orb-palette-swatch:active {
-  transform: scale(.92) !important;
-}
+
 html[data-theme] body .home-orb-palette-swatch.active::after {
   content: '' !important;
   position: absolute !important;
@@ -490,15 +306,6 @@ html[data-theme] body .home-orb-palette-swatch.active::after {
   border: 2px solid var(--c-text-hi) !important;
   opacity: .7 !important;
   pointer-events: none !important;
-}
-html[data-theme] body .home-orb-palette-swatch .home-orb-palette-name {
-  position: absolute !important;
-  left: 50% !important;
-  bottom: -16px !important;
-  transform: translateX(-50%) !important;
-  font-size: 10px !important;
-  color: var(--c-text-4) !important;
-  white-space: nowrap !important;
 }
 
 /* 首页菜单分区沿用基础列表样式；玻璃按钮只保留全局 .pf-io-btn，
@@ -695,8 +502,8 @@ html[data-theme] body .ai-dialogue-text {
 }
 
 /* ---------- 15. 性能与无障碍回退 ---------- */
-@media (prefers-reduced-motion: reduce) {
-  html[data-theme] body .home-cta::before,
+@media (prefers-reduced-motion: reduce){
+html[data-theme] body .home-cta::before,
   html[data-theme] body .home-cta-ghost::before,
   html[data-theme] body .home-menu-footer button::before,
   html[data-theme] body .pf-io-btn::before,
@@ -720,9 +527,6 @@ html[data-theme] body .ai-dialogue-text {
     animation: none !important;
   }
   /* 调色盘按钮图标呼吸：减弱动效偏好下静止 */
-  html[data-theme] body .home-orb-palette-btn .home-orb-palette-icon {
-    animation: none !important;
-  }
 }
 
 /* ---------- 12. 结果页背景与卡片可读性 ----------

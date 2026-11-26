@@ -48,6 +48,15 @@ const earlyMenu = (...args) => queueAction('toggleHomeMenu', args, 'homeMenuBtn'
 const earlyCalendar = (...args) => queueAction('openCalendarMode', args, 'homeCtaCal');
 if (typeof window.toggleHomeMenu !== 'function') window.toggleHomeMenu = earlyMenu;
 if (typeof window.openCalendarMode !== 'function') window.openCalendarMode = earlyCalendar;
+/* The ask panel cannot open before the main module is wired; queue the tap
+   and replay it once tj:app-ready fires. */
+if (typeof window.openAsk !== 'function') {
+  window.openAsk = () => {
+    clearPendingFeedback();
+    pendingAction = { name: 'openAsk', args: [] };
+    loadMain();
+  };
+}
 window.addEventListener('tj:app-ready', () => {
   const action = pendingAction;
   pendingAction = null;
@@ -78,13 +87,38 @@ export const characterCompanion = initCharacterCompanion({
 export const homeThemePicker = initHomeTheme({ setHomeCharacter: characterCompanion.setHomeCharacter });
 
 // Heavy report engines are not required to render or operate the home scene.
-import('./main.js').catch(error => {
-  mainLoadFailed = true;
-  console.error('[app] 加载失败', error);
-  window.__wenFlow?.onAppLoadFailed?.();
-  if (pendingAction) {
-    pendingButton?.removeAttribute('aria-busy');
-    if (pendingLabel) pendingLabel.textContent = '请刷新重试';
-    if (status) status.textContent = '加载失败，请检查网络后刷新页面';
+// Load them with low priority: on idle (or a hard fallback timer), immediately
+// on the first real interaction, and immediately when a funnel handoff or an
+// in-app deep link needs the app. Data-saver / 2G visitors only pay for what
+// they actually use.
+let mainLoadPromise = null;
+function loadMain() {
+  if (mainLoadPromise) return mainLoadPromise;
+  mainLoadPromise = import('./main.js').catch(error => {
+    mainLoadFailed = true;
+    console.error('[app] 加载失败', error);
+    window.__wenFlow?.onAppLoadFailed?.();
+    if (pendingAction) {
+      pendingButton?.removeAttribute('aria-busy');
+      if (pendingLabel) pendingLabel.textContent = '请刷新重试';
+      if (status) status.textContent = '加载失败，请检查网络后刷新页面';
+    }
+  });
+  return mainLoadPromise;
+}
+const entryIntent = window.__wenEntryIntent || {};
+const needsAppNow = document.documentElement.dataset.handoff === 'pending' || !!(entryIntent.menu || entryIntent.panel);
+const saveData = !!(navigator.connection && (navigator.connection.saveData || /(^|-)2g$/.test(navigator.connection.effectiveType || '')));
+if (needsAppNow) {
+  loadMain();
+} else {
+  if (!saveData) {
+    if (typeof window.requestIdleCallback === 'function') {
+      window.requestIdleCallback(() => loadMain(), { timeout: 1500 });
+    } else {
+      window.setTimeout(() => loadMain(), 800);
+    }
   }
-});
+  ['pointerdown', 'keydown', 'wheel', 'touchstart', 'focusin'].forEach(type =>
+    window.addEventListener(type, () => loadMain(), { once: true, capture: true, passive: true }));
+}

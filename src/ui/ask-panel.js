@@ -1,3 +1,4 @@
+import '../chat-master.css';
 import { getCtx } from '../state/context.js';
 import { KB } from '../ai/kb.js';
 import { KBSearch, smartAnswer, extractIntents, buildBaziContext, buildWesternContext } from '../ai/index.js';

@@ -1,3 +1,4 @@
+import '../character-calculation.css';
 import { HOME_THEMES } from './home-theme.js';
 import { focusSafely } from './focus.js';
 

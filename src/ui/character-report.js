@@ -1,3 +1,4 @@
+import '../character-report.css';
 import { HOME_THEMES } from './home-theme.js';
 import { buildGuidePerspective } from './guide-perspective.js';
 import { guideRouteFor, runGuideAction } from './guide-route.js';

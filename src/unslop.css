@@ -26,11 +26,11 @@
   margin-top: var(--sp-4, 16px);
   padding-top: var(--sp-3, 12px);
 }
-@media (max-width: 650px) {
-  #page1 .p1-inner { padding-inline: 20px; }
+@media (max-width: 650px){
+#page1 .p1-inner { padding-inline: 20px; }
 }
-@media (max-width: 360px) {
-  #page1 .p1-inner { padding-inline: 16px; }
+@media (max-width: 360px){
+#page1 .p1-inner { padding-inline: 16px; }
 }
 
 /* Birth details form: keep related fields together and avoid oversized gaps. */
@@ -39,8 +39,8 @@
 #formModal .form-grid { column-gap: var(--sp-4, 16px); row-gap: var(--sp-4, 16px); }
 #formModal .character-form-submit { margin-top: var(--sp-4, 16px); }
 #formModal .character-form-defaults { margin-top: var(--sp-2, 8px); }
-@media (max-width: 650px) {
-  #formModal .form-modal-sheet { padding: 24px 20px 20px; }
+@media (max-width: 650px){
+#formModal .form-modal-sheet { padding: 24px 20px 20px; }
 }
 
 /* Report rhythm: maintain the established card hierarchy and scenic chapters. */
@@ -51,10 +51,9 @@
 #page2 .guide-route { gap: var(--sp-2, 8px); }
 #page2 .guide-route-btn { gap: var(--sp-2, 8px); padding: var(--sp-2, 8px) var(--sp-3, 12px); }
 #page2 .character-prompt { gap: var(--sp-3, 12px); }
-#page2 .character-prompt--form { padding: var(--sp-2, 8px) var(--sp-3, 12px); }
-#page2 .character-prompt--report { padding: var(--sp-3, 12px); }
-@media (max-width: 420px) {
-  #page2 .guide-route-btn { gap: var(--sp-2, 8px); padding: var(--sp-2, 8px); }
+
+@media (max-width: 420px){
+#page2 .guide-route-btn { gap: var(--sp-2, 8px); padding: var(--sp-2, 8px); }
 }
 
 /* Keep the 3D carousel as the default; give its cards and controls a calmer,
@@ -95,8 +94,8 @@
 #toolHubRoot .tool-ring-dots { gap: var(--sp-2, 8px); }
 #toolHubRoot .tool-card-portrait { padding: 20px 18px 16px !important; }
 #toolHubRoot .tool-card-portrait .tc-p-footer { margin-top: var(--sp-4, 16px); }
-@media (max-width: 560px) {
-  #toolHubRoot .tool-card-portrait { padding: 18px 16px 14px !important; }
+@media (max-width: 560px){
+#toolHubRoot .tool-card-portrait { padding: 18px 16px 14px !important; }
 }
 
 /* Handoff / fallback cards use the same 8pt rhythm as the app. */
@@ -357,12 +356,12 @@ html[data-theme] body { line-height: 1.65; }
 }
 #aiSheet .ai-master-twins { height: 136px; }
 #page2 .result-character-chapter { margin-bottom: var(--sp-4, 16px); }
-@media (max-width: 560px) {
-  #aiSheet .ai-hero { min-height: 136px; padding-inline: 18px 14px; }
+@media (max-width: 560px){
+#aiSheet .ai-hero { min-height: 136px; padding-inline: 18px 14px; }
   #aiSheet .ai-hero-copy { flex-basis: 47%; }
   #aiSheet .ai-master-twins { height: 136px; }
 }
-@media (max-width: 380px) {
-  #aiSheet .ai-hero { padding-inline: 14px 10px; }
+@media (max-width: 380px){
+#aiSheet .ai-hero { padding-inline: 14px 10px; }
   #aiSheet .ai-hero-copy { flex-basis: 50%; }
 }

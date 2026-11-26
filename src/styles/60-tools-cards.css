@@ -1,18 +1,6 @@
 /* ============================================================
    工具中心 V4 卡片全新直观改版
    ============================================================ */
-.tool-grid-v4 {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-  margin-top: 10px;
-}
-@media (max-width: 600px) {
-  .tool-grid-v4 {
-    grid-template-columns: 1fr;
-    gap: 10px;
-  }
-}
 
 .tool-card-v4:not(.tool-card-portrait) {
   position: relative;

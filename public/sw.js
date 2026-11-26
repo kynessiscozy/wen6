@@ -1,70 +1,102 @@
 /* 问问大师 PWA：离线可用 + 秒开的缓存策略。
    静态资源带 hash，可长期缓存；HTML 走 network-first 保证更新及时。 */
-const CACHE = 'wenda-cache-v88';
+const CACHE = 'wenda-cache-v89';
 const BASE = './';
 
-const OPTIONAL_ASSETS = [
-  // Keep the previous paths for pages and bookmarks that have not updated yet.
-  'art/luye-fullbody.webp', 'art/luye-fullbody-avatar.webp', 'art/suyan-fullbody.webp', 'art/suyan-fullbody-avatar.webp',
-  'art/wenwen-cinema3d-blink-v2.webp', 'art/moonfox-cinema3d-blink-v2.webp', 'art/diyan-cinema3d-blink-v2.webp', 'art/yuchen-cinema3d-blink-v2.webp', 'art/qinglan-cinema3d-blink-v2.webp', 'art/xingling-cinema3d-blink-v2.webp', 'art/luye-cinema3d-blink-v2.webp', 'art/suyan-cinema3d-blink-v2.webp', 'art/rongrong-cinema3d-blink-v2.webp', 'art/zhiya-cinema3d-blink-v2.webp',
-  'art/wenwen-cinema3d.webp', 'art/wenwen-cinema3d-avatar.webp', 'art/wenwen-cinema3d-blink.webp', 'art/wenwen-cinema3d-speak.webp',
-  'art/moonfox-cinema3d.webp', 'art/moonfox-cinema3d-avatar.webp', 'art/moonfox-cinema3d-blink.webp', 'art/moonfox-cinema3d-speak.webp',
-  'art/diyan-cinema3d.webp', 'art/diyan-cinema3d-avatar.webp', 'art/diyan-cinema3d-blink.webp', 'art/diyan-cinema3d-speak.webp',
-  'art/yuchen-cinema3d.webp', 'art/yuchen-cinema3d-avatar.webp', 'art/yuchen-cinema3d-blink.webp', 'art/yuchen-cinema3d-speak.webp',
-  'art/qinglan-cinema3d.webp', 'art/qinglan-cinema3d-avatar.webp', 'art/qinglan-cinema3d-blink.webp', 'art/qinglan-cinema3d-speak.webp',
-  'art/xingling-cinema3d.webp', 'art/xingling-cinema3d-avatar.webp', 'art/xingling-cinema3d-blink.webp', 'art/xingling-cinema3d-speak.webp',
-  'art/luye-cinema3d.webp', 'art/luye-cinema3d-avatar.webp', 'art/luye-cinema3d-blink.webp', 'art/luye-cinema3d-speak.webp',
-  'art/suyan-cinema3d.webp', 'art/suyan-cinema3d-avatar.webp', 'art/suyan-cinema3d-blink.webp', 'art/suyan-cinema3d-speak.webp',
-  'art/rongrong-cinema3d.webp', 'art/rongrong-cinema3d-avatar.webp', 'art/rongrong-cinema3d-blink.webp', 'art/rongrong-cinema3d-speak.webp',
-  'art/zhiya-cinema3d.webp', 'art/zhiya-cinema3d-avatar.webp', 'art/zhiya-cinema3d-blink.webp', 'art/zhiya-cinema3d-speak.webp',
-  'art/muse-cinema3d.webp', 'art/muse-cinema3d-avatar.webp', 'art/muse-cinema3d-blink.webp', 'art/muse-cinema3d-speak.webp',
-  'art/xingluo-cinema3d.webp', 'art/xingluo-cinema3d-avatar.webp', 'art/xingluo-lord.webp',
-  // 首屏主按钮的精致箔纹贴图：六位共用一张，按主题色相旋色。
+/* 安装期预缓存：应用骨架（HTML / JS / CSS）+ 下面 CORE_ASSETS。
+   预缓存集合由两类构成，全部被离线回归测试锁定：
+   1. 角色 / 场景 / 双子素材 —— tools/test-build-integrity.mjs 从 HOME_THEMES
+      与 CHAT_MASTER 注册表逐项强制登记，任一引路人离线都能完整推演；
+   2. 漏斗立绘 / 推演演出 / 图标 —— tools/test-home-offline.mjs、
+      tools/test-guide-v61.mjs、tools/test-service-worker-upgrade.mjs 锁定。
+   其余 art（视频、海报、活动图等）不预缓存，走 fetch 处理器的运行时回填，
+   首次在线访问后即可离线。相对旧版手工清单（190 项 / ~13.8 MB），
+   预缓存约 8.9 MB。调整 CORE_ASSETS 前请先跑这三个测试。 */
+const CORE_ASSETS = [
+  // 注册表驱动的角色 / 场景 / 双子素材（tools/test-build-integrity.mjs 强制）：
+  // 任一引路人在离线时都能完整演出与阅读报告。
+  'art/diyan-action.webp',
+  'art/diyan-v61-avatar.webp',
+  'art/diyan-v61.webp',
+  'art/earthfire-hall-mobile.webp',
+  'art/earthfire-hall-wide.webp',
+  'art/luye-fullbody-avatar.webp',
+  'art/luye-fullbody.webp',
+  'art/luye-room-mobile.webp',
+  'art/luye-room-wide.webp',
+  'art/master-twin-indigo-avatar.webp',
+  'art/master-twin-indigo.webp',
+  'art/master-twin-rose-avatar.webp',
+  'art/master-twin-rose.webp',
+  'art/moon-fox-study-mobile.webp',
+  'art/moon-fox-study-wide.webp',
+  'art/moonfox-action.webp',
+  'art/moonfox-v61-avatar.webp',
+  'art/moonfox-v61.webp',
+  'art/muse-action.webp',
+  'art/muse-hall-mobile.webp',
+  'art/muse-hall-wide.webp',
+  'art/muse-v61-avatar.webp',
+  'art/muse-v61.webp',
+  'art/qinglan-cinema3d-avatar.webp',
+  'art/qinglan-cinema3d-blink-v2.webp',
+  'art/qinglan-cinema3d-speak.webp',
+  'art/qinglan-cinema3d.webp',
+  'art/qinglan-room-mobile.webp',
+  'art/qinglan-room-wide.webp',
+  'art/rongrong-cinema3d-avatar.webp',
+  'art/rongrong-cinema3d-blink-v2.webp',
+  'art/rongrong-cinema3d-speak.webp',
+  'art/rongrong-cinema3d.webp',
+  'art/rongrong-pawbell.webp',
+  'art/rongrong-room-mobile.webp',
+  'art/rongrong-room-wide.webp',
+  'art/sacred-study-mobile.webp',
+  'art/sacred-study-wide.webp',
+  'art/suyan-fullbody-avatar.webp',
+  'art/suyan-fullbody.webp',
+  'art/suyan-room-mobile.webp',
+  'art/suyan-room-wide.webp',
+  'art/wenwen-cinema3d-avatar.webp',
+  'art/wenwen-cinema3d-blink-v2.webp',
+  'art/wenwen-cinema3d-speak.webp',
+  'art/wenwen-cinema3d.webp',
+  'art/wenwen-cloud-trail.webp',
+  'art/wenwen-lantern.webp',
+  'art/xingling-action.webp',
+  'art/xingling-room-mobile.webp',
+  'art/xingling-room-wide.webp',
+  'art/xingling-v61-avatar.webp',
+  'art/xingling-v61.webp',
+  'art/xingluo-action.webp',
+  'art/xingluo-observatory-mobile.webp',
+  'art/xingluo-observatory-wide.webp',
+  'art/xingluo-v61-avatar.webp',
+  'art/xingluo-v61.webp',
+  'art/yuchen-action.webp',
+  'art/yuchen-hall-mobile.webp',
+  'art/yuchen-hall-wide.webp',
+  'art/yuchen-v61-avatar.webp',
+  'art/yuchen-v61.webp',
+  'art/zhiya-cinema3d-avatar.webp',
+  'art/zhiya-cinema3d-blink-v2.webp',
+  'art/zhiya-cinema3d-speak.webp',
+  'art/zhiya-cinema3d.webp',
+  'art/zhiya-crane.webp',
+  'art/zhiya-room-mobile.webp',
+  'art/zhiya-room-wide.webp',
+  // 漏斗六位引路人立绘：离线漏斗与待机入口卡（含四位必选项）
+  'art/diyan-lord.webp', 'art/yuchen-lord.webp', 'art/yuebai-lord.webp', 'art/xiyao-lord.webp',
+  'art/muse-lord.webp', 'art/xingluo-lord.webp',
+  // 推演演出：离线也能完成一次真实推演
+  'art/awakening-scroll.webp', 'art/awakening-fox-fan.webp', 'art/awakening-phoenix-wing.webp',
   'art/cta-foil.webp',
-  'art/muse-hall-wide.webp', 'art/muse-hall-mobile.webp',
-  'art/xingluo-observatory-wide.webp', 'art/xingluo-observatory-mobile.webp',
+  // 默认同行立绘：缓存升级回归依赖（缺失时可从旧缓存沿用）
+  'art/wenwen-reimagined.webp',
+  // 图标与清单
   'manifest.webmanifest', 'pwa-install.js', 'icon.svg', 'icon-192.png', 'icon-512.png',
   'icon-twins-128.png', 'icon-twins-192.png', 'icon-twins-512.png',
   'icon-twins-maskable-192.png', 'icon-twins-maskable-512.png', 'apple-touch-icon-twins.png',
-  'art/master-twin-indigo.webp', 'art/master-twin-rose.webp',
-  'art/master-twin-indigo-avatar.webp', 'art/master-twin-rose-avatar.webp',
-  'art/wenwen-reimagined.webp', 'art/wenwen-reimagined-avatar.webp', 'art/wenwen-reimagined-blink.webp', 'art/wenwen-reimagined-speak.webp',
-  'art/wenwen-lantern.webp', 'art/wenwen-cloud-trail.webp', 'art/sacred-study-wide.webp', 'art/sacred-study-mobile.webp',
-  'art/moon-fox-reimagined.webp', 'art/moon-fox-reimagined-avatar.webp', 'art/moon-fox-reimagined-blink.webp', 'art/moon-fox-reimagined-speak.webp',
-  'art/moon-fox-cloud-trail.webp', 'art/moon-fox-study-wide.webp', 'art/moon-fox-study-mobile.webp',
-  'art/earthfire-sovereign.webp', 'art/earthfire-sovereign-avatar.webp', 'art/earthfire-sovereign-blink.webp', 'art/earthfire-sovereign-speak.webp',
-  'art/earthfire-flame-seat.webp', 'art/earthfire-hall-wide.webp', 'art/earthfire-hall-mobile.webp', 'art/earthfire-runes.webp', 'art/earthfire-rune-seal.webp',
-  'art/yuchen-empress.webp', 'art/yuchen-empress-avatar.webp', 'art/yuchen-empress-blink.webp', 'art/yuchen-empress-speak.webp',
-  'art/yuchen-hall-wide.webp', 'art/yuchen-hall-mobile.webp',
-  'art/qinglan-renewed.webp', 'art/qinglan-renewed-avatar.webp', 'art/qinglan-renewed-blink.webp', 'art/qinglan-renewed-speak.webp',
-  'art/qinglan-room-wide.webp', 'art/qinglan-room-mobile.webp', 'art/qinglan-sword.webp',
-  'art/xingling-renewed.webp', 'art/xingling-renewed-avatar.webp', 'art/xingling-renewed-blink.webp', 'art/xingling-renewed-speak.webp',
-  'art/xingling-room-wide.webp', 'art/xingling-room-mobile.webp', 'art/xingling-fan.webp',
-  'art/luye-3d.webp', 'art/luye-3d-avatar.webp', 'art/luye-3d-blink.webp', 'art/luye-3d-speak.webp',
-  'art/luye.webp', 'art/luye-avatar.webp', 'art/luye-blink.webp', 'art/luye-speak.webp',
-  'art/luye-room-wide.webp', 'art/luye-room-mobile.webp', 'art/luye-turntable.svg', 'art/luye-vinyl.svg',
-  'art/suyan-3d.webp', 'art/suyan-3d-avatar.webp', 'art/suyan-3d-blink.webp', 'art/suyan-3d-speak.webp',
-  'art/suyan.webp', 'art/suyan-avatar.webp', 'art/suyan-blink.webp', 'art/suyan-speak.webp',
-  'art/suyan-room-wide.webp', 'art/suyan-room-mobile.webp', 'art/suyan-camera.svg',
-  'art/rongrong.webp', 'art/rongrong-avatar.webp', 'art/rongrong-blink.webp', 'art/rongrong-speak.webp',
-  'art/rongrong-room-wide.webp', 'art/rongrong-room-mobile.webp', 'art/rongrong-pawbell.webp',
-  'art/zhiya.webp', 'art/zhiya-avatar.webp', 'art/zhiya-blink.webp', 'art/zhiya-speak.webp',
-  'art/zhiya-room-wide.webp', 'art/zhiya-room-mobile.webp', 'art/zhiya-crane.webp',
-  'art/awakening-scroll.webp', 'art/awakening-fox-fan.webp', 'art/awakening-phoenix-wing.webp',
-  // Funnel entry: posters/lords keep the four personas readable offline even
-  // when their (large) MP4s are not cached.
-  'art/diyan-lord.webp', 'art/yuchen-lord.webp', 'art/yuebai-lord.webp', 'art/xiyao-lord.webp', 'art/muse-lord.webp',
-  'art/diyan-entry2-poster.webp', 'art/diyan-ritual-poster.webp',
-  // V6.1 全面换新：六位 2D 引路人的透明立绘与同版头像（报告/首页/推演共用）。
-  'art/moonfox-v61.webp', 'art/moonfox-v61-avatar.webp',
-  'art/yuchen-v61.webp', 'art/yuchen-v61-avatar.webp',
-  'art/xingling-v61.webp', 'art/xingling-v61-avatar.webp',
-  'art/diyan-v61.webp', 'art/diyan-v61-avatar.webp',
-  'art/muse-v61.webp', 'art/muse-v61-avatar.webp',
-  'art/xingluo-v61.webp', 'art/xingluo-v61-avatar.webp',
-  // 动作版头图插画（东方视图整幅呈现；星罗待补）。
-  'art/moonfox-action.webp', 'art/yuchen-action.webp', 'art/xingling-action.webp',
-  'art/diyan-action.webp', 'art/muse-action.webp', 'art/xingluo-action.webp',
 ];
 
 self.addEventListener('install', (e) => {
@@ -90,7 +122,7 @@ self.addEventListener('install', (e) => {
       // Do not replace a working version with an incomplete installation.
       throw error;
     }
-    await Promise.all(OPTIONAL_ASSETS.map(async (asset) => {
+    await Promise.all(CORE_ASSETS.map(async (asset) => {
       const url = BASE + asset;
       try {
         await cache.add(url);
