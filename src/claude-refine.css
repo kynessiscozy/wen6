@@ -127,8 +127,8 @@ body { font-size: var(--fs-md); line-height: 1.6; }
   width: 40px !important; min-width: 40px !important;
   height: 40px !important; min-height: 40px !important;
 }
-@media (max-width: 560px) {
-  .ai-sheet .ai-new, .ai-sheet .ai-settings, .ai-sheet .ai-close {
+@media (max-width: 560px){
+.ai-sheet .ai-new, .ai-sheet .ai-settings, .ai-sheet .ai-close {
     width: 40px !important; min-width: 40px !important;
     height: 40px !important; min-height: 40px !important;
   }
@@ -141,7 +141,7 @@ body { font-size: var(--fs-md); line-height: 1.6; }
 .mode-top-switch { min-height: 34px !important; padding: 0 14px !important; }
 .mode-top-group  { min-height: 40px !important; }
 .chip { min-height: 40px !important; display: inline-flex; align-items: center; }
-.p2-back { min-height: 40px !important; }
+
 .ai-fab { min-width: 56px !important; }
 
 /* 开关滑块放大到易点尺寸 */
@@ -189,7 +189,7 @@ input, select, textarea, .ai-input-row,
 
 .card-hd { margin-bottom: var(--sp-4) !important; gap: var(--sp-3) !important; }
 .form-grid { gap: var(--sp-4) !important; }
-.chip-wrap { gap: var(--sp-2) !important; margin-top: var(--sp-2) !important; }
+
 .ig, .qr-grid, .portrait-grid, .structure-grid { gap: var(--sp-2) !important; }
 .cta-row { gap: var(--sp-3) !important; margin-top: var(--sp-5) !important; }
 .ii, .qr-item, .port-item { padding: var(--sp-3) !important; }
@@ -343,10 +343,9 @@ body .ig-dock .tab-item.active .ig-nav-icon { stroke-width: 2.1 !important; tran
 .theme-toggle svg { width: 17px; height: 17px; }
 
 /* 合盘结果：条目内的 <strong> 保持内联强调，避免 <b> 被块级化后断句 */
-.tj-result-list span strong { font-weight: 600; color: var(--c-text); }
 
 /* ---------- 11. 合盘：最近对象快捷选择 ---------- */
-.tj-partner-picker-wrap { margin: 0 0 var(--sp-4); }
+
 .tj-partner-picker-title {
   font-size: var(--fs-micro);
   color: var(--c-text-3);
@@ -388,16 +387,6 @@ body .ig-dock .tab-item.active .ig-nav-icon { stroke-width: 2.1 !important; tran
 /* 合盘结果底部操作条：与日签保持同一形态 */
 .tj-sign-actions { display: flex; gap: var(--sp-2); margin-top: var(--sp-4); }
 .tj-sign-actions button { flex: 1; min-height: 44px; border-radius: 10px !important; font: 500 var(--fs-sm) var(--sf); cursor: pointer; }
-.tj-sign-share {
-  background: var(--c-accent) !important; border: 1px solid var(--c-accent) !important;
-  color: var(--c-on-accent) !important;
-}
-.tj-sign-share:hover { background: var(--c-accent-hover) !important; }
-.tj-sign-refresh {
-  background: transparent !important; border: 1px solid var(--c-border-2) !important;
-  color: var(--c-text-2) !important;
-}
-.tj-sign-refresh:hover { background: var(--c-surface-3) !important; color: var(--c-text) !important; }
 
 /* 分享兜底弹层：剪贴板不可用时，让用户能手动复制 */
 .tj-share-fallback { position: fixed; inset: 0; z-index: 9999; display: flex; align-items: center; justify-content: center; padding: var(--sp-4); }
@@ -436,36 +425,6 @@ body .ig-dock .tab-item.active .ig-nav-icon { stroke-width: 2.1 !important; tran
   border-radius: var(--c-r-lg);
   box-shadow: var(--c-shadow-1);
 }
-.today-card-top { display: flex; align-items: center; gap: var(--sp-2); margin-bottom: var(--sp-3); }
-.today-card-date { font-size: var(--fs-micro); color: var(--c-text-3); font-variant-numeric: tabular-nums; }
-.today-card-tone {
-  font-size: var(--fs-micro); font-weight: 600;
-  padding: 2px 8px; border-radius: 999px;
-  background: var(--c-surface-2);
-}
-.today-card-headline {
-  font-family: var(--display);
-  font-size: var(--fs-lg); line-height: 1.5; font-weight: 500;
-  color: var(--c-text);
-  margin-bottom: var(--sp-3);
-}
-.today-card-body { font-size: var(--fs-sm); line-height: 1.75; color: var(--c-text-2); }
-.today-card-body b { display: block; font-size: var(--fs-micro); color: var(--c-text-3); font-weight: 500; margin-bottom: 2px; }
-.today-card-foot {
-  display: flex; align-items: center; justify-content: space-between; gap: var(--sp-2);
-  margin-top: var(--sp-4); padding-top: var(--sp-3);
-  border-top: 1px solid var(--c-border);
-}
-.today-card-who { font-size: var(--fs-micro); color: var(--c-text-3); }
-.today-card-more {
-  min-height: 36px; padding: 0 var(--sp-3);
-  border: 1px solid var(--c-border-2); border-radius: 999px;
-  background: transparent; color: var(--c-text-2);
-  font: 500 var(--fs-sm) var(--sf); cursor: pointer;
-  transition: background .15s ease, color .15s ease;
-}
-.today-card-more:hover { background: var(--c-surface-3); color: var(--c-text); }
-.tj-daily-meta { font-size: var(--fs-micro); color: var(--c-text-3); margin-top: 4px; }
 
 /* 首页滚动容器：justify-content:center 在内容超高时会把顶部溢出到
    scrollTop=0 之上（flex 已知问题），导致「今日一句」永远滚不到。
@@ -510,26 +469,6 @@ body .ig-dock .tab-item.active .ig-nav-icon { stroke-width: 2.1 !important; tran
 .glossary-term:active { background: var(--c-accent-soft); border-radius: 3px; }
 
 /* 首次进入报告时的一次性引导 */
-.gloss-hint {
-  display: flex; align-items: center; gap: 8px;
-  margin: 0 0 var(--sp-3);
-  padding: 10px var(--sp-3);
-  background: var(--c-accent-soft);
-  border: 1px solid color-mix(in srgb, var(--c-accent) 26%, transparent);
-  border-radius: var(--c-r);
-  font-size: var(--fs-sm);
-  color: var(--c-accent-text);
-  line-height: 1.6;
-}
-.gloss-hint-close {
-  margin-left: auto; flex: 0 0 auto;
-  width: 28px; height: 28px;
-  display: flex; align-items: center; justify-content: center;
-  border: 0; border-radius: 50%;
-  background: transparent; color: var(--c-accent-text);
-  font-size:calc(16px * var(--font-scale, 1)); line-height: 1; cursor: pointer;
-}
-.gloss-hint-close:hover { background: color-mix(in srgb, var(--c-accent) 16%, transparent); }
 
 /* ---------- 14. 新手首屏数据位：值 + 一句话含义 ---------- */
 .beginner-basic { align-items: stretch !important; }
@@ -549,8 +488,8 @@ body .ig-dock .tab-item.active .ig-nav-icon { stroke-width: 2.1 !important; tran
   margin-top: 2px;
 }
 /* 四列在窄屏挤成两列，保证每格能放下一句说明 */
-@media (max-width: 480px) {
-  .beginner-basic { grid-template-columns: 1fr 1fr !important; }
+@media (max-width: 480px){
+.beginner-basic { grid-template-columns: 1fr 1fr !important; }
 }
 
 /* 报告卡片作为内部定位的参照。 */
@@ -596,35 +535,15 @@ body .ig-dock .tab-item.active .ig-nav-icon { stroke-width: 2.1 !important; tran
   padding: 0 !important;
   line-height: 1.45 !important;
 }
-@media (max-width: 380px) {
-  .sec .tool-tile { min-height: 86px !important; padding: 10px !important; }
+@media (max-width: 380px){
+.sec .tool-tile { min-height: 86px !important; padding: 10px !important; }
   .sec .tool-tile .tool-label { font-size: var(--fs-sm) !important; }
 }
 
 /* ---- 16.3 工具弹层：关闭按钮压在简介卡上（实测重叠） ---- */
-#toolModal .tj-tool-intro {
-  padding-right: 52px !important;
-  /* 原深蓝金 WEBP 会让文字对比度不稳定，已换成随主题着色的 SVG 纹理：
-     用 currentColor 绘制，浅色/深色下都保持低对比，不与文字抢注意力 */
-  position: relative;
-  background-color: var(--c-surface-2) !important;
-  background-repeat: no-repeat !important;
-  background-position: right -10px center !important;
-  background-size: auto 150% !important;
-  border: 1px solid var(--c-border) !important;
-  border-radius: var(--c-r) !important;
-  overflow: hidden;
-}
+
 /* 同磁贴：用一层 ::after 承载纹理并控制透明度 */
-#toolModal .tj-tool-intro::after {
-  content: ''; position: absolute; inset: 0; z-index: 0;
-  background: inherit; background-color: transparent !important;
-  opacity: .16; pointer-events: none;
-}
-[data-theme="dark"] #toolModal .tj-tool-intro::after { opacity: .22; }
-#toolModal .tj-tool-intro > * { position: relative; z-index: 1; }
-#toolModal .tj-tool-intro > * { color: var(--c-text); }
-#toolModal .tj-tool-intro .tj-tool-kicker { color: var(--c-accent-text); }
+
 #toolModal .tool-sheet-close {
   background: var(--c-surface) !important;
   border: 1px solid var(--c-border-2) !important;
@@ -644,7 +563,7 @@ body .ig-dock .tab-item.active .ig-nav-icon { stroke-width: 2.1 !important; tran
 .p2-top .mode-top-group,
 .p2-top .p2-back,
 .p2-top .p2-act { height: 40px !important; min-height: 40px !important; max-height: 40px !important; }
-.gloss-hint-close { width: 36px !important; height: 36px !important; }
+
 .card-toggle { width: 36px !important; height: 36px !important; }
 .qr-act, .structure-tab, .focus-tab { min-height: 36px !important; }
 /* 首页开关：26px 高不易点，扩到 44×28 并留出热区 */
@@ -655,9 +574,9 @@ body .ig-dock .tab-item.active .ig-nav-icon { stroke-width: 2.1 !important; tran
 .glossary-term { line-height: 1.7 !important; }
 
 /* ---- 16.6 360px 顶栏：三组元素间距过紧 ---- */
-@media (max-width: 380px) {
-  .p2-top { padding-left: 10px !important; padding-right: 10px !important; gap: 6px !important; }
-  .p2-back { padding: 0 10px !important; }
+@media (max-width: 380px){
+.p2-top { padding-left: 10px !important; padding-right: 10px !important; gap: 6px !important; }
+  
   .mode-top-switch { padding: 0 10px !important; }
   .p2-actions { gap: 4px !important; }
 }
@@ -699,101 +618,21 @@ body .ig-dock .tab-item.active .ig-nav-icon { stroke-width: 2.1 !important; tran
    原本 9 个小节平铺 1170px（约 1.4 屏），用户必须一路滚到底。
    现在结论常驻，细节按需展开。
    ============================================================ */
-.syn-verdict {
-  display: flex; align-items: baseline; flex-wrap: wrap; gap: var(--sp-2);
-  padding: 0 0 var(--sp-3);
-}
-.syn-verdict-label { font-size: var(--fs-base); font-weight: 600; }
-.syn-verdict-meta { font-size: var(--fs-micro); color: var(--c-text-3); font-variant-numeric: tabular-nums; }
 
 /* 双方命盘：两行紧凑对照，不用 tj-result-list 的大内距 */
-.syn-charts { display: flex; flex-direction: column; gap: 6px; }
-.syn-charts > div { display: flex; align-items: baseline; gap: var(--sp-2); }
-.syn-charts span { flex: 0 0 32px; font-size: var(--fs-micro); color: var(--c-text-3); }
-.syn-charts b {
-  font-family: var(--display); font-size: var(--fs-base);
-  letter-spacing: .04em; color: var(--c-text);
-}
 
-.syn-summary {
-  padding: var(--sp-3);
-  margin-bottom: var(--sp-3);
-  background: var(--c-surface-2);
-  border-radius: var(--c-r);
-  font-size: var(--fs-sm);
-  line-height: 1.7;
-  color: var(--c-text-2);
-}
-
-.syn-group {
-  border: 1px solid var(--c-border);
-  border-radius: var(--c-r);
-  margin-bottom: var(--sp-2);
-  overflow: hidden;
-  background: var(--c-surface);
-}
-.syn-group-hd {
-  display: flex; align-items: center; gap: var(--sp-2);
-  width: 100%; min-height: 48px;
-  padding: 0 var(--sp-3);
-  border: 0; background: transparent;
-  color: var(--c-text);
-  font: 600 var(--fs-sm) var(--sf);
-  text-align: left; cursor: pointer;
-  transition: background .15s ease;
-}
-.syn-group-hd:hover { background: var(--c-surface-2); }
-.syn-group-tt { flex: 1 1 auto; min-width: 0; }
-.syn-group-sub {
-  flex: 0 0 auto;
-  font-size: var(--fs-micro); font-weight: 500;
-  color: var(--c-text-3);
-}
-.syn-group-arrow {
-  flex: 0 0 auto;
-  width: 8px; height: 8px;
-  border-right: 1.6px solid var(--c-text-3);
-  border-bottom: 1.6px solid var(--c-text-3);
-  transform: rotate(45deg); margin-top: -3px;
-  transition: transform .2s ease;
-}
 .syn-group.open .syn-group-arrow { transform: rotate(-135deg); margin-top: 3px; }
 
 /* 折叠：用 grid 行高动画，避免写死 max-height */
-.syn-group-bd {
-  display: grid; grid-template-rows: 0fr;
-  transition: grid-template-rows .22s ease;
-}
+
 .syn-group.open .syn-group-bd { grid-template-rows: 1fr; }
-.syn-group-inner { overflow: hidden; min-height: 0; }
+
 .syn-group.open .syn-group-inner { padding: 0 var(--sp-3) var(--sp-3); }
 
 /* 组内条目去掉重复外框 */
-.syn-group .tj-result-list { background: transparent !important; border: 0 !important; }
-.syn-group .tj-result-list > div { padding: 10px 0 !important; border-bottom: 1px solid var(--c-border) !important; }
-.syn-group .tj-result-list > div:last-child { border-bottom: 0 !important; }
-
-@media (prefers-reduced-motion: reduce) {
-  .syn-group-bd, .syn-group-arrow { transition: none !important; }
-}
 
 /* 组内条目：默认 tj-result-list 的行距是为整页阅读设计的，
    放进折叠卡后显得过松（单组 270px）。这里收紧到卡片尺度。 */
-.syn-group .tj-result-list > div { padding: 8px 0 !important; }
-.syn-group .tj-result-list > div > b {
-  font-size: var(--fs-micro) !important;
-  color: var(--c-text-3) !important;
-  font-weight: 500 !important;
-  margin-bottom: 2px !important;
-  display: block;
-}
-.syn-group .tj-result-list > div > span {
-  font-size: var(--fs-sm) !important;
-  line-height: 1.65 !important;
-  color: var(--c-text) !important;
-}
-.syn-group + .syn-group { margin-top: var(--sp-2); }
-.syn-summary { padding: 10px var(--sp-3); margin-bottom: var(--sp-3); }
 
 /* ============================================================
    18. 细节打磨（逐项实测复现后修复）
@@ -859,8 +698,8 @@ body .ig-dock .tab-item.active .ig-nav-icon { stroke-width: 2.1 !important; tran
 .y-hero-item { padding: 12px 8px !important; min-width: 0; }
 .y-hero-stars { font-size: 1em !important; white-space: nowrap; }
 .y-hero-label { letter-spacing: .02em !important; }
-@media (min-width: 560px) {
-  .y-hero { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }
+@media (min-width: 560px){
+.y-hero { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }
 }
 
 /* ---- 18.5 连接状态：只显示「离线」不解释含义，用户不知还能不能用 ---- */
@@ -896,8 +735,8 @@ body .ig-dock .tab-item.active .ig-nav-icon { stroke-width: 2.1 !important; tran
 
 /* ---- 19.3 桌面端放大：原固定 430px 宽、56% 屏高，
         大屏上浪费了大量空间 ---- */
-@media (min-width: 768px) {
-  .ai-sheet {
+@media (min-width: 768px){
+.ai-sheet {
     width: min(720px, calc(100vw - 48px)) !important;
     max-width: min(720px, calc(100vw - 48px)) !important;
     left: 50% !important;
@@ -915,8 +754,8 @@ body .ig-dock .tab-item.active .ig-nav-icon { stroke-width: 2.1 !important; tran
   #askResult { max-height: none !important; }
   .ai-overlay { backdrop-filter: blur(3px); }
 }
-@media (min-width: 1200px) {
-  .ai-sheet {
+@media (min-width: 1200px){
+.ai-sheet {
     width: min(860px, calc(100vw - 64px)) !important;
     max-width: min(860px, calc(100vw - 64px)) !important;
     height: min(82vh, 880px) !important;
@@ -990,8 +829,8 @@ body .ig-dock .tab-item.active .ig-nav-icon { stroke-width: 2.1 !important; tran
 /* 标签页内的卡片不再需要自己的外边距 */
 .sec-pane > .glass { margin-bottom: 0 !important; }
 
-@media (prefers-reduced-motion: reduce) {
-  .sec-pane.active { animation: none; }
+@media (prefers-reduced-motion: reduce){
+.sec-pane.active { animation: none; }
 }
 
 /* ============================================================
@@ -1075,13 +914,13 @@ body .ig-dock .tab-item.active .ig-nav-icon { stroke-width: 2.1 !important; tran
 .sec-tab.active::after { background: var(--c-accent); }
 
 /* 标签多到放不下时仍可横滑，此时靠左起始更自然 */
-@media (max-width: 420px) {
-  .sec-tabs { justify-content: flex-start; }
+@media (max-width: 420px){
+.sec-tabs { justify-content: flex-start; }
   .sec-tab { padding: 0 11px !important; }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .qr-body, .qr-toggle, .sec-tab::after { transition: none !important; }
+@media (prefers-reduced-motion: reduce){
+.qr-body, .qr-toggle, .sec-tab::after { transition: none !important; }
 }
 
 /* ============================================================
@@ -1148,8 +987,8 @@ body .ig-dock .tab-item.active .ig-nav-icon { stroke-width: 2.1 !important; tran
 body .ig-dock.tab-bar { z-index: 210 !important; }
 .ai-sheet { z-index: 301 !important; }
 
-@media (min-width: 768px) {
-  .ai-sheet {
+@media (min-width: 768px){
+.ai-sheet {
     bottom: calc(var(--ig-dock-height, 66px) + env(safe-area-inset-bottom, 0px) + 12px + var(--ai-dock-gap)) !important;
     height: auto !important;
     max-height: calc(100dvh - var(--ig-dock-height, 66px) - env(safe-area-inset-bottom, 0px) - 12px - var(--ai-dock-gap) - 24px) !important;
@@ -1157,8 +996,8 @@ body .ig-dock.tab-bar { z-index: 210 !important; }
     min-height: min(620px, calc(100dvh - 220px)) !important;
   }
 }
-@media (min-width: 1200px) {
-  .ai-sheet {
+@media (min-width: 1200px){
+.ai-sheet {
     height: auto !important;
     min-height: min(700px, calc(100dvh - 220px)) !important;
   }

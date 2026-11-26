@@ -269,7 +269,7 @@ body .ig-dock .ai-fab:hover { background: var(--c-accent-hover) !important; filt
   box-shadow: var(--c-shadow-3) !important;
   backdrop-filter: none !important; -webkit-backdrop-filter: none !important;
 }
-.ai-handle { background: var(--c-border-2) !important; }
+
 .ai-subtitle, .ai-free-prompt, .ai-compose-hint, .ai-context span { color: var(--c-text-3) !important; }
 .ai-context {
   background: var(--c-surface-2) !important;
@@ -355,11 +355,6 @@ body .ig-dock .ai-fab:hover { background: var(--c-accent-hover) !important; filt
 .ai-conn-bar { color: var(--c-text-3) !important; }
 .conn-online .ai-conn-dot { background: var(--c-green) !important; }
 .conn-offline .ai-conn-dot { background: var(--c-red) !important; }
-.tj-ai-box {
-  background: var(--c-surface-2) !important;
-  border: 0 !important; border-left: 2px solid var(--c-accent) !important;
-  color: var(--c-text-2) !important;
-}
 
 /* ---------- 9. 数据展示块 ---------- */
 .ii, .pl, .port-item, .qr-item, .qr-summary, .tl-card, .tl-q, .y-hero-item,
@@ -417,20 +412,14 @@ table, .fine-table, .god-table { border-collapse: collapse; width: 100%; }
   box-shadow: var(--c-shadow-3) !important;
   backdrop-filter: none !important;
 }
-.tj-toast-success { background: var(--c-green) !important; color: #fff !important; }
-.tj-toast-error { background: var(--c-red) !important; color: #fff !important; }
 
 /* 加载层 */
 .ld-ov { background: color-mix(in srgb, var(--c-bg) 92%, transparent) !important; backdrop-filter: blur(4px) !important; }
-.ld-t { font-family: var(--display) !important; color: var(--c-text) !important; }
-.ld-st { color: var(--c-text-3) !important; }
-.ld-sp { border-color: var(--c-border-2) !important; border-top-color: var(--c-accent) !important; }
-.ld-bf { background: var(--c-accent) !important; }
 
 /* ---------- 11. 首页 ---------- */
 .p1-inner { max-width: 560px; }
 .home-card { padding: 28px 26px !important; }
-.recent-hd-title, .tools-intro-sub { color: var(--c-text-3) !important; }
+
 .r-ava {
   background: var(--c-accent-soft) !important;
   color: var(--c-accent-text) !important;
@@ -487,8 +476,8 @@ table, .fine-table, .god-table { border-collapse: collapse; width: 100%; }
 /* ---------- 13. 动效收敛 ---------- */
 * { text-shadow: none !important; }
 .glass, .home-card, .tab-item, .chip, .cta { will-change: auto !important; }
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation-duration: .001ms !important; transition-duration: .001ms !important; }
+@media (prefers-reduced-motion: reduce){
+*, *::before, *::after { animation-duration: .001ms !important; transition-duration: .001ms !important; }
 }
 
 /* ---------- 14. 主题切换按钮 ---------- */

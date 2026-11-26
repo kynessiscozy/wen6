@@ -64,13 +64,13 @@
 }
 
 /* 触控设备没有 hover，反馈按钮需要常显 */
-@media (hover: none) {
-  .chat-actions {
+@media (hover: none){
+.chat-actions {
     opacity: .78;
   }
 }
-@media (hover: hover) {
-  .chat-actions {
+@media (hover: hover){
+.chat-actions {
     opacity: 0;
   }
   .chat-msg:hover .chat-actions,
@@ -151,10 +151,7 @@
   color:var(--c-text-2);
   font-weight:500;
 }
-.evo-src-ai{background:var(--c-accent, #d97757)}
-.evo-src-kb{background:color-mix(in srgb, var(--c-teal, #5a8a6a) 80%, transparent)}
-.evo-src-personal{background:color-mix(in srgb, var(--c-accent, #d97757) 60%, var(--c-text-3, #888))}
-.evo-src-fallback{background:var(--c-text-4, #aaa)}
+
 .evo-lesson{
   display:flex;align-items:flex-start;gap:8px;
   font-size:.7em;

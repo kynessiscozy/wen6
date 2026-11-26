@@ -150,34 +150,14 @@
 }
 
 /* Tab 1 导览卡片网格 */
-.ng-cards-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-}
-@media (max-width: 520px) {
-  .ng-cards-grid { grid-template-columns: 1fr; }
-}
+
 .ng-card {
   padding: 14px 16px;
   border-radius: 14px;
   background: var(--c-surface-2);
   border: 1px solid var(--c-border);
 }
-.ng-card-hd {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 8px;
-  color: var(--c-text-hi);
-  font-size: 0.86em;
-  font-weight: 700;
-}
-.ng-card-icon {
-  color: var(--ac-text);
-  display: flex;
-  align-items: center;
-}
+
 .ng-card p {
   font-size: 0.76em;
   line-height: 1.6;
@@ -229,8 +209,8 @@
   grid-template-columns: 1fr 1fr;
   gap: 10px;
 }
-@media (max-width: 520px) {
-  .ng-glossary-grid { grid-template-columns: 1fr; }
+@media (max-width: 520px){
+.ng-glossary-grid { grid-template-columns: 1fr; }
 }
 .ng-glossary-item {
   padding: 12px 14px;
@@ -342,8 +322,8 @@
   color: var(--c-text-hi);
 }
 
-@media (max-width: 560px) {
-  .ng-modal {
+@media (max-width: 560px){
+.ng-modal {
     padding: 0;
     align-items: flex-end;
   }

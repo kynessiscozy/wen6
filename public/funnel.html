@@ -455,7 +455,7 @@
 
 <!-- 沉浸过场 -->
 <section class="screen" id="s-immersion">
-  <video class="imm-video" id="immVideo" muted loop playsinline preload="auto" src="./art/yuebai-ritual.mp4?v=76" poster="./art/yuebai-lord.webp" aria-hidden="true"></video>
+  <video class="imm-video" id="immVideo" muted loop playsinline preload="none" poster="./art/yuebai-lord.webp" aria-hidden="true"></video>
   <div class="imm-shade"></div>
   <div class="dim"></div>
   <button class="skip" id="btnSkipStory">跳过</button>
@@ -470,7 +470,7 @@
 
 <!-- 问卷 -->
 <section class="screen" id="s-quiz">
-  <video class="quiz-bg" src="./art/yuebai-quiz.mp4?v=76" poster="./art/yuebai-lord.webp" autoplay muted loop playsinline aria-hidden="true"></video>
+  <video class="quiz-bg" preload="none" poster="./art/yuebai-lord.webp" muted loop playsinline aria-hidden="true"></video>
   <div class="quiz-shade"></div>
   <div class="qhead">
     <button class="back" id="btnBack" aria-label="上一题">‹</button>
@@ -488,14 +488,14 @@
 
 <!-- 问卷中段过场 -->
 <section class="screen" id="s-inter">
-  <video class="inter-video" muted loop playsinline preload="auto" src="./art/yuebai-quiz.mp4?v=76" poster="./art/yuebai-lord.webp" aria-hidden="true"></video>
+  <video class="inter-video" muted loop playsinline preload="none" poster="./art/yuebai-lord.webp" aria-hidden="true"></video>
   <p class="inter-line">根基已定。<br>再陪我走几步。</p>
 </section>
 
 <!-- 加载仪式 -->
 <section class="screen" id="s-loading">
-  <video class="load-video" autoplay muted loop playsinline preload="auto"
-         poster="./art/yuebai-lord.webp" src="./art/yuebai-ritual.mp4?v=76" aria-hidden="true"></video>
+  <video class="load-video" muted loop playsinline preload="none"
+         poster="./art/yuebai-lord.webp" aria-hidden="true"></video>
   <div class="load-shade"></div>
   <div class="load-inner">
     <img id="loadAvatar" src="./art/yuebai-lord.webp" alt="">
@@ -671,6 +671,24 @@
     return;
   }
   bump('entry_view');
+  /* 视频按屏懒加载：入口首屏只拉 entry 一段；沉浸过场 / 问卷 / 加载仪式
+     的视频等屏幕真正激活时才赋 src。具体路径由末尾引路人脚本通过
+     window.__wenScreenVideos 提供，分岔演出（look/sit）优先于问卷底视频。 */
+  function ensureVideo(el, src) {
+    if (!el || !src) return;
+    if (el.getAttribute('src') !== src) {
+      el.setAttribute('src', src);
+      el.setAttribute('preload', 'auto');
+      try { el.load(); } catch (e) {}
+    }
+  }
+  function syncScreenVideo(name) {
+    var map = window.__wenScreenVideos || {};
+    var el = name === 'immersion' ? $('#immVideo') : (name === 'loading' ? $('.load-video') : null);
+    if (!el) return;
+    ensureVideo(el, map.ritual);
+    var p = el.play(); if (p && p.catch) p.catch(function () {});
+  }
   var screens={entry:$('#s-entry'),immersion:$('#s-immersion'),quiz:$('#s-quiz'),inter:$('#s-inter'),loading:$('#s-loading')};
   var exitButton=$('#quitFunnel'),exitDialog=$('#funnelExitDialog');
   var exitOpen=false,abandoned=false,handoffDue=false,exitFocus=null,exitBackground=[];
@@ -678,6 +696,7 @@
     Object.keys(screens).forEach(function(k){screens[k].classList.toggle('active',k===name)});
     document.documentElement.dataset.funnelScreen=name;
     exitButton.hidden=name==='entry';
+    syncScreenVideo(name);
     window.scrollTo(0,0);
   }
   function closeExitDialog(){
@@ -784,6 +803,10 @@
       if(!qv.__branchLoop){qv.__branchLoop=true;qv.addEventListener('timeupdate',function(){
         if(branchBg&&qv.getAttribute('src')===branchBg.src&&qv.duration&&qv.currentTime>=qv.duration-0.08){try{qv.currentTime=branchLoopFrom(qv);}catch(e){}}
       });}
+    }else if(qv){
+      var map=window.__wenScreenVideos||{};
+      ensureVideo(qv,map.quiz);qv.loop=true;
+      var pr=qv.play();if(pr&&pr.catch)pr.catch(function(){});
     }
   }
   /* 选项层叠入场：问卷挂载区内的直接子元素逐个升起 */
@@ -875,7 +898,7 @@
     var v=document.querySelector('#s-inter .inter-video');
     if(v){
       if(branchBg){useBranchBg(v);}
-      else{v.loop=true;try{v.currentTime=0;}catch(e){}var pr=v.play();if(pr)pr.catch(function(){});}
+      else{var map=window.__wenScreenVideos||{};ensureVideo(v,map.quiz);v.loop=true;try{v.currentTime=0;}catch(e){}var pr=v.play();if(pr)pr.catch(function(){});}
     }
     setTimeout(function(){flowLocked=false;show('quiz');qi=target;renderQ();},2300);
   }
@@ -1238,6 +1261,8 @@ var INTER_BY_PERSONA={
   muse:'前半副牌已成形。<br>再抽几张。',
   xingluo:'星位已锚定。<br>再确认几处坐标。'
 };
+/* 首屏自动应用一次：look/sit 预取推迟到空闲，避免与 entry 视频抢带宽。 */
+var firstPersonaApply=true;
 function fmSetVideo(sel,src,poster){
   var v=fm$(sel);if(!v)return;
   if(poster)v.setAttribute('poster',poster);
@@ -1254,15 +1279,28 @@ function fmApplyPersona(key){
   window.__wenSetFunnelTheme(key);
   window.__wenSelectedPersona=key;
   window.__wenBranchSrc={look:P.look||'',sit:P.sit||''};
-  [P.look,P.sit].forEach(function(u){if(u){try{fetch(u).catch(function(){});}catch(e){}}});
+  /* 供按屏懒加载使用的视频路径表；漏斗首屏只保留 entry 一段视频。 */
+  window.__wenScreenVideos={entry:P.entry,ritual:P.ritual,quiz:P.quiz};
+  /* 首屏加载时不与 entry 视频抢带宽：look/sit 预取推迟到空闲；
+     引路人手动切换时仍然立即预取。 */
+  var deferPrefetch = firstPersonaApply;
+  var prefetch = function () { [P.look, P.sit].forEach(function (u) { if (u) { try { fetch(u).catch(function () {}); } catch (e) {} } }); };
+  if (deferPrefetch && typeof window.requestIdleCallback === 'function') {
+    window.requestIdleCallback(prefetch, { timeout: 4000 });
+  } else if (deferPrefetch) {
+    setTimeout(prefetch, 1500);
+  } else {
+    prefetch();
+  }
   try{localStorage.setItem('wen_funnel_persona',key);}catch(e){}
   fmSetVideo('#entryVideo',P.entry,P.entryPoster);
   var bn=fm$('#brandName');if(bn)bn.textContent=P.name;
   var ev=fm$('#entryVideo');if(ev)ev.setAttribute('aria-label',P.name);
-  fmSetVideo('#immVideo',P.ritual,P.ritualPoster);
-  fmSetVideo('.quiz-bg',P.quiz,P.poster);
-  fmSetVideo('.inter-video',P.quiz,P.poster);
-  fmSetVideo('.load-video',P.ritual,P.ritualPoster);
+  /* 已激活过（已赋过 src）的视频跟着换人；未激活的屏幕等到 show() 时再加载 */
+  var imm=fm$('#immVideo');if(imm&&imm.hasAttribute('src'))fmSetVideo('#immVideo',P.ritual,P.ritualPoster);
+  var qb=fm$('.quiz-bg');if(qb&&qb.hasAttribute('src'))fmSetVideo('.quiz-bg',P.quiz,P.poster);
+  var iv=fm$('.inter-video');if(iv&&iv.hasAttribute('src'))fmSetVideo('.inter-video',P.quiz,P.poster);
+  var lv=fm$('.load-video');if(lv&&lv.hasAttribute('src'))fmSetVideo('.load-video',P.ritual,P.ritualPoster);
   var qi=fm$('#qwhoImg');if(qi)qi.src=P.poster;
   var qn=fm$('#qwhoName');if(qn)qn.textContent=P.name+' 问';
   var la=fm$('#loadAvatar');if(la)la.src=P.poster;
@@ -1284,6 +1322,7 @@ function fmApplyPersona(key){
     var on=b.getAttribute('data-persona')===key;
     b.classList.toggle('on',on);b.setAttribute('aria-pressed',String(on));
   });
+  firstPersonaApply=false;
 }
 var personaToggle=fm$('#personaToggle'),personaOptions=fm$('#personaOptions');
 function fmSetPersonaOpen(open,restoreFocus){

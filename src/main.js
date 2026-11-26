@@ -1,3 +1,9 @@
+// 应用内部组件样式：随主应用分包加载（首帧不渲染这些区域：弹窗/抽屉/引导/代数徽章）。
+// 不放进 <link> 可以避免阻塞首页首帧；Node 单测不 import 本模块，无需担心 CSS 解析。
+// 注意：theme-claude.css 是全局设计令牌（--c-* / --accent-h …）的唯一来源，必须保持阻塞加载，不能在这里 import。
+import './enhance.css';
+import './evolve.css';
+import './guide.css';
 import { showToast } from './ui/toast.js';
 import { showFunnelTeaserIfNeeded } from './ui/funnel-teaser.js';
 import { focusSafely } from './ui/focus.js';

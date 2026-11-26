@@ -31,12 +31,12 @@
 .guide-route-copy b { display: block; font-size: 12.5px; line-height: 1.45; }
 .guide-route-copy small { display: block; margin-top: 2px; color: var(--c-text-2, #666); font-size: 11px; line-height: 1.5; }
 .guide-route-go { color: var(--c-accent, #b6533a); font-size: 16px; }
-@media (max-width: 420px) {
-  .guide-route-btn { grid-template-columns: 22px 1fr 12px; gap: 7px; padding: 8px; }
+@media (max-width: 420px){
+.guide-route-btn { grid-template-columns: 22px 1fr 12px; gap: 7px; padding: 8px; }
 }
 
-@media (forced-colors: active) {
-  #page2 .guide-perspective { color: CanvasText; background: Canvas; border-color: CanvasText; }
+@media (forced-colors: active){
+#page2 .guide-perspective { color: CanvasText; background: Canvas; border-color: CanvasText; }
   #page2 .guide-perspective :is(.guide-perspective-kicker, .guide-perspective-title, .guide-perspective-facts, .guide-perspective-prompt, .guide-perspective-note) { color: CanvasText; }
   #page2 .guide-route :is(.guide-route-title, .guide-route-btn, .guide-route-copy b, .guide-route-copy small, .guide-route-go) { color: CanvasText; }
   #page2 .guide-route-btn { border-color: CanvasText; background: Canvas; }
@@ -378,29 +378,29 @@ html[data-system-mode="western"] .result-chapter-kicker { color: var(--result-ch
 html[data-system-mode="western"] .is-portrait-hidden .result-character-figure,
 html[data-system-mode="western"] .is-portrait-hidden .result-chapter-figure { visibility: hidden; opacity: 0; }
 
-@media (max-width: 420px) {
-  .result-character-figure { width: 78%; right: -9%; }
+@media (max-width: 420px){
+.result-character-figure { width: 78%; right: -9%; }
   .result-chapter-figure { width: 200px; height: 300px; right: -32px; }
   .result-chapter-copy { max-width: 67%; }
   html[data-system-mode="western"] .result-character-figure { width: 65%; right: -10%; }
 }
-@media (max-width: 350px) {
-  .result-character-copy { padding-inline: 17px; }
+@media (max-width: 350px){
+.result-character-copy { padding-inline: 17px; }
   .result-character-overview { padding-inline: 17px; }
   #page2 .result-character-overview .qr-grid, #page2 .result-character-overview .qr-head { width: 59%; max-width: 59%; }
   .result-chapter-copy { max-width: 66%; padding-left: 19px; }
   .result-chapter-figure { width: 180px; height: 270px; }
 }
-@media (max-height: 450px) and (orientation: landscape) {
-  html[data-system-mode="western"] #page2 .result-character-hero,
+@media (max-height: 450px) and (orientation: landscape){
+html[data-system-mode="western"] #page2 .result-character-hero,
   html[data-system-mode="western"] #page2 .result-character-chapter { min-height: 280px; }
 }
-@media (prefers-reduced-motion: reduce) {
-  .result-character-blink, .result-character-speaking { display: none; animation: none; }
+@media (prefers-reduced-motion: reduce){
+.result-character-blink, .result-character-speaking { display: none; animation: none; }
   .result-western-theatre .w3d-load-ring { animation: none; }
 }
-@media (forced-colors: active) {
-  #page2 .result-character-hero, #page2 .result-character-chapter { background: Canvas; color: CanvasText; }
+@media (forced-colors: active){
+#page2 .result-character-hero, #page2 .result-character-chapter { background: Canvas; color: CanvasText; }
   .result-character-scene, .result-chapter-figure, .result-portrait-toggle { display: none; }
   .result-character-chapter::before, .result-character-chapter::after { display: none; }
   .result-character-copy, .result-character-kicker, .result-character-description, .result-chapter-kicker,
@@ -426,12 +426,12 @@ html[data-system-mode="western"] .is-portrait-hidden .result-chapter-figure { vi
 }
 
 /* V6.1 引路人视频立绘：poster 常驻，解码失败也不黑屏；不与表情静帧叠加。 */
-.result-character-video { opacity: 1; background: transparent; }
+
 .result-character-video.is-ready { animation: guide-video-in .6s ease-out both; }
 .result-character-video.is-fallback { animation: none; }
 @keyframes guide-video-in { from { opacity: .72; } to { opacity: 1; } }
-@media (prefers-reduced-motion: reduce) {
-  .result-character-video, .result-character-video.is-ready { animation: none; }
+@media (prefers-reduced-motion: reduce){
+.result-character-video, .result-character-video.is-ready { animation: none; }
 }
 
 /* ============================================================
@@ -676,14 +676,14 @@ body.beginner-mode #p2Inner .sec .is-guide-companion-merged .result-character-ov
 }
 
 /* Tablets have enough width to keep the two reading panels side by side. */
-@media (min-width: 640px) {
-  #page2 .is-guide-companion-merged .guide-companion-body {
+@media (min-width: 640px){
+#page2 .is-guide-companion-merged .guide-companion-body {
     grid-template-columns: minmax(0, .82fr) minmax(0, 1.18fr);
     gap: 14px;
   }
 }
-@media (max-width: 900px) {
-  #page2 .result-character-hero.is-guide-companion-merged,
+@media (max-width: 900px){
+#page2 .result-character-hero.is-guide-companion-merged,
   html[data-system-mode="western"] #page2 .result-character-hero.is-guide-companion-merged,
   html[data-system-mode="western"] #page2 .result-character-hero.is-guide-companion-merged.has-hint {
     display: block;
@@ -711,8 +711,8 @@ body.beginner-mode #p2Inner .sec .is-guide-companion-merged .result-character-ov
   #page2 .is-guide-companion-merged .guide-perspective { padding: 13px; }
   #page2 .is-guide-companion-merged .result-portrait-toggle { top: 10px; right: 10px; }
 }
-@media (max-width: 380px) {
-  #page2 .is-guide-companion-merged .guide-route-btn {
+@media (max-width: 380px){
+#page2 .is-guide-companion-merged .guide-route-btn {
     grid-template-columns: 18px minmax(0, 1fr) 8px;
     gap: 5px;
     padding: 7px 6px;
@@ -721,11 +721,11 @@ body.beginner-mode #p2Inner .sec .is-guide-companion-merged .result-character-ov
   #page2 .is-guide-companion-merged .guide-route-copy b { font-size: 10.5px; }
   #page2 .is-guide-companion-merged .guide-route-copy small { display: block; font-size: 10px; }
 }
-@media (max-height: 450px) and (orientation: landscape) {
-  html[data-system-mode="western"] #page2 .result-character-hero.is-guide-companion-merged { min-height: 320px; }
+@media (max-height: 450px) and (orientation: landscape){
+html[data-system-mode="western"] #page2 .result-character-hero.is-guide-companion-merged { min-height: 320px; }
 }
-@media (forced-colors: active) {
-  #page2 .result-character-hero.is-guide-companion-merged,
+@media (forced-colors: active){
+#page2 .result-character-hero.is-guide-companion-merged,
   #page2 .is-guide-companion-merged .guide-companion-visual,
   #page2 .is-guide-companion-merged .guide-companion-shell { background: Canvas !important; color: CanvasText !important; border-color: CanvasText !important; }
   #page2 .is-guide-companion-merged .guide-companion-data,
@@ -774,8 +774,8 @@ body.report-active #page2 .p2-scroll {
   from { transform: scale(1.03); }
   to { transform: scale(1.11) translateX(-1.6%); }
 }
-@media (max-width: 900px) {
-  #page2 .is-guide-companion-merged .guide-companion-visual { height: clamp(238px, 62vw, 272px); }
+@media (max-width: 900px){
+#page2 .is-guide-companion-merged .guide-companion-visual { height: clamp(238px, 62vw, 272px); }
   html[data-system-mode="western"] #page2 .is-guide-companion-merged .guide-companion-visual { height: clamp(248px, 62vw, 280px); }
   #page2 .is-guide-companion-merged .result-character-figure {
     top: -18%;
@@ -784,8 +784,8 @@ body.report-active #page2 .p2-scroll {
     height: 136%;
   }
 }
-@media (prefers-reduced-motion: reduce) {
-  #page2 .is-guide-companion-merged .result-character-figure,
+@media (prefers-reduced-motion: reduce){
+#page2 .is-guide-companion-merged .result-character-figure,
   #page2 .is-guide-companion-merged .result-character-backdrop { animation: none; }
 }
 
@@ -804,6 +804,6 @@ body.report-active #page2 .p2-scroll {
 html[data-system-mode="western"] #page2 .result-character-heroart { display: none; }
 html[data-system-mode="western"] #page2 .has-heroart .result-character-figure { display: block; }
 #page2 .is-guide-companion-merged .result-character-heroart { animation: hero-backdrop-drift 26s ease-in-out infinite alternate; }
-@media (prefers-reduced-motion: reduce) {
-  #page2 .is-guide-companion-merged .result-character-heroart { animation: none; }
+@media (prefers-reduced-motion: reduce){
+#page2 .is-guide-companion-merged .result-character-heroart { animation: none; }
 }

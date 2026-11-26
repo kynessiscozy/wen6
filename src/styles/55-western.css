@@ -37,33 +37,15 @@
   margin: 2px auto;
 }
 
-.w-visual-banner {
-  padding: 16px 18px; border-radius: 18px;
-  background: linear-gradient(135deg, color-mix(in srgb, var(--ac) 14%, var(--c-surface-2)), var(--c-surface-2));
-  border: 1px solid color-mix(in srgb, var(--ac) 28%, transparent);
-  margin-bottom: 14px;
-}
-.w-visual-banner .wb-top { display: flex; align-items: center; gap: 14px; }
-.w-visual-banner .wb-sign-badge {
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  width: 54px; height: 54px; border-radius: 14px; border: 1.5px solid currentColor; flex-shrink: 0;
-}
 .w-visual-banner .wb-sign-badge .sym { font-size: 24px; line-height: 1; }
-.w-visual-banner .wb-sign-badge b { font-size: 11px; margin-top: 2px; }
-.w-visual-banner .wb-meta { flex: 1; }
-.w-visual-banner .wb-title { font-size: 1.08em; font-weight: 800; font-family: var(--serif); color: var(--c-text-hi); }
-.w-visual-banner .wb-sub { font-size: .78em; color: var(--ac-text); margin-top: 3px; font-weight: 600; }
-.w-visual-banner .wb-takeaway {
-  margin-top: 10px; padding-top: 8px; border-top: 1px dashed var(--c-border);
-  font-size: .82em; line-height: 1.6; color: var(--c-text);
-}
-.w-visual-banner .wb-takeaway b { color: var(--c-text-hi); }
 
 /* 三核星盘卡 */
 .w-trio-grid {
   display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 10px;
 }
-@media (max-width: 560px) { .w-trio-grid { grid-template-columns: 1fr; } }
+@media (max-width: 560px){
+.w-trio-grid { grid-template-columns: 1fr; }
+}
 .w-trio-card {
   padding: 14px 12px; border-radius: 14px; background: var(--c-surface-2);
   border: 1px solid var(--c-border); text-align: center;
@@ -81,7 +63,9 @@
 .w-elem-radar-layout {
   display: grid; grid-template-columns: 1.1fr 1fr; gap: 16px; margin-top: 10px; align-items: center;
 }
-@media (max-width: 600px) { .w-elem-radar-layout { grid-template-columns: 1fr; } }
+@media (max-width: 600px){
+.w-elem-radar-layout { grid-template-columns: 1fr; }
+}
 .w-elem-title { font-size: .82em; font-weight: 700; color: var(--c-text-hi); margin-bottom: 10px; }
 .w-elem-bar-row { margin-bottom: 8px; }
 .w-elem-bar-row .lab { display: flex; justify-content: space-between; font-size: .78em; color: var(--c-text); margin-bottom: 3px; font-weight: 600; }
@@ -96,8 +80,12 @@
 .w-planet-cards-grid {
   display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px;
 }
-@media (max-width: 600px) { .w-planet-cards-grid { grid-template-columns: repeat(2, 1fr); } }
-@media (max-width: 380px) { .w-planet-cards-grid { grid-template-columns: 1fr; } }
+@media (max-width: 600px){
+.w-planet-cards-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 380px){
+.w-planet-cards-grid { grid-template-columns: 1fr; }
+}
 .w-planet-tile {
   padding: 10px 12px; border-radius: 12px; background: var(--c-surface-2); border: 1px solid var(--c-border);
 }
@@ -114,7 +102,9 @@
   display: flex; align-items: center; gap: 16px; padding: 14px; border-radius: 14px;
   background: var(--c-surface-2); border: 1px solid var(--c-border); margin-top: 10px;
 }
-@media (max-width: 500px) { .w-horo-hero { flex-direction: column; text-align: center; } }
+@media (max-width: 500px){
+.w-horo-hero { flex-direction: column; text-align: center; }
+}
 .score-ring-box { position: relative; width: 88px; height: 88px; flex-shrink: 0; }
 .score-ring-box .ring-svg { width: 100%; height: 100%; }
 .score-ring-box .score-txt {
@@ -137,7 +127,9 @@
 .w-aspect-grid {
   display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px;
 }
-@media (max-width: 520px) { .w-aspect-grid { grid-template-columns: 1fr; } }
+@media (max-width: 520px){
+.w-aspect-grid { grid-template-columns: 1fr; }
+}
 .w-aspect-card {
   padding: 11px 13px; border-radius: 12px; background: var(--c-surface-2); border: 1px solid var(--c-border);
 }
@@ -149,7 +141,9 @@
   display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; padding: 10px 12px;
   border-radius: 12px; background: var(--c-surface-2); border: 1px solid var(--c-border); font-size: .78em;
 }
-@media (max-width: 480px) { .w-yiji-banner { grid-template-columns: 1fr; } }
+@media (max-width: 480px){
+.w-yiji-banner { grid-template-columns: 1fr; }
+}
 .w-yiji-banner .col.yi b { color: var(--c-green, #7ab648); }
 .w-yiji-banner .col.ji b { color: var(--c-red, #d4654a); }
 
@@ -157,7 +151,9 @@
 .w-all-signs-grid {
   display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 8px;
 }
-@media (max-width: 560px) { .w-all-signs-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 560px){
+.w-all-signs-grid { grid-template-columns: repeat(3, 1fr); }
+}
 .w-sign-tile {
   padding: 9px 6px; border-radius: 10px; background: var(--c-surface-2); border: 1px solid var(--c-border); text-align: center; font-size: .74em;
 }
@@ -172,7 +168,9 @@
 .w-num-trio-box {
   display: grid; grid-template-columns: 1.2fr 1fr; gap: 12px; margin-top: 10px;
 }
-@media (max-width: 560px) { .w-num-trio-box { grid-template-columns: 1fr; } }
+@media (max-width: 560px){
+.w-num-trio-box { grid-template-columns: 1fr; }
+}
 .main-archetype-card {
   padding: 16px; border-radius: 14px; background: var(--c-surface-2); border: 1px solid var(--c-border); text-align: center;
 }
@@ -194,7 +192,9 @@
 .w-num-grid-layout {
   display: grid; grid-template-columns: 140px 1fr; gap: 14px; align-items: start; margin-top: 10px;
 }
-@media (max-width: 500px) { .w-num-grid-layout { grid-template-columns: 1fr; } }
+@media (max-width: 500px){
+.w-num-grid-layout { grid-template-columns: 1fr; }
+}
 .num-3x3-matrix {
   display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; width: 140px; margin: 0 auto;
 }
@@ -221,7 +221,6 @@
 }
 .w-py-box .py-badge { font-size: .9em; font-weight: 800; color: var(--ac-text); margin-bottom: 4px; }
 .w-py-box .py-text { margin: 0; font-size: .8em; line-height: 1.65; color: var(--c-text); }
-
 
 /* 问问大师依据流派切换（东方命理 vs 西方星相） */
 .ai-basis-row {

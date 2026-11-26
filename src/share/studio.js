@@ -1,3 +1,4 @@
+import '../share-studio.css';
 import { HOME_THEMES } from '../ui/home-theme.js';
 import { focusSafely } from '../ui/focus.js';
 import { renderTraitPoster } from './poster.js';
