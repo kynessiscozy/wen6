@@ -105,10 +105,7 @@ for (const themeKey of v61Keys) {
     assert.ok(await exists(path), `${path} 必须存在`);
     assert.ok(sw.includes(`'${path}'`), `${path} 必须登记离线缓存`);
   }
-  assert.ok(character.motion?.src && character.motion?.poster, `${themeKey} 登记人物视频与定妆海报`);
-  const videoPath = character.motion.src.slice(2).split('?')[0];
-  assert.ok(await exists(videoPath), `${videoPath} 必须存在`);
-  assert.ok(await exists(character.motion.poster.slice(2)), `${themeKey} 视频 poster 必须存在`);
+  // 视频文件（含 invite）由下方 GUIDE_V61 注册表逐段校验；characters.data.js 不再登记 motion。
 }
 console.log('  ✓ 六位 V6.1 立绘 / 头像 / 视频海报 / invite 视频齐备');
 

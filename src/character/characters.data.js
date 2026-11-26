@@ -6,7 +6,7 @@
    wenwen.js / chat-master.js / companion.js 含行为逻辑，保持独立。
 
    V6.1 全面换新：六位引路人改用 2D 定妆的透明立绘（*-v61.webp）、
-   同版头像（*-v61-avatar.webp）与人物视频（motion，报告头图用）；旧的
+   同版头像（*-v61-avatar.webp）与动作版头图；旧的
    3D 电影渲染立绘、逐帧表情贴图与火焰王座/星扇等道具全部退场。
    历史主题键（moonfox / xingling / diyan / …）保持不变，旧档案可用。
    ============================================================ */
@@ -33,7 +33,6 @@ export const EARTHFIRE_SOVEREIGN = defineCharacter({
     hero: { src: './art/diyan-action.webp', alt: '焱绒掌心托金元宝向镜头递出', width: 900, height: 1350 },
     avatar: { src: './art/diyan-v61-avatar.webp', alt: '', width: 192, height: 192 },
   },
-  motion: { src: './art/diyan-invite.mp4?v=75', poster: './art/diyan-lord.webp', width: 672, height: 1344 },
 });
 /** V6.1 定名（旧导出名保留兼容历史引用）。 */
 export const YANRONG = EARTHFIRE_SOVEREIGN;
@@ -48,7 +47,6 @@ export const JADE_EMPRESS = defineCharacter({
     hero: { src: './art/yuchen-action.webp', alt: '玉宸将玉印托至胸前向镜头送出', width: 900, height: 1800 },
     avatar: { src: './art/yuchen-v61-avatar.webp', alt: '', width: 192, height: 192 },
   },
-  motion: { src: './art/yuchen-invite.mp4?v=75', poster: './art/yuchen-lord.webp', width: 672, height: 1344 },
 });
 
 /** 全身像，暂不提供与肖像对齐的表情层。 */
@@ -72,7 +70,6 @@ export const MOON_FOX = defineCharacter({
     hero: { src: './art/moonfox-action.webp', alt: '月白将狐面具举在脸侧，指尖萦绕狐火', width: 900, height: 1800 },
     avatar: { src: './art/moonfox-v61-avatar.webp', alt: '', width: 192, height: 192 },
   },
-  motion: { src: './art/yuebai-invite.mp4?v=75', poster: './art/yuebai-lord.webp', width: 672, height: 1344 },
 });
 
 /** V6.1 絮羽：整体改为西方卡罗牌大师——梅子紫缎裙、黑西装披肩、悬浮牌弧。 */
@@ -85,7 +82,6 @@ export const TAROT_MASTER = defineCharacter({
     hero: { src: './art/muse-action.webp', alt: '絮羽将一张塔罗牌向镜头递出', width: 900, height: 1800 },
     avatar: { src: './art/muse-v61-avatar.webp', alt: '', width: 192, height: 192 },
   },
-  motion: { src: './art/muse-invite.mp4?v=75', poster: './art/muse-lord.webp', width: 672, height: 1344 },
 });
 /** 旧导出名保留，历史集成不会断。 */
 export const MUSE = TAROT_MASTER;
@@ -136,7 +132,6 @@ export const XIYAO = defineCharacter({
     hero: { src: './art/xingling-action.webp', alt: '夕瑶向镜头伸手牵红线，另一手抱着姻缘簿', width: 900, height: 1800 },
     avatar: { src: './art/xingling-v61-avatar.webp', alt: '', width: 192, height: 192 },
   },
-  motion: { src: './art/xiyao-invite.mp4?v=75', poster: './art/xiyao-lord.webp', width: 672, height: 1344 },
 });
 /** 旧导出名保留（历史主题键 xingling 不变）。 */
 export const XINGLING = XIYAO;
@@ -165,5 +160,4 @@ export const XINGLUO = defineCharacter({
     hero: { src: './art/xingluo-action.webp', alt: '星罗指尖轻点，身侧星空连成星座，臂下夹着星图卷', width: 900, height: 1800 },
     avatar: { src: './art/xingluo-v61-avatar.webp', alt: '', width: 192, height: 192 },
   },
-  motion: { src: './art/xingluo-invite.mp4?v=75', poster: './art/xingluo-lord.webp', width: 672, height: 1344 },
 });
