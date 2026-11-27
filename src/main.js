@@ -132,17 +132,20 @@ let aboutReturnFocus=null;
   window.closeAskPage=closeAskPage;
   // 报告页目录：命理分区用 jumpTo，星相分区先切分域再定位
   window.TJJumpReport=function(sec,tab){
+    if(sec==='s-report'){ openResultView('s-report'); return; }
     if(sec==='s-astro'){
       openResultView('s-astro');
+      // 不带 tab 时停在「本命」，由用户自己在页内切换。
       const map={'本命':'astro','运程':'horo','灵数':'num'};
-      const key=map[tab]||'astro';
+      const key=map[tab];
+      if(!key)return;
       setTimeout(()=>{activateAstroTab(key);const el=document.querySelector(`.astro-pane[data-astro="${key}"]`);el?.scrollIntoView({behavior:'smooth',block:'start'});},60);
       return;
     }
     const first={ '命盘':'s-ming','运势':'s-yun','关系':'s-rel' };
     jumpTo(sec, null, null);
-    const id=first[tab]||sec;
-    if(id!==sec)setTimeout(()=>jumpTo(id,null,null),120);
+    const id=first[tab];
+    if(id&&id!==sec)setTimeout(()=>jumpTo(id,null,null),120);
   };
   window.setAiBasis=setAiBasis;
   window.toggleUserMode=toggleUserMode;

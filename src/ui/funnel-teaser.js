@@ -513,7 +513,14 @@ export function showFunnelTeaserIfNeeded() {
 
   el.querySelector('.ft-cta').addEventListener('click', () => {
     dismiss('continue');
-    runGuideAction(route.entry); // 主按钮直接落到这位引路人的第一站
+    /* 主按钮落「报告」页：预告页讲的是整份报告怎么读，
+       第一站的具体卡片由报告页合并卡里的路线四步自己带。
+       单独某一站仍可从下面的路线 / 目录按钮直达。 */
+    if (typeof window.TJJumpReport === 'function') {
+      window.TJJumpReport('s-report');
+      return;
+    }
+    runGuideAction(route.entry);
   });
   el.querySelectorAll('.ft-route-btn').forEach(btn => {
     btn.addEventListener('click', () => {

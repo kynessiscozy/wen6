@@ -499,7 +499,10 @@ export function renderAll(b,wx,ss,dy,ln,zw,qm,mh,si,gen,q,city,by,shensha,liuyue
   H+=renderAstroSection(ctx);
 
   // —— 报告：承接漏斗交接与引路人阅读路线（合并卡由 character-report 挂入） ——
-  H+=`<div class="sec" id="s-report"><header class="result-page-head"><p class="result-page-kicker">报告</p><h1 class="result-page-title">这份报告，从一张合并卡开始</h1><p class="result-page-copy">左（上）侧是引路人整理的速读与阅读路线，下面是可以直接跳转的完整目录。数据仍分别落在「命理」与「星相」两页，这里只负责带路。</p></header><div id="reportLead"></div><div id="reportToc"></div>`;
+  /* 报告页 = 一张合并卡 + 一份出口清单。
+     顶栏已经有「报告」身份行，这里不再叠一遍大标题与说明；
+     旧的空 #reportToc 容器一并移除（它从来没有被写入过）。 */
+  H+=`<div class="sec" id="s-report"><div id="reportLead"></div>`;
   H+=renderReportLibrary(ctx);
   H+=`</div>`;
 
@@ -562,24 +565,23 @@ function renderAstroSection(ctx){
    而不是一张孤零零的卡。
    ============================================================ */
 function renderReportLibrary(ctx){
-  const year=ctx?.cLn?`${ctx.cLn.g}${ctx.cLn.z}`:'';
-  const cards=[
-    ['命理 · 命盘','四柱、五行、十神与三式合参，先看底盘。','s-ming','命盘'],
-    ['命理 · 运势','大运、流年、流月与当下关注。','s-yun','运势'],
-    ['命理 · 关系','亲密关系画像与八字合盘。','s-rel','关系'],
-    ['星相 · 本命','太阳、月亮、上升与十大星曜。','s-astro','本命'],
-    ['星相 · 运程','今日、本周与宏观星象。','s-astro','运程'],
-    ['星相 · 灵数','生命密码、九宫图阵与流年灵数。','s-astro','灵数']
+  const year = ctx?.cLn ? `${ctx.cLn.g}${ctx.cLn.z}` : '';
+  /* 这里不再是第二套导航。合并卡里的路线四步已经负责「先看哪里」，
+     本区块只做三件卡里做不到的事：导出 / 打印 / 复制，
+     外加两页的直达入口。 */
+  const jumps = [
+    ['命理', '命盘、运势、关系三张读数', 's-ming'],
+    ['星相', '本命、运程、灵数三段', 's-astro'],
   ];
-  let H=`<section class="report-lib" aria-label="完整报告目录">`;
-  H+=`<div class="report-lib-head"><div><div class="report-lib-title">完整报告</div><div class="report-lib-sub">这份报告由命理与星相两部分组成${year?` · ${year}流年`:''}，可以按顺序读，也可以直接跳到关心的那一节。</div></div></div>`;
-  H+=`<div class="report-lib-grid">`;
-  H+=cards.map(([title,desc,sec,tab])=>`<button class="report-lib-item" type="button" onclick="TJJumpReport('${sec}','${tab}')"><b>${title}</b><span>${desc}</span><i aria-hidden="true">›</i></button>`).join('');
+  let H=`<section class="report-exits" aria-label="报告出口">`;
+  H+=`<div class="report-exits-head"><b>把这份报告带走</b><span>${year ? `含 ${year} 流年` : '含东西两套读数'}</span></div>`;
+  H+=`<div class="report-exits-actions">`;
+  H+=`<button class="report-exits-btn" type="button" onclick="openPosterShare('report')">生成分享海报</button>`;
+  H+=`<button class="report-exits-btn" type="button" onclick="window.print()">打印 / 存 PDF</button>`;
+  H+=`<button class="report-exits-btn" type="button" onclick="copyReport()">复制文字</button>`;
   H+=`</div>`;
-  H+=`<div class="report-lib-actions">`;
-  H+=`<button class="report-lib-action" type="button" onclick="openPosterShare('report')">生成分享海报</button>`;
-  H+=`<button class="report-lib-action" type="button" onclick="window.print()">打印 / 存 PDF</button>`;
-  H+=`<button class="report-lib-action" type="button" onclick="copyReport()">复制报告文字</button>`;
+  H+=`<div class="report-exits-jumps">`;
+  H+=jumps.map(([name,desc,sec])=>`<button class="report-exits-jump" type="button" onclick="TJJumpReport('${sec}')"><b>${name}</b><span>${desc}</span><i aria-hidden="true">›</i></button>`).join('');
   H+=`</div></section>`;
   return H;
 }

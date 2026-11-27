@@ -21,32 +21,7 @@
   #page2 .east-mode-group .mode-top-switch { min-width: 52px; padding-inline: 12px !important; }
 }
 
-/* ---------- 1.5 分区一级标题（新加的两页需要自己的身份行） ---------- */
-.result-page-head { padding: 4px 2px 0; }
-.result-page-kicker {
-  margin: 0;
-  color: var(--ac-text);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: .18em;
-}
-.result-page-title {
-  margin: 6px 0 0;
-  font: 650 clamp(19px, 4.6vw, 23px)/1.35 var(--serif, serif);
-  color: var(--c-text-hi);
-}
-.result-page-copy {
-  margin: 7px 0 0;
-  color: var(--c-text-2);
-  font-size: 12.5px;
-  line-height: 1.7;
-}
-
-/* 命理 / 星相 两页沿用同一个顶栏，但东、西两套体系需要各自的身份行。 */
-#s-ming #eastModeGroup,
-#s-ming .mode-top-group { margin-right: auto; }
-.p2-top .result-top-title[hidden] { display: none; }
-.result-top-title strong { color: var(--c-text-hi); }
+/* 分区一级标题（仅星相页 intro 使用；报告 / 命理由顶栏身份行承担） */
 
 /* ---------- 2. 报告页 ---------- */
 #reportLead:empty { display: none; }
@@ -54,65 +29,93 @@
 /* 合并卡自带下边距，紧跟在标题后时压低一点，避免两段空白叠在一起。 */
 #s-report .result-character-hero { margin-top: 2px; }
 
-.report-lib {
-  padding: 18px;
-  border: 1px solid var(--c-border);
-  border-radius: 20px;
-  background: var(--c-surface);
-}
-.report-lib-head { margin-bottom: 12px; }
-.report-lib-title {
-  font: 650 16px/1.3 var(--serif, serif);
-  color: var(--c-text-hi);
-}
-.report-lib-sub {
-  margin-top: 5px;
-  color: var(--c-text-2);
-  font-size: 12px;
-  line-height: 1.65;
-}
-.report-lib-grid {
+/* 报告页摘要：东西各一栏，只放锚点数值，完整读数在各自分区。
+   这两栏在合并卡的深色面板里，所以用与 .guide-companion-data 同源的
+   玻璃底与浅色文字，不能沿用页面级的浅色表面变量。 */
+#page2 .report-summary {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 8px;
 }
-.report-lib-item {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  min-height: 76px;
-  padding: 12px 30px 12px 13px;
-  border: 1px solid var(--c-border);
-  border-radius: 14px;
-  background: var(--c-surface-2);
-  color: var(--c-text);
-  text-align: left;
+#page2 .report-summary-card {
+  display: grid;
+  gap: 7px;
+  padding: 11px 12px;
+  border: 1px solid rgba(255, 249, 241, .13);
+  border-radius: 13px;
+  background: rgba(255, 255, 255, .05);
+  color: #fff9f1;
+  text-decoration: none;
   cursor: pointer;
-  transition: border-color .18s ease, background .18s ease, transform .18s ease;
+  transition: background .18s ease, border-color .18s ease, transform .18s ease;
 }
-.report-lib-item:hover { border-color: var(--c-border-2); background: var(--c-surface-3); }
-.report-lib-item:active { transform: scale(.985); }
-.report-lib-item b { font-size: 13px; font-weight: 650; color: var(--c-text-hi); }
-.report-lib-item span { font-size: 11.5px; line-height: 1.5; color: var(--c-text-2); }
-.report-lib-item i {
-  position: absolute;
-  top: 50%;
-  right: 12px;
-  translate: 0 -50%;
-  color: var(--c-text-3);
-  font-style: normal;
-  font-size: 17px;
+#page2 .report-summary-card:hover,
+#page2 .report-summary-card:focus-visible {
+  background: rgba(255, 255, 255, .085);
+  border-color: rgba(255, 249, 241, .26);
 }
-.report-lib-actions {
+#page2 .report-summary-card:hover { transform: translateY(-1px); }
+#page2 .report-summary-card:active { transform: scale(.99); }
+#page2 .report-summary-card:focus-visible { outline: 2px solid var(--result-character-accent); outline-offset: 2px; }
+#page2 .report-summary-kicker {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  color: var(--result-character-accent);
+}
+#page2 .report-fact-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px 10px;
+}
+#page2 .report-fact {
+  display: grid;
+  gap: 1px;
+  min-width: 0;
+}
+#page2 .report-fact span {
+  font-size: 9.5px;
+  color: rgba(255, 249, 241, .6);
+  letter-spacing: .03em;
+}
+#page2 .report-fact b {
+  font: 650 13px/1.35 var(--serif, serif);
+  color: #fffaf4;
+  overflow-wrap: anywhere;
+}
+#page2 .report-summary-go {
+  padding-top: 6px;
+  border-top: 1px solid rgba(255, 249, 241, .12);
+  font-size: 10.5px;
+  color: rgba(255, 249, 241, .72);
+}
+
+/* 报告出口：导出 / 打印 / 复制 + 两页直达，不再重复路线导航。 */
+#page2 .report-exits {
+  padding: 15px 16px;
+  border: 1px solid var(--c-border);
+  border-radius: 18px;
+  background: var(--c-surface-2);
+}
+#page2 .report-exits-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 11px;
+}
+#page2 .report-exits-head b {
+  font: 650 14px var(--serif, serif);
+  color: var(--c-text-hi);
+}
+#page2 .report-exits-head span { font-size: 11px; color: var(--c-text-3); }
+#page2 .report-exits-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin-top: 14px;
 }
-.report-lib-action {
+#page2 .report-exits-btn {
   min-height: 40px;
-  padding: 0 16px;
+  padding: 0 15px;
   border: 1px solid var(--c-border-2);
   border-radius: 999px;
   background: transparent;
@@ -121,12 +124,48 @@
   cursor: pointer;
   transition: background .18s ease, color .18s ease, border-color .18s ease;
 }
-.report-lib-action:hover { background: var(--c-surface-3); color: var(--c-text); }
-.report-lib-action:focus-visible { outline: 2px solid var(--c-accent); outline-offset: 2px; }
+#page2 .report-exits-btn:hover { background: var(--c-surface-3); color: var(--c-text); }
+#page2 .report-exits-btn:focus-visible { outline: 2px solid var(--c-accent); outline-offset: 2px; }
+#page2 .report-exits-jumps {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 11px;
+}
+#page2 .report-exits-jump {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 2px 8px;
+  padding: 10px 13px;
+  border: 1px solid var(--c-border);
+  border-radius: 13px;
+  background: var(--c-surface-3);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color .18s ease, transform .18s ease;
+}
+#page2 .report-exits-jump:hover { border-color: var(--c-border-2); transform: translateY(-1px); }
+#page2 .report-exits-jump:focus-visible { outline: 2px solid var(--c-accent); outline-offset: 2px; }
+#page2 .report-exits-jump b { grid-column: 1; font: 650 13px var(--serif, serif); color: var(--c-text-hi); }
+#page2 .report-exits-jump span { grid-column: 1; font-size: 11px; color: var(--c-text-2); }
+#page2 .report-exits-jump i {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  font-style: normal;
+  font-size: 17px;
+  color: var(--c-text-4);
+}
 @media (max-width: 430px) {
-  .report-lib { padding: 14px; }
-  .report-lib-grid { grid-template-columns: 1fr; }
-  .report-lib-item { min-height: 0; }
+  #page2 .report-summary { grid-template-columns: 1fr; }
+  #page2 .report-exits { padding: 13px 14px; }
+  #page2 .report-exits-jumps { grid-template-columns: 1fr; }
+}
+@media (forced-colors: active) {
+  #page2 .report-summary-card,
+  #page2 .report-exits,
+  #page2 .report-exits-jump,
+  #page2 .report-exits-btn { border-color: CanvasText; background: Canvas; color: CanvasText; }
 }
 
 /* ---------- 3. 星相页 ---------- */
