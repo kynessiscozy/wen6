@@ -6,6 +6,19 @@
 
 ## [Unreleased] - 2026-11-12 · V6.1 引路人革新 / 首屏内容流 / 按钮元素化 / 卡片合并 / 结果页排版修正
 
+### 变更（结果页重构：DOCK 五入口 · 报告 / 命理 / WEN / 星相 / 工具）
+
+- **入口**：底部 DOCK 从「东方 / 西方」两体系四标签改为五个并列入口——`报告`（`s-report`）、`命理`（`s-ming/s-yun/s-rel`）、`WEN`（`#aiFab[data-view="wen"]`）、`星相`（`s-astro`）、`工具`（`s-adv`）。顶部「东方 / 西方」体系开关移除，`src/styles/50-system-mode.css` 里的 `.sys-eastern/.sys-western` 显隐与 `ig-nav-icon-eastern/western` 图标切换一并清空（该文件保留占位以维持 `@import` 顺序）；`data-system-mode` 属性仍保留，因为 AI 依据与长报告还在读它。
+- **报告页**：新增一级标题行 + 合并主卡 + 六项目录。合并卡不再把星相页的 3D 场景（`#w3d-astro`）搬进画面层——那会让「星相」页丢掉主角；改为在卡内渲染真实的星盘三核数值条（`guide-companion-trio`，太阳 / 月亮 / 上升，带 `data-report-value`），数值优先取 `western.astro`，未渲染过星相页时由 `getWesternProfile(ctx)` 现算。
+- **命理页**：`命盘 / 运势 / 关系` 三个原 `section` 收成同页顶部切换（`#eastModeGroup`），DOCK 里只剩一个「命理」入口。
+- **星相页**：`本命 / 运程 / 灵数` 三分域改由 `activateAstroTab()` 统一切换；3D 天象仪门禁改为 `#s-astro.sec.active && !body.wen-page`，`activeKey()` 跟随 `.astro-pane.active`。
+- **WEN 页**：问问大师改为独立整页（`body.wen-page` + `#aiSheet.open`，`inset: 0 0 auto 0`，高度 `calc(100dvh - var(--ig-dock-height) - 24px - safe-area)`）。旧规则 `#s-report{display:flex}` / `#s-astro{display:flex}` 的 ID 优先级会压过 `.sec{display:none}`，已改为 `#s-report.active` / `#s-astro.active`。DOCK 中央入口与其余四项共用「图标 + 标签」结构（34px 实心圆 + 10px 文字），不再比胶囊还高。
+- **顶栏**：`#p2Scroll` 移出 `.p2-top`，顶栏成为真正的吸顶行；新增 `#p2TopTitle` 身份行（报告 / 命理 / 星相 / 工具），由 `syncTopTitle()` 与 DOCK 高亮同步。
+- **引路人路线**：`src/ui/guide-route.js` 的西方向导从 `card('s-ming','astro-core','western')` 改为 `card('s-astro', …)`，星罗的 `toc` 首项同步为 `s-astro`；文案「切到西方视图」改为「去『星相 · 本命』」。
+- **缺字**：星盘文案里的 `☉ / ☽` 换成项目内的 `getWesternSvgIcon()` 线稿，避免字体子集缺字。
+- **版本**：`APP_CACHE_VERSION` `v89 → v90`（`src/ui/entry-personas.js` ↔ `public/sw.js` ↔ 三处测试断言）；视频 `v76`、产品 `wen6.0` 不变。
+- **验证**：`npm run build`、`npm run test:unit`（含引路人路线 / 合并卡契约）、`npm run check:copy`；puppeteer 390×844 实跑四页，确认星相页 3D `canvas: true`、WEN 整页 `390 × 754`、DOCK 五入口无溢出。
+
 ### 修复（结果页合并主卡排版回归）
 
 - **反馈**：用户指出「结果页面的排版被搞得乱七八糟」，要求重新理清。定位到上一轮合并主卡在宽屏把内容层再拆成「数据 / 路线」两列：62% 内容层只剩约 420px，路线按钮被压到 66px 宽并逐字竖排；速读区仍沿用满幅画面时代的 57% 宽度，四张速读卡各约 50px；窄屏画面被压到 170px，人物裁切突兀。

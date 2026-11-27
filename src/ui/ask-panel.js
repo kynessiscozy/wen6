@@ -592,25 +592,97 @@ function _syncAiContext() {
    公开 API
    ============================================================ */
 
+/**
+ * WEN 的两种形态：
+ *  · 首页（没有报告）→ 仍是从下往上推的对话浮层，关闭后回到首页；
+ *  · 结果页（报告已就绪）→ 整页形态，DOCK 的 WEN 入口就是它的页面。
+ *    整页形态不 inert 背景、不加 aria-modal：它是一页，不是对话框。
+ * 两态共用同一份对话状态与同一块 DOM，避免出现两套历史。
+ */
+export function openAskPage() {
+  const sheet = document.getElementById('aiSheet');
+  if (!sheet) return;
+  if (sheet.classList.contains('open') && document.body.classList.contains('wen-page')) return;
+  const wasHome = sheet.classList.contains('open') && !document.body.classList.contains('wen-page');
+  if (wasHome) return; // 首页浮层保持原样，不叠加整页
+  if (!sheet.classList.contains('ai-header-collapsed')) loadMasterPortraits(sheet);
+
+  _homeChat = false;
+  _returnFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+  _backgroundPage = null;
+  _pageWasInert = false;
+  sheet.removeAttribute('aria-modal');
+  sheet.inert = false;
+  sheet.setAttribute('aria-hidden', 'false');
+  document.body.classList.add('wen-page');
+  sheet.classList.add('wen-sheet');
+  // DOCK 只有「WEN」这一个入口处于选中态；否则会残留上一页的高亮。
+  document.querySelectorAll('.tab-item').forEach(item => item.classList.remove('active', 'tab-pop'));
+  const fab = document.getElementById('aiFab');
+  if (fab) { fab.classList.remove('fab-pop'); void fab.offsetWidth; fab.classList.add('fab-pop'); fab.addEventListener('animationend', () => fab.classList.remove('fab-pop'), { once: true }); }
+  document.getElementById('aiTitleText').textContent = CHAT_MASTER.title;
+  document.getElementById('aiOverlay').classList.remove('open');
+  sheet.classList.add('open');
+  _openAskBody();
+}
+
+export function closeAskPage() {
+  const sheet = document.getElementById('aiSheet');
+  if (!sheet || !document.body.classList.contains('wen-page')) return;
+  document.body.classList.remove('wen-page');
+  sheet.classList.remove('wen-sheet', 'open', 'ai-master-thinking');
+  sheet.setAttribute('aria-hidden', 'true');
+  sheet.removeAttribute('aria-modal');
+  document.getElementById('aiSuggest')?.classList.remove('show');
+  // 回到同一定位：命理入口保持可用，用户不会落在空白页。
+  document.querySelector('.tab-item[data-sec="s-ming"]')?.click();
+}
+
+function _openAskBody() {
+  const sheet = document.getElementById('aiSheet');
+  if (!sheet) return;
+  _syncAiContext();
+  _ensureConnBar();
+  const body = document.getElementById('askResult');
+  if (body && !body.querySelector('.chat-msg') && !body.querySelector('.chat-home-intro')) {
+    if (!_restoreHistory(body)) _renderWelcome(body);
+    probeConnection(getApiKey());
+  }
+  body?.querySelector('.chat-home-intro')?.remove();
+  if (body && !body.querySelector('.chat-msg')) _renderWelcome(body);
+  const input = document.getElementById('askInput');
+  if (input && !input.value) {
+    try { input.value = sessionStorage.getItem('tj_ai_draft') || ''; } catch (e) {}
+  }
+  _renderStarters(body);
+  clearTimeout(_focusTimer);
+  _focusTimer = setTimeout(() => {
+    if (!sheet.classList.contains('open') || sheet.inert) return;
+    // Do not summon the mobile keyboard until the user taps the composer.
+    const target = window.matchMedia('(max-width: 650px)').matches
+      ? document.getElementById('aiTitleText') : input;
+    focusSafely(target);
+  }, 80);
+}
+
 export function openAsk() {
   const sheet = document.getElementById('aiSheet');
-  if (sheet?.classList.contains('open')) { closeAsk(); return; }
   if (!sheet) return;
+  // 结果页：WEN 是整页，DOCK 的 WEN 入口不再是非开即关的 toggle。
+  if (document.body.classList.contains('report-active')) { openAskPage(); return; }
+  if (sheet.classList.contains('open')) { closeAsk(); return; }
   if (!sheet.classList.contains('ai-header-collapsed')) loadMasterPortraits(sheet);
 
   const page = document.getElementById('page1');
   _homeChat = !!page && !page.classList.contains('hidden');
   _returnFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-  // Both entries now open the same modal conversation room.
+  // Both entries now open the same conversation room.
   _backgroundPage = _homeChat ? page : document.getElementById('page2');
   _pageWasInert = !!_backgroundPage?.inert;
   if (_backgroundPage) _backgroundPage.inert = true;
   sheet.setAttribute('aria-modal', 'true');
   if (_homeChat) {
     document.body.classList.add('character-chat-open');
-  } else {
-    const fab = document.getElementById('aiFab');
-    if (fab) { fab.classList.remove('fab-pop'); void fab.offsetWidth; fab.classList.add('fab-pop'); fab.addEventListener('animationend', () => fab.classList.remove('fab-pop'), { once: true }); }
   }
   document.getElementById('aiTitleText').textContent = _homeChat ? `和${CHAT_MASTER.name}聊聊` : CHAT_MASTER.title;
   sheet.inert = false;
@@ -647,6 +719,8 @@ export function openAsk() {
 
 export function closeAsk() {
   const sheet = document.getElementById('aiSheet');
+  // 整页形态走自己的关闭路径：它是页面，不该按对话框逻辑「收起来」。
+  if (document.body.classList.contains('wen-page')) { closeAskPage(); return; }
   if (!sheet?.classList.contains('open')) return;
   clearTimeout(_focusTimer);
   _setAiStreaming(false);

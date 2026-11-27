@@ -7,3 +7,7 @@ dist/
 
 # 测试产物
 screenshots/
+
+# 本地端到端截图脚本的产物
+.shot-*.png
+.flow.log

@@ -1,0 +1,445 @@
+/* ============================================================
+   结果页五入口（2026-11 重构）
+   ------------------------------------------------------------
+   报告 / 命理 / WEN / 星相 / 工具。
+   这一层只负责「新结构」的呈现：命理顶栏切换、星相分域、报告目录、
+   WEN 整页形态。旧的 .ig-dock 几何、.glass 卡片、.sec 显隐规则不动，
+   避免和既有主题层互相打架。
+   ============================================================ */
+
+/* ---------- 1. 顶栏：命理页的「命盘 / 运势 / 关系」 ---------- */
+#page2 .east-mode-group {
+  min-height: 40px;
+  margin-inline: auto;
+}
+#page2 .east-mode-group[hidden] { display: none !important; }
+#page2 .east-mode-group .mode-top-switch {
+  min-width: 64px;
+  letter-spacing: .06em;
+}
+@media (max-width: 420px) {
+  #page2 .east-mode-group .mode-top-switch { min-width: 52px; padding-inline: 12px !important; }
+}
+
+/* ---------- 1.5 分区一级标题（新加的两页需要自己的身份行） ---------- */
+.result-page-head { padding: 4px 2px 0; }
+.result-page-kicker {
+  margin: 0;
+  color: var(--ac-text);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .18em;
+}
+.result-page-title {
+  margin: 6px 0 0;
+  font: 650 clamp(19px, 4.6vw, 23px)/1.35 var(--serif, serif);
+  color: var(--c-text-hi);
+}
+.result-page-copy {
+  margin: 7px 0 0;
+  color: var(--c-text-2);
+  font-size: 12.5px;
+  line-height: 1.7;
+}
+
+/* 命理 / 星相 两页沿用同一个顶栏，但东、西两套体系需要各自的身份行。 */
+#s-ming #eastModeGroup,
+#s-ming .mode-top-group { margin-right: auto; }
+.p2-top .result-top-title[hidden] { display: none; }
+.result-top-title strong { color: var(--c-text-hi); }
+
+/* ---------- 2. 报告页 ---------- */
+#reportLead:empty { display: none; }
+#s-report.active { display: flex; flex-direction: column; gap: 16px; }
+/* 合并卡自带下边距，紧跟在标题后时压低一点，避免两段空白叠在一起。 */
+#s-report .result-character-hero { margin-top: 2px; }
+
+.report-lib {
+  padding: 18px;
+  border: 1px solid var(--c-border);
+  border-radius: 20px;
+  background: var(--c-surface);
+}
+.report-lib-head { margin-bottom: 12px; }
+.report-lib-title {
+  font: 650 16px/1.3 var(--serif, serif);
+  color: var(--c-text-hi);
+}
+.report-lib-sub {
+  margin-top: 5px;
+  color: var(--c-text-2);
+  font-size: 12px;
+  line-height: 1.65;
+}
+.report-lib-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+.report-lib-item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-height: 76px;
+  padding: 12px 30px 12px 13px;
+  border: 1px solid var(--c-border);
+  border-radius: 14px;
+  background: var(--c-surface-2);
+  color: var(--c-text);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color .18s ease, background .18s ease, transform .18s ease;
+}
+.report-lib-item:hover { border-color: var(--c-border-2); background: var(--c-surface-3); }
+.report-lib-item:active { transform: scale(.985); }
+.report-lib-item b { font-size: 13px; font-weight: 650; color: var(--c-text-hi); }
+.report-lib-item span { font-size: 11.5px; line-height: 1.5; color: var(--c-text-2); }
+.report-lib-item i {
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  translate: 0 -50%;
+  color: var(--c-text-3);
+  font-style: normal;
+  font-size: 17px;
+}
+.report-lib-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+.report-lib-action {
+  min-height: 40px;
+  padding: 0 16px;
+  border: 1px solid var(--c-border-2);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--c-text-2);
+  font: 500 12.5px var(--sf);
+  cursor: pointer;
+  transition: background .18s ease, color .18s ease, border-color .18s ease;
+}
+.report-lib-action:hover { background: var(--c-surface-3); color: var(--c-text); }
+.report-lib-action:focus-visible { outline: 2px solid var(--c-accent); outline-offset: 2px; }
+@media (max-width: 430px) {
+  .report-lib { padding: 14px; }
+  .report-lib-grid { grid-template-columns: 1fr; }
+  .report-lib-item { min-height: 0; }
+}
+
+/* ---------- 3. 星相页 ---------- */
+#s-astro.active { display: flex; flex-direction: column; gap: 14px; }
+
+.astro-intro {
+  padding: 18px 18px 16px;
+  border: 1px solid var(--c-border);
+  border-radius: 20px;
+  background:
+    radial-gradient(ellipse 70% 120% at 88% 0%, hsla(var(--accent-h), 55%, 62%, .16), transparent 62%),
+    var(--c-surface);
+}
+.astro-intro-kicker {
+  color: var(--ac-text);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .16em;
+}
+.astro-intro-title {
+  margin: 7px 0 6px;
+  font: 650 19px/1.35 var(--serif, serif);
+  color: var(--c-text-hi);
+}
+.astro-intro-copy {
+  margin: 0;
+  color: var(--c-text-2);
+  font-size: 12.5px;
+  line-height: 1.7;
+}
+
+.astro-tabs {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  padding: 6px;
+  border: 1px solid var(--c-border);
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--c-bg) 92%, transparent);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+.astro-tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-height: 52px;
+  padding: 8px 6px;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--c-text-3);
+  cursor: pointer;
+  transition: background .18s ease, color .18s ease;
+}
+.astro-tab b { font-size: 13.5px; font-weight: 650; letter-spacing: .04em; }
+.astro-tab small { font-size: 10.5px; opacity: .82; }
+.astro-tab:hover { background: var(--c-surface-3); color: var(--c-text); }
+.astro-tab.active {
+  background: var(--c-accent-soft);
+  color: var(--c-accent-text);
+}
+.astro-tab:focus-visible { outline: 2px solid var(--c-accent); outline-offset: 1px; }
+@media (max-width: 360px) {
+  .astro-tab small { display: none; }
+  .astro-tab { min-height: 42px; }
+}
+
+.astro-panes { position: relative; }
+.astro-pane { display: none; }
+.astro-pane.active { display: block; animation: astroPaneIn .3s cubic-bezier(.2, .8, .2, 1) both; }
+@keyframes astroPaneIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+/* 星相页里的 3D 场景：不再收在人物卡右侧，而是自己铺一屏。 */
+#s-astro .w3d-hero {
+  width: 100%;
+  margin: 0 0 14px;
+  border-radius: 20px;
+  overflow: hidden;
+}
+#s-astro .w3d-ov { padding: 16px 18px; }
+#s-astro .astro-pane > .glass { margin-top: 12px; }
+#s-astro .astro-pane > .glass:first-child { margin-top: 0; }
+
+.astro-note {
+  margin: 2px 0 0;
+  color: var(--c-text-3);
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+/* ---------- 4. WEN 整页 ---------- */
+body.wen-page #page2 {
+  /* 对话占满整页；DOCK 仍是这一页的导航。 */
+  background: var(--c-bg);
+}
+body.wen-page #p2Inner {
+  /* 页面内容被对话覆盖后就不再需要滚动，避免下层列表继续抢手势。 */
+  pointer-events: none;
+}
+body.wen-page #aiOverlay { display: none; }
+html[data-theme] body.wen-page #page2 ~ .ai-sheet,
+html[data-theme] body.wen-page #aiSheet.wen-sheet,
+body.wen-page #aiSheet.wen-sheet {
+  position: fixed !important;
+  inset: 0 0 auto 0 !important;
+  z-index: 91 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  height: calc(100dvh - var(--ig-dock-height, 66px) - 24px - env(safe-area-inset-bottom, 0px)) !important;
+  max-height: none !important;
+  margin: 0 !important;
+  padding: 12px max(14px, calc((100vw - 760px) / 2)) 6px !important;
+  border: 0 !important;
+  border-bottom: 1px solid var(--c-border) !important;
+  border-radius: 0 !important;
+  background: var(--c-bg) !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  transform: none !important;
+  animation: wenPageIn .34s cubic-bezier(.2, .8, .2, 1) both !important;
+}
+body.wen-page .ai-sheet .ai-hero { display: none; }
+body.wen-page .ai-sheet .ai-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overscroll-behavior: contain;
+}
+body.wen-page .ai-sheet .ai-input-row {
+  flex: 0 0 auto;
+  padding-inline: 4px !important;
+  border-radius: 18px !important;
+  border: 1px solid var(--c-border-2) !important;
+  background: var(--c-surface) !important;
+}
+body.wen-page .ai-sheet .ai-composer-note { flex: 0 0 auto; margin: 6px 0 0; }
+body.wen-page .ai-sheet .ai-compose-hint,
+body.wen-page .ai-sheet .ai-suggest-bar { display: none !important; }
+body.wen-page .ai-sheet .ai-masthead { flex: 0 0 auto; }
+
+/* 整页形态没有浮层的那种「圆角顶」，标题区改成一条轻量栏。 */
+body.wen-page .ai-sheet .ai-topline {
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--c-border);
+}
+body.wen-page .ai-sheet .ai-head { padding-top: 10px; }
+
+@keyframes wenPageIn {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .astro-pane.active, body.wen-page .ai-sheet { animation: none !important; }
+}
+
+/* ---------- 5. 旧结构收尾 ---------- */
+/* 命理三分区内部不再有西方向导，隐藏残留的 .sys-western 也不影响布局。 */
+#page2 .result-western-theatre { position: absolute; inset: 0; }
+
+/* ---------- 6. DOCK 中央 WEN 入口：有标签、有选中态 ---------- */
+/* WEN 入口与其余四项共用「图标 + 标签」的 DOCK 项结构，
+   只把底衬换成一个实心圆，避免中央按钮比胶囊还高。 */
+body .ig-dock .ai-fab[data-view="wen"] {
+  flex-direction: column;
+  gap: 3px;
+  width: 100% !important;
+  min-width: 0 !important;
+  height: 52px !important;
+  min-height: 52px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 999px !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: var(--c-text) !important;
+}
+body .ig-dock .ai-fab[data-view="wen"] .ai-fab-icon {
+  display: grid;
+  place-items: center;
+  width: 34px !important;
+  height: 34px !important;
+  border-radius: 50%;
+  background: var(--c-accent);
+  color: var(--c-on-accent) !important;
+  box-shadow: 0 4px 10px color-mix(in srgb, var(--c-accent) 30%, transparent);
+  transition: transform .22s var(--ig-dock-ease), box-shadow .2s ease;
+}
+body .ig-dock .ai-fab[data-view="wen"] .ai-fab-icon svg { width: 19px; height: 19px; fill: currentColor; }
+body .ig-dock .ai-fab .ai-fab-text {
+  display: block !important;
+  position: static;
+  transform: none;
+  color: inherit;
+  font: 600 10px/1.1 var(--sf);
+  letter-spacing: .04em;
+  opacity: .72;
+}
+body .ig-dock .ai-fab[data-view="wen"]:active .ai-fab-icon { transform: scale(.9); }
+[data-theme="light"] body .ig-dock .ai-fab[data-view="wen"] { background: transparent !important; }
+[data-theme="light"] body .ig-dock .ai-fab[data-view="wen"] .ai-fab-icon {
+  background: var(--c-accent);
+  color: var(--c-on-accent) !important;
+}
+body.wen-page .ig-dock .ai-fab[data-view="wen"] {
+  background: linear-gradient(145deg, var(--c-surface-4), var(--c-surface-3)) !important;
+  box-shadow: inset 0 1px rgba(255, 255, 255, .18), inset 0 -1px rgba(0, 0, 0, .10), 0 3px 9px rgba(0, 0, 0, .12) !important;
+  color: var(--c-text-hi) !important;
+}
+body.wen-page .ig-dock .ai-fab[data-view="wen"] .ai-fab-text { opacity: 1; font-weight: 650; }
+body.wen-page .ig-dock .ai-fab[data-view="wen"] .ai-fab-icon,
+body.wen-page .ig-dock .ai-fab[data-view="wen"] .ai-orb-icon { color: var(--c-on-accent) !important; fill: currentColor; }
+[data-theme="light"] body .ig-dock .ai-fab[data-view="wen"] {
+  background: var(--c-accent-soft) !important;
+  border: 1px solid color-mix(in srgb, var(--c-accent) 38%, transparent) !important;
+  color: var(--c-accent-text) !important;
+}
+body.wen-page .ig-dock .ai-fab[data-view="wen"] {
+  background: var(--c-accent) !important;
+  border-color: var(--c-accent) !important;
+  color: var(--c-on-accent) !important;
+  box-shadow: 0 6px 16px color-mix(in srgb, var(--c-accent) 34%, transparent) !important;
+}
+body.wen-page .ig-dock .ai-fab[data-view="wen"] .ai-fab-icon,
+body.wen-page .ig-dock .ai-fab[data-view="wen"] .ai-orb-icon { color: var(--c-on-accent) !important; fill: currentColor; }
+body .ig-dock .ai-fab[data-view="wen"]:focus-visible { outline: 2px solid var(--c-accent); outline-offset: 3px; }
+
+/* 占位补齐：WEN 整页时，底下的报告列表不再被读屏逐条念出来。 */
+body.wen-page #p2Inner { visibility: hidden; }
+
+/* 整页形态的几何给出处：ig-dock.css 用
+   `left:50% + transform:translate(-50%,…)` 把面板锚在 Dock 上方，
+   整页时必须同时复位 left / right / transform，否则宽度只到 366px。 */
+html[data-theme] body.wen-page #page2 ~ .ai-sheet,
+html[data-theme] body.wen-page #aiSheet.wen-sheet,
+body.wen-page #aiSheet.wen-sheet {
+  left: 0 !important;
+  right: 0 !important;
+  top: 0 !important;
+  bottom: auto !important;
+  transform: none !important;
+  translate: none !important;
+}
+
+/* 合并卡里的星盘三核：真实数值条，替代原先被搬走的 3D 画面。 */
+#page2 .is-guide-companion-merged .guide-companion-trio {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+#page2 .is-guide-companion-merged .guide-companion-trio-cell {
+  display: grid;
+  gap: 2px;
+  padding: 7px 8px;
+  border: 1px solid rgba(255, 249, 241, .13);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, .045);
+}
+#page2 .is-guide-companion-merged .guide-companion-trio-cell span {
+  color: rgba(255, 249, 241, .66);
+  font-size: 10px;
+  letter-spacing: .04em;
+}
+#page2 .is-guide-companion-merged .guide-companion-trio-cell b {
+  color: #fffaf4;
+  font: 650 13px/1.3 var(--serif, serif);
+}
+@media (forced-colors: active) {
+  #page2 .is-guide-companion-merged .guide-companion-trio-cell,
+  #page2 .is-guide-companion-merged .guide-companion-trio-cell span,
+  #page2 .is-guide-companion-merged .guide-companion-trio-cell b {
+    color: CanvasText !important;
+    background: Canvas !important;
+    border-color: CanvasText !important;
+  }
+}
+
+/* ---------- 7. WEN 整页：顶部压缩成一条歌头，把版面还给对话 ---------- */
+body.wen-page #aiSheet .ai-hero {
+  min-height: 0 !important;
+  padding: 4px 14px 2px 16px !important;
+  align-items: center;
+}
+body.wen-page #aiSheet .ai-hero-copy { flex: 0 0 50%; padding: 0; }
+body.wen-page #aiSheet .ai-hero-kicker {
+  font-size: 9.5px !important;
+  letter-spacing: .1em;
+}
+body.wen-page #aiSheet .ai-hero-heading {
+  margin: 4px 0 3px !important;
+  font-size: 17px !important;
+  line-height: 1.25 !important;
+  letter-spacing: .02em;
+  /* 三行大字改成两行以内，避免歌头吃掉半个屏幕 */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+body.wen-page #aiSheet .ai-hero-caption { font-size: 10.5px !important; }
+body.wen-page #aiSheet .ai-master-twins {
+  max-height: 116px !important;
+  height: 116px !important;
+}
+body.wen-page #aiSheet .ai-hero-copy { margin-block: 0 !important; }
+/* 依据行 / 连接条 / 收起按钮收紧成同一行节奏 */
+body.wen-page #aiSheet .ai-basis-row { margin: 0 0 4px !important; }
+body.wen-page #aiSheet .ai-context { padding: 5px 8px !important; }
+body.wen-page #aiSheet .ai-conn-bar { margin: 2px 0 0 !important; padding: 4px 0 !important; }

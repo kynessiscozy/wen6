@@ -3,6 +3,7 @@ import { HOME_THEMES } from './home-theme.js';
 import { buildGuidePerspective } from './guide-perspective.js';
 import { guideRouteFor, runGuideAction } from './guide-route.js';
 import { syncGuideVideos } from './guide-video.js';
+import { getWesternProfile } from '../engines/western-context.js';
 
 // The report uses the same page-lifetime choice as the home and calculation
 // scene. No character identity or chart data is stored or sent anywhere here.
@@ -80,6 +81,16 @@ function revealHint(hint) {
       scroll.scrollBy({ top: distance, behavior: reduced ? 'auto' : 'smooth' });
     }
   });
+}
+
+function readAstroTrio(ctx) {
+  try {
+    const profile = getWesternProfile(ctx);
+    if (!profile?.chart) return null;
+    return { sun: profile.chart.sun, moon: profile.chart.moon, asc: profile.chart.asc };
+  } catch (error) {
+    return null;
+  }
 }
 
 function makeTheatre(container) {
@@ -185,10 +196,10 @@ function makeHero(id, theme, ctx, western, isDemo, overview, astro, perspective)
     ? '示例：同行场景、真实速读与引路人阅读路线'
     : '同行场景、真实速读与引路人阅读路线');
 
-  /* 视觉层：人物 / 场景 / 3D 星盘收进右侧独立画面，不再铺满整张卡。 */
+  /* 视觉层：人物 / 场景收进右侧独立画面，不再铺满整张卡。
+     3D 星盘留在星相页作为主角，这里只取它算出的三核数值，
+     避免为了报告头图把星相页的中心场景搬空。 */
   const visual = element('div', 'guide-companion-visual');
-  const theatre = makeTheatre(astro);
-  if (theatre) visual.append(theatre);
   const scene = element('div', 'result-character-scene');
   scene.setAttribute('aria-hidden', 'true');
   const picture = document.createElement('picture');
@@ -267,6 +278,21 @@ function makeHero(id, theme, ctx, western, isDemo, overview, astro, perspective)
 
   const body = element('div', 'guide-companion-body');
   const data = element('div', 'guide-companion-data');
+  // 星盘三核：优先用调用方给的 western 数据；还没渲染过星相页时
+  // 直接从 ctx 现算，保证合并卡永远有真实数值，而不是空一块。
+  const trioData = western?.astro?.sun?.name ? western.astro : (readAstroTrio(ctx) || {});
+  const trio = element('div', 'guide-companion-trio sys-western');
+  [['☉ 太阳', trioData.sun?.name, 'sun'], ['☽ 月亮', trioData.moon?.name, 'moon'],
+    ['↑ 上升', trioData.asc?.name, 'asc']].forEach(([label, value, key]) => {
+    if (!value) return;
+    const cell = element('div', 'guide-companion-trio-cell');
+    cell.append(element('span', '', label));
+    const b = element('b', '', value);
+    b.dataset.reportValue = key;
+    cell.append(b);
+    trio.append(cell);
+  });
+  if (trio.childElementCount) data.append(trio);
   const westernHeading = element('div', 'result-character-reading sys-western');
   westernHeading.append(element('h1', 'result-character-title', isDemo ? '示例星盘' : '星盘一览'));
   westernHeading.append(element('p', 'result-character-description',
@@ -296,13 +322,12 @@ function makeHero(id, theme, ctx, western, isDemo, overview, astro, perspective)
 // Put each original quick-read card inside its companion scene. Moving the
 // existing node preserves actual data, action handlers and folding state.
 function makeChapter(id, theme, section, westernText, theatreContainer, overview, isDemo) {
+  // theatreContainer 参数保留兼容；3D 场景留在星相页，不再被章节搬走。
   const aside = element('aside', 'result-character-chapter');
   aside.dataset.reportCharacter = id;
   aside.dataset.reportChapter = section;
   aside.style.setProperty('--result-character-accent', theme.accent);
   aside.setAttribute('aria-label', `${theme.guide?.name || theme.character.name}同行解读`);
-  const theatre = makeTheatre(theatreContainer);
-  if (theatre) aside.append(theatre);
   const figure = makePortrait(theme.character, 'result-chapter-figure');
   aside.append(figure);
 
@@ -384,6 +409,9 @@ export function mountCharacterReport({ ctx, western = {}, isDemo = false } = {})
   const ming = document.getElementById('s-ming');
   const yun = document.getElementById('s-yun');
   const rel = document.getElementById('s-rel');
+  // The merged companion card now lives on the 报告 page; it still borrows the
+  // real 命盘速读 and the 3D 星盘 from 命理 / 星相, so those sections must exist.
+  const lead = document.getElementById('reportLead');
   if (!ming || !yun || !rel) return;
 
   // Build the new character surfaces around the existing overview and 3D
@@ -391,10 +419,7 @@ export function mountCharacterReport({ ctx, western = {}, isDemo = false } = {})
   const overview = ming.querySelector('.sys-eastern .qr-card');
   const luckOverview = yun.querySelector('.sys-eastern .qr-card');
   const relationOverview = rel.querySelector('.sys-eastern .qr-card');
-  const astro = ming.querySelector('#w3d-astro');
-  const horo = yun.querySelector('#w3d-horo');
-  const num = rel.querySelector('#w3d-num');
-  const originals = [overview, luckOverview, relationOverview, astro, horo, num].filter(Boolean).map(node => ({
+  const originals = [overview, luckOverview, relationOverview].filter(Boolean).map(node => ({
     node, parent: node.parentNode, next: node.nextSibling,
   }));
   let hero, luckChapter, relationChapter, perspective;
@@ -402,11 +427,11 @@ export function mountCharacterReport({ ctx, western = {}, isDemo = false } = {})
     const tileLabels = new Set([...(overview?.querySelectorAll('.qr-item .qr-l') || [])]
       .map(el => el.textContent.trim()).filter(Boolean));
     perspective = makeGuidePerspective(id, ctx, western, isDemo, tileLabels);
-    hero = makeHero(id, theme, ctx, western, isDemo, overview, astro, perspective);
+    hero = makeHero(id, theme, ctx, western, isDemo, overview, null, perspective);
     luckChapter = makeChapter(id, theme, 'yun',
-      [isDemo ? '示例星象' : '星象一览', '拖动星象，探索十二星座示意。'], horo, luckOverview, isDemo);
+      [isDemo ? '示例星象' : '星象一览', '想看完整的黄道天球与今日运势，去「星相 · 运程」。'], null, luckOverview, isDemo);
     relationChapter = makeChapter(id, theme, 'rel',
-      [isDemo ? '示例灵数' : '灵数一览', '从主命数出发，探索数字线索。'], num, relationOverview, isDemo);
+      [isDemo ? '示例灵数' : '灵数一览', '完整的生命灵数矩阵在「星相 · 灵数」。'], null, relationOverview, isDemo);
   } catch (error) {
     // A bad optional character definition must never remove calculated report
     // data or a working canvas. The previous surfaces are still connected here.
@@ -415,9 +440,11 @@ export function mountCharacterReport({ ctx, western = {}, isDemo = false } = {})
     });
     throw error;
   }
-  [ming, yun, rel].forEach(section => section.querySelector(':scope > .result-character-hero, :scope > .result-character-chapter')?.remove());
+  [ming, yun, rel, lead].forEach(section => section?.querySelector(':scope > .result-character-hero, :scope > .result-character-chapter')?.remove());
   ming.querySelectorAll('.guide-perspective').forEach(node => node.remove());
-  ming.prepend(hero);
+  // The merged card opens the 报告 page; 运势 / 关系 keep their own companion
+  // strip so the actual reading stays where its data lives.
+  (lead || ming).prepend(hero);
   yun.prepend(luckChapter);
   rel.prepend(relationChapter);
   installPortraitInteraction();
