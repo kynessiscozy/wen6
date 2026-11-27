@@ -6,6 +6,40 @@
 
 ## [Unreleased] - 2026-11-12 · V6.1 引路人革新 / 首屏内容流 / 按钮元素化 / 卡片合并 / 结果页排版修正
 
+### 变更（结果页重构：DOCK 五入口 · 报告 / 命理 / WEN / 星相 / 工具）
+
+### 变更（报告页推翻重做：一页只讲一件事）
+
+### 变更（移动端体验优化）
+
+- **工具页 3D 轮播在手机上撑爆**（最严重）：舞台写死 `528px`、卡片 `252×475`，而可视区只有约 500px（844 − 顶栏 63 − DOCK 66 − 间距），卡片底部被 DOCK 盖住；`updateRadius()` 又写死卡片宽 `229`，与 CSS 实际宽度不符，半径算小使中心卡被挤出屏幕。改为：舞台 `min(52vh, calc(100dvh - 260px))`、卡片 `min(78vw, 270px) × min(calc(100dvh - 300px), 420px)`；`updateRadius()` 读**真实布局宽度**，窄屏半径取「一屏放得下」的上限。
+- **中心卡长期歪着**：`snapToNearest()` 只在拖拽时调用，`autoPlay` 默认开启且以 `0.08°/帧` 持续旋转，卡片长期停在 9° 这类角度，文字被圆角与 `overflow:hidden` 裁掉。现在松手/暂停后接近静止即吸附到整档；**窄屏默认暂停自动轮播**（想看动效可手动开）。判定用 `matchMedia` 而非 `innerWidth`，node 测试环境保持旧行为。
+- **触控目标**：实测结果页有 22–33 个可点元素小于 44px。在 `@media (pointer: coarse)` 内统一抬到 44px，覆盖顶栏圆钮、命理/星相分段、报告出口、WEN 页图标钮与依据开关、工具页分类 chip、设置面板与回到顶部。多处需带 `!important` 并匹配原有特异性（`claude-refine.css`、`chat-master.css`、`ig-dock.css` 把尺寸锁死在 29–40px），`.ai-actions button` 用 `:is()` 提级才压得住。结果：`s-ming` 33 → 5、`s-report` 22 → 6、`s-astro` 22 → 5（剩余为横向窄按钮，高度已达标）。
+- **可读性 / iOS**：窄屏关键小字抬到 11–12px 起步；输入框字号改为 `max(16px, 16px × var(--font-scale))`——既不触发 iOS 聚焦自动放大，也不违背用户自选的字号倍率。
+- **验证**：`npm run build`、`npm run test:unit`、`npm run check:copy`；puppeteer 实跑 390×844 与 375×667，四页 + WEN，零页面报错、无横向溢出（首页 docW 与 viewport 一致）。
+
+- **反馈**：用户指出「报告页面重新推翻重做页面都是重复」，要求重新梳理；同时「预告页应跳到报告页」。
+- **重复点（实测）**：① 页头「报告」与顶栏身份行、卡内「月白 · 神秘人 · 同行」说了三遍；② 卡内「星盘一览：拖动星盘…」复读，但 3D 场景根本不在报告页，动不了；③ 三核数据条与引路人卡「星盘线索：太阳…月亮…上升」是同一组数据；④ 卡内命盘速读（日主/强弱/用神/格局）与「命盘线索：月柱·日柱」是同一批数据；⑤ 卡内路线四步与下方「完整报告」六张卡是两套导航；⑥「看一条提示」把页面已有的数值再说一遍。
+- **根因**：`dropKnownFacts()` 去重函数写了却从未生效——`knownLabels` 永远是空 Set；而 `tileLabels` 的采集发生在其数据源（`.qr-card`）被搬走之后。
+- **另一处缺陷**：速读卡是被 `append` **移动**到报告页的，导致命理 / 运势 / 关系三页各自丢失自己的速读卡。
+- **重做**：报告页 = 「一张合并卡 + 一份出口清单」。合并卡内只留本页独有的东西：身份行、东西两栏锚点摘要（东方：日主/用神/当前大运/流年；西方：太阳/月亮/上升，带 `data-report-value` 既有键）、可点的引路人路线四步。删掉复读的「星盘一览」段、三核重复条、被搬来的速读卡。`#reportToc` 死容器移除（从未被写入）。下方目录改为 `report-exits`：只做合并卡做不到的事——分享海报 / 打印 / 复制文字，外加命理、星相两个直达入口。
+- **速读卡归位**：不再跨分区搬动节点，命理 / 运势 / 关系各自保留 `.qr-card`；死代码 `makeChapter()` / `makeTheatre()` / `#reportToc` 一并删除。
+- **预告页**：主按钮 `.ft-cta` 从「落第一站卡片」改为落**报告页**（`TJJumpReport('s-report')`），具体某站仍可从下面的路线 / 目录按钮直达。
+- **配套**：`TJJumpReport` 支持不传 tab（停在该页默认分段）；`.report-lib` 样式整段替换为 `.report-summary` / `.report-exits`，摘要卡用合并卡同源的深色玻璃底；`tools/test-guide-companion-card.mjs` 的三条断言改为锁定「报告页只留一份摘要」「速读卡留在命理分区」。
+
+- **本地预览修复**：`index.html` 原先无条件注册 `./sw.js`，开发服务器（5173/5174）也会被 Service Worker 接管——它按 network-first 取 HTML、缓存静态资源，旧 SW 会让预览页一直返回改动前的内容，表现为「点了跳不出结果页」。现在 dev 端口既不注册 SW，还会主动注销历史注册并清空 `caches`；生产构建的离线缓存策略不变。
+
+- **入口**：底部 DOCK 从「东方 / 西方」两体系四标签改为五个并列入口——`报告`（`s-report`）、`命理`（`s-ming/s-yun/s-rel`）、`WEN`（`#aiFab[data-view="wen"]`）、`星相`（`s-astro`）、`工具`（`s-adv`）。顶部「东方 / 西方」体系开关移除，`src/styles/50-system-mode.css` 里的 `.sys-eastern/.sys-western` 显隐与 `ig-nav-icon-eastern/western` 图标切换一并清空（该文件保留占位以维持 `@import` 顺序）；`data-system-mode` 属性仍保留，因为 AI 依据与长报告还在读它。
+- **报告页**：新增一级标题行 + 合并主卡 + 六项目录。合并卡不再把星相页的 3D 场景（`#w3d-astro`）搬进画面层——那会让「星相」页丢掉主角；改为在卡内渲染真实的星盘三核数值条（`guide-companion-trio`，太阳 / 月亮 / 上升，带 `data-report-value`），数值优先取 `western.astro`，未渲染过星相页时由 `getWesternProfile(ctx)` 现算。
+- **命理页**：`命盘 / 运势 / 关系` 三个原 `section` 收成同页顶部切换（`#eastModeGroup`），DOCK 里只剩一个「命理」入口。
+- **星相页**：`本命 / 运程 / 灵数` 三分域改由 `activateAstroTab()` 统一切换；3D 天象仪门禁改为 `#s-astro.sec.active && !body.wen-page`，`activeKey()` 跟随 `.astro-pane.active`。
+- **WEN 页**：问问大师改为独立整页（`body.wen-page` + `#aiSheet.open`，`inset: 0 0 auto 0`，高度 `calc(100dvh - var(--ig-dock-height) - 24px - safe-area)`）。旧规则 `#s-report{display:flex}` / `#s-astro{display:flex}` 的 ID 优先级会压过 `.sec{display:none}`，已改为 `#s-report.active` / `#s-astro.active`。DOCK 中央入口与其余四项共用「图标 + 标签」结构（34px 实心圆 + 10px 文字），不再比胶囊还高。
+- **顶栏**：`#p2Scroll` 移出 `.p2-top`，顶栏成为真正的吸顶行；新增 `#p2TopTitle` 身份行（报告 / 命理 / 星相 / 工具），由 `syncTopTitle()` 与 DOCK 高亮同步。
+- **引路人路线**：`src/ui/guide-route.js` 的西方向导从 `card('s-ming','astro-core','western')` 改为 `card('s-astro', …)`，星罗的 `toc` 首项同步为 `s-astro`；文案「切到西方视图」改为「去『星相 · 本命』」。
+- **缺字**：星盘文案里的 `☉ / ☽` 换成项目内的 `getWesternSvgIcon()` 线稿，避免字体子集缺字。
+- **版本**：`APP_CACHE_VERSION` `v89 → v90`（`src/ui/entry-personas.js` ↔ `public/sw.js` ↔ 三处测试断言）；视频 `v76`、产品 `wen6.0` 不变。
+- **验证**：`npm run build`、`npm run test:unit`（含引路人路线 / 合并卡契约）、`npm run check:copy`；puppeteer 390×844 实跑四页，确认星相页 3D `canvas: true`、WEN 整页 `390 × 754`、DOCK 五入口无溢出。
+
 ### 修复（结果页合并主卡排版回归）
 
 - **反馈**：用户指出「结果页面的排版被搞得乱七八糟」，要求重新理清。定位到上一轮合并主卡在宽屏把内容层再拆成「数据 / 路线」两列：62% 内容层只剩约 420px，路线按钮被压到 66px 宽并逐字竖排；速读区仍沿用满幅画面时代的 57% 宽度，四张速读卡各约 50px；窄屏画面被压到 170px，人物裁切突兀。

@@ -1,24 +1,8 @@
 /* ============================================================
-   体系模式控制：东方命理 vs 西方星相
+   体系模式控制（已退役）
+   ------------------------------------------------------------
+   顶部「东方 / 西方」开关已经由 DOCK 的「命理 / 星相」取代，
+   data-system-mode 不再参与任何显隐。原先按体系隐藏 .sys-eastern /
+   .sys-western 的规则会让合并卡里的星盘三核在东方模式下整块消失，
+   因此文件清空、只留说明。保留文件名是为了不改 @import 顺序。
    ============================================================ */
-body[data-system-mode="eastern"] .sys-western,
-html[data-system-mode="eastern"] .sys-western { display: none !important; }
-
-body[data-system-mode="western"] .sys-eastern,
-html[data-system-mode="western"] .sys-eastern { display: none !important; }
-
-body[data-system-mode="eastern"] .ig-nav-icon-western,
-html[data-system-mode="eastern"] .ig-nav-icon-western,
-body[data-system-mode="eastern"] .ig-dock .ig-nav-icon-western { display: none !important; }
-
-body[data-system-mode="western"] .ig-nav-icon-eastern,
-html[data-system-mode="western"] .ig-nav-icon-eastern,
-body[data-system-mode="western"] .ig-dock .ig-nav-icon-eastern { display: none !important; }
-
-body[data-system-mode="western"] .ig-nav-icon-western,
-html[data-system-mode="western"] .ig-nav-icon-western,
-body[data-system-mode="western"] .ig-dock .ig-nav-icon-western { display: block !important; }
-
-body[data-system-mode="eastern"] .ig-nav-icon-eastern,
-html[data-system-mode="eastern"] .ig-nav-icon-eastern,
-body[data-system-mode="eastern"] .ig-dock .ig-nav-icon-eastern { display: block !important; }

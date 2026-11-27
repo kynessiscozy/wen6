@@ -316,9 +316,6 @@ export function renderAll(b,wx,ss,dy,ln,zw,qm,mh,si,gen,q,city,by,shensha,liuyue
 
   H+=renderThreeStylesCard(zw,qm,mh);
   H+=`</div>`; // end of .sys-eastern
-  H+=`<div class="sys-block sys-western">`;
-  H+=renderWesternAstrologySection(ctx);
-  H+=`</div>`;
   H+=`</div>`; // end of #s-ming
 
   // 运势页按 年/月/周/日 四档组织，先分桶再统一装进子标签
@@ -454,9 +451,6 @@ export function renderAll(b,wx,ss,dy,ln,zw,qm,mh,si,gen,q,city,by,shensha,liuyue
   H+=`<div class="yun-pane" data-yun="day">${yDay}</div>`;
   H+=`</div>`; // end of .yun-panes
   H+=`</div>`; // end of .sys-eastern
-  H+=`<div class="sys-block sys-western">`;
-  H+=renderWesternHoroscopeSection(ctx);
-  H+=`</div>`;
   H+=`</div>`; // end of #s-yun
 
   const rmode=getRelationMode(dg,ss,gen);
@@ -499,12 +493,18 @@ export function renderAll(b,wx,ss,dy,ln,zw,qm,mh,si,gen,q,city,by,shensha,liuyue
   H+=`<div class="cta-row" style="margin-top:10px"><button class="cta" style="padding:12px 28px;font-size:.95em;letter-spacing:1px" onclick="calcRelation()">开始合盘</button></div>`;
   H+=`<div id="relResult" style="margin-top:10px"></div></div>`;
   H+=`</div>`; // end of .sys-eastern
-  H+=`<div class="sys-block sys-western">`;
-  H+=renderWesternNumerologySection(ctx);
-  H+=`</div>`;
   H+=`</div>`; // end of #s-rel
 
-  
+  // —— 星相：独立分区，重新梳理为「本命 / 运程 / 灵数」三段 ——
+  H+=renderAstroSection(ctx);
+
+  // —— 报告：承接漏斗交接与引路人阅读路线（合并卡由 character-report 挂入） ——
+  /* 报告页 = 一张合并卡 + 一份出口清单。
+     顶栏已经有「报告」身份行，这里不再叠一遍大标题与说明；
+     旧的空 #reportToc 容器一并移除（它从来没有被写入过）。 */
+  H+=`<div class="sec" id="s-report"><div id="reportLead"></div>`;
+  H+=renderReportLibrary(ctx);
+  H+=`</div>`;
 
   H+=`<div class="sec" id="s-adv">`;
   H+=renderToolsHubHtml();
@@ -526,6 +526,64 @@ export function renderAll(b,wx,ss,dy,ln,zw,qm,mh,si,gen,q,city,by,shensha,liuyue
       if(tl){const cu=tl.querySelector('.ti.cu');if(cu){cu.scrollIntoView({behavior:'smooth',inline:'center',block:'nearest'});}}
     });
   }
+}
+
+/* ============================================================
+   星相分区：把原先混在东方三页里的西方内容提成独立一页。
+   ------------------------------------------------------------
+   三个分域不是简单照搬：本命看「你是谁」，运程看「现在怎样」，
+   灵数看「数字线索」。3D 场景容器（#w3d-*）原样保留，只换位置，
+   这样 THREE 的建/停逻辑与既有 DOM 状态不受影响。
+   ============================================================ */
+function renderAstroSection(ctx){
+  const sections=[
+    ['astro','本命','太阳 / 月亮 / 上升','astro-core,astro-elements,astro-planets,astro-portrait'],
+    ['horo','运程','今日 / 本周 / 全年','horoscope-today,horoscope-all,horoscope-macro'],
+    ['num','灵数','生命灵数与流年','num-core,num-grid,num-year']
+  ];
+  let H=`<div class="sec" id="s-astro">`;
+  H+=`<div class="astro-intro"><div class="astro-intro-kicker">西方星相</div>`;
+  H+=`<h2 class="astro-intro-title">同一份出生信息，换一副星图来看</h2>`;
+  H+=`<p class="astro-intro-copy">本命看天赋结构，运程看当下节奏，灵数看重复出现的数字线索。三段共用一次排盘，不重复计算。</p></div>`;
+  H+=`<div class="astro-tabs" role="tablist" aria-label="星相内容分区">`;
+  H+=sections.map(([key,label,sub],i)=>`<button class="astro-tab${i===0?' active':''}" type="button" role="tab" data-astro="${key}" aria-selected="${i===0?'true':'false'}" onclick="TJActivateAstroTab('${key}')"><b>${label}</b><small>${sub}</small></button>`).join('');
+  H+=`</div><div class="astro-panes">`;
+  H+=`<div class="astro-pane active" data-astro="astro">${renderWesternAstrologySection(ctx)}</div>`;
+  H+=`<div class="astro-pane" data-astro="horo">${renderWesternHoroscopeSection(ctx)}</div>`;
+  H+=`<div class="astro-pane" data-astro="num">${renderWesternNumerologySection(ctx)}</div>`;
+  H+=`</div><p class="astro-note">星盘按出生地时区及历史夏令时计算；夏令时切换时的重复或不存在的时间可能产生偏差。星相是观察角度，不替代现实判断。</p>`;
+  H+=`</div>`;
+  return H;
+}
+
+/* ============================================================
+   报告分区：漏斗交接的落点。
+   ------------------------------------------------------------
+   合并卡（同行场景 + 真实速读 + 引路人四步路线）由
+   character-report.js 挂到 #reportLead；这里补上报告自带的
+   目录与出口（分享 / 打印 / 完整报告），让「报告」是一页，
+   而不是一张孤零零的卡。
+   ============================================================ */
+function renderReportLibrary(ctx){
+  const year = ctx?.cLn ? `${ctx.cLn.g}${ctx.cLn.z}` : '';
+  /* 这里不再是第二套导航。合并卡里的路线四步已经负责「先看哪里」，
+     本区块只做三件卡里做不到的事：导出 / 打印 / 复制，
+     外加两页的直达入口。 */
+  const jumps = [
+    ['命理', '命盘、运势、关系三张读数', 's-ming'],
+    ['星相', '本命、运程、灵数三段', 's-astro'],
+  ];
+  let H=`<section class="report-exits" aria-label="报告出口">`;
+  H+=`<div class="report-exits-head"><b>把这份报告带走</b><span>${year ? `含 ${year} 流年` : '含东西两套读数'}</span></div>`;
+  H+=`<div class="report-exits-actions">`;
+  H+=`<button class="report-exits-btn" type="button" onclick="openPosterShare('report')">生成分享海报</button>`;
+  H+=`<button class="report-exits-btn" type="button" onclick="window.print()">打印 / 存 PDF</button>`;
+  H+=`<button class="report-exits-btn" type="button" onclick="copyReport()">复制文字</button>`;
+  H+=`</div>`;
+  H+=`<div class="report-exits-jumps">`;
+  H+=jumps.map(([name,desc,sec])=>`<button class="report-exits-jump" type="button" onclick="TJJumpReport('${sec}')"><b>${name}</b><span>${desc}</span><i aria-hidden="true">›</i></button>`).join('');
+  H+=`</div></section>`;
+  return H;
 }
 
 /* ====== 信息密度优化：速读卡 + 章节导航 ====== */
@@ -750,13 +808,14 @@ export function organizeMasterReportLayout(ctx){
   groupSectionCards(ming,'ming',[['structure','命盘结构'],['persona','人格画像'],['three-styles','三式参合'],['reasoning','判读依据']],ming,'TJActivateMingTab');
   groupSectionCards(rel,'rel',[['intimacy','亲密关系'],['friends','朋友'],['family','亲人'],['relAi','八字合盘']],rel,'TJActivateRelTab');
 
-  // —— 西方三分区:3D 场景下方的卡片同样收进标签组(与东方一致的切换方式) ——
-  const wAstro=ming.querySelector('.sys-block.sys-western');
-  groupSectionCards(ming,'wastro',[['astro-core','三核星体'],['astro-elements','四象能量'],['astro-planets','十大星曜'],['astro-portrait','性格画像']],wAstro,'TJActivateWastroTab');
-  const wHoro=yun&&yun.querySelector('.sys-block.sys-western');
-  groupSectionCards(yun,'whoro',[['horoscope-today','今日运势'],['horoscope-all','黄道全览'],['horoscope-macro','宏观星象']],wHoro,'TJActivateWhoroTab');
-  const wNum=rel&&rel.querySelector('.sys-block.sys-western');
-  groupSectionCards(rel,'wnum',[['num-core','生命密码'],['num-grid','九宫图阵'],['num-year','流年灵数']],wNum,'TJActivateWnumTab');
+  // —— 星相分区内部：本命 / 运程 / 灵数各自的卡片组 ——
+  const astro=document.getElementById('s-astro');
+  if(astro){
+    const pane=key=>astro.querySelector(`.astro-pane[data-astro="${key}"]`);
+    groupSectionCards(astro,'wastro',[['astro-core','三核星体'],['astro-elements','四象能量'],['astro-planets','十大星曜'],['astro-portrait','性格画像']],pane('astro'),'TJActivateWastroTab');
+    groupSectionCards(astro,'whoro',[['horoscope-today','今日运势'],['horoscope-all','黄道全览'],['horoscope-macro','宏观星象']],pane('horo'),'TJActivateWhoroTab');
+    groupSectionCards(astro,'wnum',[['num-core','生命密码'],['num-grid','九宫图阵'],['num-year','流年灵数']],pane('num'),'TJActivateWnumTab');
+  }
 }
 /* 把分区里既有的散排卡片收进与 .yun-tabs 同构的标签组：
    标签栏吸顶，每个面板只放一张原有卡片（节点原样搬入，事件与子结构不动）。

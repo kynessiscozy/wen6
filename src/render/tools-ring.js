@@ -29,7 +29,13 @@ class Tools3DRingCarousel {
     this.targetAngle = 0;
 
     // 自轮播控制
-    this.autoPlay = true;
+    /* 窄屏默认暂停：手机上自动轮播会让中心卡长期停在偏转角，
+       正文与按钮被裁；用户想要动效再手动开启。
+       用 matchMedia 而不是 innerWidth：node 测试环境没有布局，
+       保持「默认开启」的旧行为，避免读屏状态断言错位。 */
+    this.autoPlay = typeof window === 'undefined' || typeof window.matchMedia !== 'function'
+      ? true
+      : !window.matchMedia('(max-width: 559px)').matches;
     this.autoSpeed = 0.08; // 自动轮播速度 (度/帧)
     this.isHovered = false;
 
@@ -74,13 +80,20 @@ class Tools3DRingCarousel {
   updateRadius() {
     const stageW = this.stage?.offsetWidth || window.innerWidth || 800;
     const count = Math.max(3, this.visibleIndices.length || 13);
-    const cardW = stageW < 480 ? 229 : 280;
+    /* 卡片宽度由 CSS 决定（窄屏是 min(78vw, 270px)）。
+       这里必须读真实布局宽度，写死数字会让半径算小、卡片互相挤压，
+       中心卡被推出屏幕。读不到时再退回按断点估值。 */
+    const measured = this.cards?.[0]?.getBoundingClientRect?.().width;
+    const cardW = measured > 0 ? measured : (stageW < 480 ? 252 : 280);
 
     // 精确计算无碰撞弦长几何半径: R >= (CardWidth + Gap) / (2 * sin(pi / N))
     const minChordRadius = (cardW + 28) / (2 * Math.sin(Math.PI / count));
 
     if (stageW < 480) {
-      this.radius = Math.max(minChordRadius, stageW * 0.72);
+      /* 手机：半径要够大让侧翼退到后方，又不能大到把中心卡挤出屏幕。
+         取「一屏放得下」的上限，但不少于弦长下限。 */
+      const maxUseful = (stageW + cardW) / 2;
+      this.radius = Math.max(minChordRadius, Math.min(maxUseful, stageW * 0.95));
     } else if (stageW < 768) {
       this.radius = Math.max(minChordRadius, stageW * 0.58);
     } else {
@@ -431,6 +444,22 @@ class Tools3DRingCarousel {
     // 平滑弹簧逼近 (Spring Lerp)
     const lerp = this.isDragging ? 0.35 : 0.085;
     this.currentAngle += (this.targetAngle - this.currentAngle) * lerp;
+
+    /* 停稳后吸附到最近的整数位。
+       持续轮播时卡片长期停在 9° 这类角度，中心卡是歪的：
+       文字被卡片自身的圆角与 overflow 裁掉。窄屏尤其明显。
+       所以松手 / 暂停后一旦接近静止，就对齐到整档。 */
+    if (!this.isDragging && !this.autoPlay || (!this.isDragging && this.autoPlay && this.visibleIndices.length <= 1)) {
+      const count = this.visibleIndices.length;
+      if (count > 1) {
+        const step = 360 / count;
+        const snapTarget = Math.round(this.currentAngle / step) * step;
+        // 只在非常接近整数位时才吸附，避免和自动轮播互相拉扯
+        if (Math.abs(this.currentAngle - snapTarget) < step * 0.4) {
+          this.targetAngle += (snapTarget - this.targetAngle) * 0.35;
+        }
+      }
+    }
   }
 
   render() {
@@ -458,9 +487,12 @@ class Tools3DRingCarousel {
       const x = sinVal * this.radius;
       const z = (cosVal - 1) * this.radius;
 
-      // 3. 景深缩放
+      // 3. 景深缩放（窄屏收得更狠，让侧翼明确退到后方，不与中心卡抢视觉）
       const depthRatio = Math.max(0, (cosVal + 1) / 2); // [0, 1]
-      const scale = 0.74 + 0.26 * depthRatio;
+      const narrow = (this.stage?.offsetWidth || 800) < 480;
+      const scale = narrow
+        ? 0.58 + 0.42 * depthRatio
+        : 0.74 + 0.26 * depthRatio;
 
       // 判定中心活跃卡片
       if (absAngle < closestDist) {

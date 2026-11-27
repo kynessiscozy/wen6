@@ -3,6 +3,7 @@ import { HOME_THEMES } from './home-theme.js';
 import { buildGuidePerspective } from './guide-perspective.js';
 import { guideRouteFor, runGuideAction } from './guide-route.js';
 import { syncGuideVideos } from './guide-video.js';
+import { getWesternProfile } from '../engines/western-context.js';
 
 // The report uses the same page-lifetime choice as the home and calculation
 // scene. No character identity or chart data is stored or sent anywhere here.
@@ -82,11 +83,52 @@ function revealHint(hint) {
   });
 }
 
-function makeTheatre(container) {
-  if (!container) return null;
-  const theatre = element('div', 'result-western-theatre sys-western');
-  theatre.append(container); // Keep the existing canvas, controls and 3D state.
-  return theatre;
+/* 报告页摘要只显示「锚点值」，完整读数留在各自分区。 */
+function text(value) {
+  return typeof value === 'string' ? value.trim() : '';
+}
+
+/* 日主由天干 + 五行两个值拼成，所以这里接受数组；单值也可直接用。 */
+function eastFact(value, extra) {
+  const main = (Array.isArray(value) ? value.map(text).join('') : text(value)).trim();
+  if (!main) return '';
+  const tail = text(extra);
+  return tail ? `${main}（${tail}）` : main;
+}
+
+function makeFactGrid(pairs, side) {
+  const grid = element('div', `report-fact-grid report-fact-grid--${side}`);
+  pairs.forEach(([label, value, key]) => {
+    const cell = element('div', 'report-fact');
+    cell.append(element('span', '', label));
+    const b = element('b', '', value);
+    // 既有测试与跳转契约依赖 data-report-value="day-master" 这类英文键。
+    if (key) b.dataset.reportValue = key;
+    cell.append(b);
+    grid.append(cell);
+  });
+  return grid;
+}
+
+/* 摘要卡点击走和其它出口完全相同的路径，避免两套跳转逻辑。 */
+function bindReportJumps(root) {
+  root.querySelectorAll('[data-report-jump]').forEach(card => {
+    card.addEventListener('click', event => {
+      event.preventDefault();
+      const sec = card.dataset.reportJump;
+      if (typeof window.TJJumpReport === 'function') window.TJJumpReport(sec);
+    });
+  });
+}
+
+function readAstroTrio(ctx) {
+  try {
+    const profile = getWesternProfile(ctx);
+    if (!profile?.chart) return null;
+    return { sun: profile.chart.sun, moon: profile.chart.moon, asc: profile.chart.asc };
+  } catch (error) {
+    return null;
+  }
 }
 
 // Portrait visibility is a report preference, shared across the three western
@@ -173,7 +215,7 @@ function installPortraitInteraction() {
   }
 }
 
-function makeHero(id, theme, ctx, western, isDemo, overview, astro, perspective) {
+function makeHero(id, theme, ctx, western, isDemo, perspective, knownLabels = new Set()) {
   const hero = element('section', 'result-character-hero is-guide-companion-merged');
   hero.id = 'characterResultHero';
   hero.dataset.reportCharacter = id;
@@ -185,10 +227,10 @@ function makeHero(id, theme, ctx, western, isDemo, overview, astro, perspective)
     ? '示例：同行场景、真实速读与引路人阅读路线'
     : '同行场景、真实速读与引路人阅读路线');
 
-  /* 视觉层：人物 / 场景 / 3D 星盘收进右侧独立画面，不再铺满整张卡。 */
+  /* 视觉层：人物 / 场景收进右侧独立画面，不再铺满整张卡。
+     3D 星盘留在星相页作为主角，这里只取它算出的三核数值，
+     避免为了报告头图把星相页的中心场景搬空。 */
   const visual = element('div', 'guide-companion-visual');
-  const theatre = makeTheatre(astro);
-  if (theatre) visual.append(theatre);
   const scene = element('div', 'result-character-scene');
   scene.setAttribute('aria-hidden', 'true');
   const picture = document.createElement('picture');
@@ -234,18 +276,15 @@ function makeHero(id, theme, ctx, western, isDemo, overview, astro, perspective)
   hint.hidden = true;
   hint.setAttribute('role', 'status');
   hint.setAttribute('aria-live', 'polite');
-  const lead = theme.reportLead || '先从这里看起。';
-  const dayMaster = [ctx?.dg, ctx?.dw].filter(Boolean).join('');
-  const easternFacts = [dayMaster && `日主${dayMaster}`, ctx?.wx?.ys && `用神${ctx.wx.ys}`].filter(Boolean).join('、');
-  const westernFacts = [western?.astro?.sun?.name && `太阳${western.astro.sun.name}`,
-    western?.astro?.moon?.name && `月亮${western.astro.moon.name}`].filter(Boolean).join('、');
-  const chart = isDemo ? '示例' : '这张';
-  hint.append(element('p', 'sys-eastern', easternFacts
-    ? `${lead}${easternFacts}是${chart}命盘的起点，可以接着看四柱和五行。`
-    : `${lead}从${chart}命盘的四柱和五行开始读。`));
-  hint.append(element('p', 'sys-western', westernFacts
-    ? `${lead}${westernFacts}是${chart}星盘的起点，可以接着看它们的落点与相位。`
-    : `${lead}从${chart}星盘的星体位置开始读。`));
+  /* 提示只说「怎么读」，不重复页面上已经列出的数值与路线。 */
+  const hintTrio = readAstroTrio(ctx) || {};
+  const eastAnchor = [text(ctx?.dg) + text(ctx?.dw)].filter(Boolean).join('');
+  const hintParts = [];
+  if (eastAnchor) hintParts.push(`命盘从日主 ${eastAnchor} 起读，先看四柱与用神。`);
+  if (hintTrio.sun?.name) hintParts.push(`星盘从太阳 ${hintTrio.sun.name} 起读，先看它与月亮、上升的关系。`);
+  hint.append(element('p', '', isDemo
+    ? '这是示例报告，数值与文案仅用于体验。'
+    : (hintParts.join(' ') || '先选一处最在意的事，再顺着下面的路线往下读。')));
   const hintButton = element('button', 'result-character-hint-button', '看一条提示');
   hintButton.type = 'button';
   hintButton.setAttribute('aria-controls', hint.id);
@@ -267,20 +306,44 @@ function makeHero(id, theme, ctx, western, isDemo, overview, astro, perspective)
 
   const body = element('div', 'guide-companion-body');
   const data = element('div', 'guide-companion-data');
-  const westernHeading = element('div', 'result-character-reading sys-western');
-  westernHeading.append(element('h1', 'result-character-title', isDemo ? '示例星盘' : '星盘一览'));
-  westernHeading.append(element('p', 'result-character-description',
-    '拖动星盘，探索星体位置。星盘按出生地时区及历史夏令时计算；夏令时切换时的重复或不存在的时间可能产生偏差。'));
-  data.append(westernHeading);
-  if (overview) {
-    // 速读自带的跳转 chips 与引路人路线四步作用重复，合并后只留路线四步。
-    if (perspective) overview.querySelector('.qr-acts')?.remove();
-    const eastern = element('div', 'result-character-overview sys-eastern');
-    // Keep a structural heading for assistive technology without adding a
-    // second visible title above the calculated values.
-    eastern.append(element('h1', 'result-overview-heading', '命盘'), overview);
-    data.append(eastern);
+
+  /* 报告页只做「一眼看全 + 带路」，不复制命理 / 星相页的内容。
+     东西各一栏：只放这一页不重复的锚点数值，点进去才是完整读数。 */
+  const summary = element('div', 'report-summary');
+
+  const easternValues = [
+    ['日主', eastFact([ctx?.dg, ctx?.dw]), 'day-master'],
+    ['用神', text(ctx?.wx?.ys), 'useful-element'],
+    ['当前大运', eastFact(ctx?.cDy ? [ctx.cDy.g, ctx.cDy.z].filter(Boolean).join('') : '', ctx?.cDy?.ys), 'dayun'],
+    ['流年', eastFact(ctx?.cLn ? [ctx.cLn.g, ctx.cLn.z].filter(Boolean).join('') : ''), 'liunian'],
+  ].filter(([, value]) => value);
+  const easternCard = element('a', 'report-summary-card sys-eastern');
+  easternCard.href = '#';
+  easternCard.dataset.reportJump = 's-ming';
+  easternCard.append(
+    element('b', 'report-summary-kicker', '东方命理'),
+    makeFactGrid(easternValues, 'east'),
+    element('span', 'report-summary-go', '看完整的命盘、运势与关系 ›'),
+  );
+  summary.append(easternCard);
+
+  const trio = readAstroTrio(ctx) || {};
+  const westernValues = [
+    ['太阳', trio.sun?.name, 'sun'], ['月亮', trio.moon?.name, 'moon'], ['上升', trio.asc?.name, 'asc'],
+  ].filter(([, value]) => value);
+  if (westernValues.length) {
+    const westernCard = element('a', 'report-summary-card sys-western');
+    westernCard.href = '#';
+    westernCard.dataset.reportJump = 's-astro';
+    westernCard.append(
+      element('b', 'report-summary-kicker', '西方星相'),
+      makeFactGrid(westernValues, 'west'),
+      element('span', 'report-summary-go', '看星盘、运程与灵数 ›'),
+    );
+    summary.append(westernCard);
   }
+  data.append(summary);
+
   body.append(data);
   if (perspective) {
     perspective.classList.add('guide-companion-route');
@@ -291,34 +354,6 @@ function makeHero(id, theme, ctx, western, isDemo, overview, astro, perspective)
 
   addPortraitToggle(hero, figure, 'ming', visual);
   return hero;
-}
-
-// Put each original quick-read card inside its companion scene. Moving the
-// existing node preserves actual data, action handlers and folding state.
-function makeChapter(id, theme, section, westernText, theatreContainer, overview, isDemo) {
-  const aside = element('aside', 'result-character-chapter');
-  aside.dataset.reportCharacter = id;
-  aside.dataset.reportChapter = section;
-  aside.style.setProperty('--result-character-accent', theme.accent);
-  aside.setAttribute('aria-label', `${theme.guide?.name || theme.character.name}同行解读`);
-  const theatre = makeTheatre(theatreContainer);
-  if (theatre) aside.append(theatre);
-  const figure = makePortrait(theme.character, 'result-chapter-figure');
-  aside.append(figure);
-
-  const copy = element('div', 'result-chapter-copy');
-  copy.append(element('p', 'result-chapter-kicker', `${theme.guide?.name || theme.character.name} · 同行解读${isDemo ? ' · 示例' : ''}`));
-  const reading = element('div', 'result-chapter-reading sys-western');
-  reading.append(element('h2', '', westernText[0]), element('p', '', westernText[1]));
-  copy.append(reading);
-  aside.append(copy);
-  if (overview) {
-    const eastern = element('div', 'result-character-overview result-chapter-overview sys-eastern');
-    eastern.append(overview);
-    aside.append(eastern);
-  }
-  addPortraitToggle(aside, figure, section);
-  return aside;
 }
 
 // A guide highlights existing chart facts and offers a distinct reflection.
@@ -384,41 +419,27 @@ export function mountCharacterReport({ ctx, western = {}, isDemo = false } = {})
   const ming = document.getElementById('s-ming');
   const yun = document.getElementById('s-yun');
   const rel = document.getElementById('s-rel');
+  // The merged companion card now lives on the 报告 page; it still borrows the
+  // real 命盘速读 and the 3D 星盘 from 命理 / 星相, so those sections must exist.
+  const lead = document.getElementById('reportLead');
   if (!ming || !yun || !rel) return;
 
   // Build the new character surfaces around the existing overview and 3D
   // containers. They are moved, not recreated, so fold and orbit state survive.
+  // 报告页只放一份「导览」：合并卡。速读卡留在命理 / 运势 / 关系各自的分区里，
+  // 报告页用真实数值摘要指过去，避免同一批数字在一页里说两遍。
   const overview = ming.querySelector('.sys-eastern .qr-card');
-  const luckOverview = yun.querySelector('.sys-eastern .qr-card');
-  const relationOverview = rel.querySelector('.sys-eastern .qr-card');
-  const astro = ming.querySelector('#w3d-astro');
-  const horo = yun.querySelector('#w3d-horo');
-  const num = rel.querySelector('#w3d-num');
-  const originals = [overview, luckOverview, relationOverview, astro, horo, num].filter(Boolean).map(node => ({
-    node, parent: node.parentNode, next: node.nextSibling,
-  }));
-  let hero, luckChapter, relationChapter, perspective;
-  try {
-    const tileLabels = new Set([...(overview?.querySelectorAll('.qr-item .qr-l') || [])]
-      .map(el => el.textContent.trim()).filter(Boolean));
-    perspective = makeGuidePerspective(id, ctx, western, isDemo, tileLabels);
-    hero = makeHero(id, theme, ctx, western, isDemo, overview, astro, perspective);
-    luckChapter = makeChapter(id, theme, 'yun',
-      [isDemo ? '示例星象' : '星象一览', '拖动星象，探索十二星座示意。'], horo, luckOverview, isDemo);
-    relationChapter = makeChapter(id, theme, 'rel',
-      [isDemo ? '示例灵数' : '灵数一览', '从主命数出发，探索数字线索。'], num, relationOverview, isDemo);
-  } catch (error) {
-    // A bad optional character definition must never remove calculated report
-    // data or a working canvas. The previous surfaces are still connected here.
-    originals.forEach(({ node, parent, next }) => {
-      if (parent) parent.insertBefore(node, next?.parentNode === parent ? next : null);
-    });
-    throw error;
-  }
-  [ming, yun, rel].forEach(section => section.querySelector(':scope > .result-character-hero, :scope > .result-character-chapter')?.remove());
+  // 速读卡的标签就是报告页要排除的重复项（日主 / 强弱 / 用神 / 格局）。
+  const tileLabels = new Set([...(overview?.querySelectorAll('.qr-item .qr-l') || [])]
+    .map(el => el.textContent.trim()).filter(Boolean));
+  const perspective = makeGuidePerspective(id, ctx, western, isDemo, tileLabels);
+  const hero = makeHero(id, theme, ctx, western, isDemo, null, perspective, tileLabels);
+
+  // 只回滚本页自己的旧卡，绝不移动其它分区的节点。
+  [ming, yun, rel, lead].forEach(section =>
+    section?.querySelector(':scope > .result-character-hero, :scope > .result-character-chapter')?.remove());
   ming.querySelectorAll('.guide-perspective').forEach(node => node.remove());
-  ming.prepend(hero);
-  yun.prepend(luckChapter);
-  rel.prepend(relationChapter);
+  (lead || ming).prepend(hero);
+  bindReportJumps(hero);
   installPortraitInteraction();
 }

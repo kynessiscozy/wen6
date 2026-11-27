@@ -42,17 +42,23 @@ ok(reportUiJs.includes('body.append(perspective)') && reportUiJs.includes('hero.
   '引路人卡不再作为兄弟卡插在 hero 后面');
 ok(reportUiJs.includes("ming.querySelectorAll('.guide-perspective').forEach(node => node.remove())"),
   '旧的独立 / 嵌套指引卡都会被清理，不产生重复');
-ok(reportUiJs.includes('makeHero(id, theme, ctx, western, isDemo, overview, astro, perspective)'),
+ok(/const perspective = makeGuidePerspective\([^)]*\);\s*\n\s*const hero = makeHero\([^)]*perspective/.test(reportUiJs),
   'makeHero 直接接收路线卡，构建顺序先路线后主卡');
 
 /* ---- 2. 原数据节点与四步动作没丢 ---- */
 for (const needle of [
-  'result-character-reading sys-western', 'result-character-overview sys-eastern',
-  'result-overview-heading', 'result-character-figure', 'result-western-theatre',
-  'result-portrait-toggle', 'characterResultHint', 'result-character-hint-button',
+  'result-character-figure', 'result-portrait-toggle',
+  'characterResultHint', 'result-character-hint-button',
 ]) {
   ok(reportUiJs.includes(needle), `合并后仍保留 ${needle}`);
 }
+ok(reportUiJs.includes("element('div', 'report-summary')") &&
+   reportUiJs.includes("dataset.reportJump = 's-ming'") &&
+   reportUiJs.includes("dataset.reportJump = 's-astro'"),
+  '报告页只保留一份数值摘要，并指回命理 / 星相两个分区');
+ok(!reportUiJs.includes("overview, null, perspective") &&
+   !/ming\.querySelector\('\.sys-eastern \.qr-card'\)[\s\S]{0,120}(?:\.append|prepend)\(/.test(reportUiJs),
+  '速读卡留在命理分区，不再被搬进报告页（避免同一批数字说两遍）');
 ok(reportUiJs.includes("addPortraitToggle(hero, figure, 'ming', visual)"),
   '立绘开关挂进独立画面层，隐藏态仍由主卡承载');
 ok(reportUiJs.includes("mark.setAttribute('aria-hidden', 'true')"),
@@ -60,8 +66,8 @@ ok(reportUiJs.includes("mark.setAttribute('aria-hidden', 'true')"),
 ok(reportUiJs.includes('guideRouteFor(id)') && reportUiJs.includes('runGuideAction(step.action)') &&
    reportUiJs.includes("element('button', 'guide-route-btn')") && reportUiJs.includes('不改变排盘或评分'),
   '四步路线仍是同一份 GUIDE_ROUTES，边界说明不变');
-ok(reportUiJs.includes('originals.forEach') && reportUiJs.includes('parent.insertBefore'),
-  '构建失败时真实速读与 3D 容器仍会还原');
+ok(!reportUiJs.includes('parent.insertBefore'),
+  '不再跨分区搬动数据节点，因此也不需要「失败回滚」这一层');
 ok(!/ctx\s*\.\s*\w+\s*=/.test(reportUiJs.replace(/ctx\?\.[\w?.]+/g, 'X')),
   '合并层不写回排盘 ctx（仅读取已算结果）');
 

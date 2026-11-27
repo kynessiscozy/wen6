@@ -19,7 +19,14 @@ let syncQueued = false;
 
 const ZODIAC = ['♈', '♉', '♊', '♋', '♌', '♍', '♎', '♏', '♐', '♑', '♒', '♓'];
 const PLANET_GLYPHS = { Sun: '☉', Moon: '☽', Mercury: '☿', Venus: '♀', Mars: '♂', Jupiter: '♃', Saturn: '♄', Uranus: '♅', Neptune: '♆', Pluto: '♇' };
-const KEYS = { 's-ming': 'astro', 's-yun': 'horo', 's-rel': 'num' };
+/* 星相分域 → 场景键。分区独立后不再按东方分区 id 判定。 */
+const KEYS = { astro: 'astro', horo: 'horo', num: 'num' };
+function activeKey() {
+  const astro = document.getElementById('s-astro');
+  if (!astro) return null;
+  const pane = astro.querySelector('.astro-pane.active')?.getAttribute('data-astro');
+  return pane && KEYS[pane] ? KEYS[pane] : 'astro';
+}
 const WSIGN_IDS = ['ari','tau','gem','cnc','leo','vir','lib','sco','sgr','cap','aqu','pis'];
 
 /* ---------- 主题色 ---------- */
@@ -672,7 +679,7 @@ async function ensure(key) {
     await threeLoading;
   }
   // The user may have left the report or hidden the tab while modules loaded.
-  if (STATE.activeKey !== key || document.hidden || !document.body.classList.contains('report-active')) return null;
+  if (STATE.activeKey !== key || document.hidden || !document.body.classList.contains('report-active') || document.body.classList.contains('wen-page')) return null;
   const container = document.getElementById(CONTAINER_IDS[key]);
   // Another sync may have finished while the shared imports were pending.
   if (built[key] && built[key].container === container && container?.isConnected) return built[key];
@@ -809,9 +816,10 @@ export function syncWestern3D() {
   setTimeout(async () => {
     syncQueued = false;
     if (STATE.disposed) return;
-    const mode = document.body.getAttribute('data-system-mode') || 'eastern';
-    const activeSec = document.querySelector('.sec.active')?.id || null;
-    const key = !document.hidden && document.body.classList.contains('report-active') && mode === 'western' ? KEYS[activeSec] : null;
+    // 星相页自己决定渲染哪个场景；不再依赖 body 的东方/西方体系标记。
+    const astroActive = document.getElementById('s-astro')?.classList.contains('active');
+    const key = !document.hidden && document.body.classList.contains('report-active') &&
+      !document.body.classList.contains('wen-page') && astroActive ? activeKey() : null;
     STATE.activeKey = key;
     Object.values(KEYS).forEach(sceneKey => { if (sceneKey !== key) stop(sceneKey); });
     if (!key) return;
@@ -869,7 +877,8 @@ export function initWestern3D() {
     // Background timers can be throttled for seconds; stop immediately rather
     // than waiting for the debounced scene sync to run.
     if (document.hidden || !document.body.classList.contains('report-active') ||
-        document.body.getAttribute('data-system-mode') !== 'western') {
+        document.body.classList.contains('wen-page') ||
+        !document.getElementById('s-astro')?.classList.contains('active')) {
       STATE.activeKey = null;
       Object.values(KEYS).forEach(stop);
     }
@@ -877,10 +886,11 @@ export function initWestern3D() {
   };
   document.addEventListener('visibilitychange', resync);
 
-  // 分区切换 / Dock 点击
+  // 分区切换 / Dock 点击 / 星相分域切换
   document.addEventListener('click', e => {
-    if (e.target.closest?.('.tab-item')) syncWestern3D();
+    if (e.target.closest?.('.tab-item') || e.target.closest?.('.astro-tab')) syncWestern3D();
   }, true);
+  window.addEventListener('tj:astro-tab', () => syncWestern3D());
 
   // 模式与主题切换
   new MutationObserver(resync).observe(document.body, { attributes: true, attributeFilter: ['class', 'data-system-mode'] });

@@ -288,9 +288,9 @@ export function renderWesternAstrologySection(ctx) {
     '<div class="w3d-loading"><span class="w3d-load-ring"></span><span>星空正在编译中...</span></div>' +
     '<div class="w3d-ov">' +
       '<div class="w3d-ov-chips">' +
-        '<span>☉ 太阳 <b data-report-value="sun">' + sun.name + '</b></span>' +
-        '<span>☽ 月亮 <b data-report-value="moon">' + moon.name + '</b></span>' +
-        '<span>ASC 上升 <b data-report-value="asc">' + asc.name + '</b></span>' +
+        '<span>' + getWesternSvgIcon('sun', 13) + ' 太阳 <b data-report-value="sun">' + sun.name + '</b></span>' +
+        '<span>' + getWesternSvgIcon('moon', 13) + ' 月亮 <b data-report-value="moon">' + moon.name + '</b></span>' +
+        '<span>' + getWesternSvgIcon('asc', 13) + ' 上升 <b data-report-value="asc">' + asc.name + '</b></span>' +
       '</div>' +
       '<div class="w3d-ov-take">' + sun.tag + ' · 主要元素：' + chart.dominantElem.name + '</div>' +
     '</div>' +
@@ -426,7 +426,7 @@ export function renderWesternHoroscopeSection(ctx) {
   H += '<div class="w3d-hero w3d-hero-night" id="w3d-horo" data-system="western">' +
     '<button class="w3d-reset" type="button" aria-label="复位视角" title="复位视角" onpointerdown="event.stopPropagation()" onclick="window._w3dReset && window._w3dReset(\'horo\')"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 12a9 9 0 1 0 2.6-6.4"/><path d="M3 4v5h5"/></svg></button>' +
     '<div class="w3d-loading"><span class="w3d-load-ring"></span><span>星空正在编译中...</span></div>' +
-    '<div class="w3d-ov"><div class="w3d-ov-kicker">黄道天球 · 星座示意</div><div class="w3d-ov-chips"><span>☉ ' + sun.name + '</span><span>' + fToday.sub + '</span></div></div>' +
+    '<div class="w3d-ov"><div class="w3d-ov-kicker">黄道天球 · 星座示意</div><div class="w3d-ov-chips"><span>' + getWesternSvgIcon('sun', 13) + ' ' + sun.name + '</span><span>' + fToday.sub + '</span></div></div>' +
   '</div>';
 
   // 今日运势总览大卡

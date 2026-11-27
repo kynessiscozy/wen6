@@ -75,7 +75,7 @@ import {
   calcLayoffRisk, renderAll, switchStructureTab, toggleFullGods, calcRelation, copyReport
 } from './render/index.js';
 import {
-  applyTheme, jumpTo, showPage2, goBack, switchTab, setGlassMode, moveTabIndicator, initNavigationUI, openAsk, closeAsk, newAskChat, doAsk, doAskCustom, aiOnInputSuggest, setAiBasis, toggleAISettings, initAISettings, buildAISettingsPanel, applyThemePref, getThemePref
+  applyTheme, jumpTo, showPage2, goBack, switchTab, openResultView, activateAstroTab, setGlassMode, moveTabIndicator, initNavigationUI, openAsk, closeAsk, openAskPage, closeAskPage, newAskChat, doAsk, doAskCustom, aiOnInputSuggest, setAiBasis, toggleAISettings, initAISettings, buildAISettingsPanel, applyThemePref, getThemePref
 } from './ui/index.js';
 import { initFontSize } from './font-size.js';
 import { initWeather } from './ui/weather.js';
@@ -125,6 +125,28 @@ let aboutReturnFocus=null;
   window.toggleFullGods=toggleFullGods;
   window.setUserMode=setSystemMode;
   window.setSystemMode=setSystemMode;
+  // 结果页五个入口：报告 / 命理 / WEN / 星相 / 工具
+  window.TJOpenResultView=openResultView;
+  window.TJActivateAstroTab=activateAstroTab;
+  window.openAskPage=openAskPage;
+  window.closeAskPage=closeAskPage;
+  // 报告页目录：命理分区用 jumpTo，星相分区先切分域再定位
+  window.TJJumpReport=function(sec,tab){
+    if(sec==='s-report'){ openResultView('s-report'); return; }
+    if(sec==='s-astro'){
+      openResultView('s-astro');
+      // 不带 tab 时停在「本命」，由用户自己在页内切换。
+      const map={'本命':'astro','运程':'horo','灵数':'num'};
+      const key=map[tab];
+      if(!key)return;
+      setTimeout(()=>{activateAstroTab(key);const el=document.querySelector(`.astro-pane[data-astro="${key}"]`);el?.scrollIntoView({behavior:'smooth',block:'start'});},60);
+      return;
+    }
+    const first={ '命盘':'s-ming','运势':'s-yun','关系':'s-rel' };
+    jumpTo(sec, null, null);
+    const id=first[tab];
+    if(id&&id!==sec)setTimeout(()=>jumpTo(id,null,null),120);
+  };
   window.setAiBasis=setAiBasis;
   window.toggleUserMode=toggleUserMode;
   window.doAsk=doAsk;
@@ -473,7 +495,8 @@ async function calc(isDemoPreview=false){
     // 只显示这次问卷对应的预告，避免旧问卷串到档案或手动推演。
     if(isFunnelHandoff)try { showFunnelTeaserIfNeeded(); } catch (e) { console.warn('[funnel] 预告页失败', e); }
     window.__wenFlow?.onReportReady?.();
-    document.querySelectorAll('.tab-item')[0].click();
+    // 推演完成后先落在「命理 · 命盘」：速读与四柱是这份报告的第一层。
+    openResultView('s-ming');
     formReturnFocus=null;
     focusSafely(document.getElementById('p2MenuBtn'));
     completed=true;
@@ -1168,35 +1191,16 @@ function wrapProCollapsibles(root){
 
 function enrichBeginnerContent(root){wrapProCollapsibles(root);}
 
+/* 体系标记仍保留：星相页 = western，其余 = eastern。
+   DOCK 不再随体系换文案（五入口固定），体系只用来选配色与人物场景。 */
 function setSystemMode(mode){
   const isWestern=mode==='western';
   const sysMode=isWestern?'western':'eastern';
+  if(document.body.getAttribute('data-system-mode')===sysMode&&
+     document.documentElement.getAttribute('data-system-mode')===sysMode)return;
   document.body.setAttribute('data-system-mode',sysMode);
   document.documentElement.setAttribute('data-system-mode',sysMode);
   try{localStorage.setItem('tj_system_mode',sysMode);}catch(e){}
-  const easternBtn=document.getElementById('modeEastern');
-  const westernBtn=document.getElementById('modeWestern');
-  if(easternBtn&&westernBtn){
-    easternBtn.classList.toggle('active',!isWestern);
-    westernBtn.classList.toggle('active',isWestern);
-    easternBtn.setAttribute('aria-selected',!isWestern?'true':'false');
-    westernBtn.setAttribute('aria-selected',isWestern?'true':'false');
-  }
-
-  // 底部 Dock 标签文案与图标切换
-  const labelMing=document.getElementById('tabLabelMing');
-  const labelYun=document.getElementById('tabLabelYun');
-  const labelRel=document.getElementById('tabLabelRel');
-  if(labelMing)labelMing.textContent=isWestern?'占星术':'命盘';
-  if(labelYun)labelYun.textContent=isWestern?'星座全览':'运势';
-  if(labelRel)labelRel.textContent=isWestern?'生命灵术':'关系';
-
-  document.querySelectorAll('.ig-nav-icon-eastern').forEach(el=>{
-    el.style.setProperty('display',isWestern?'none':'block','important');
-  });
-  document.querySelectorAll('.ig-nav-icon-western').forEach(el=>{
-    el.style.setProperty('display',isWestern?'block':'none','important');
-  });
 
   const pop=document.getElementById('glossPop');if(pop)pop.classList.remove('open');
 
@@ -1239,8 +1243,8 @@ async function openCalendarMode(){
   }
 }
 function toggleUserMode(){
-  const cur=document.body.getAttribute('data-system-mode')||'eastern';
-  setSystemMode(cur==='eastern'?'western':'eastern');
+  const cur=document.body.dataset.resultView;
+  openResultView(cur==='astro'?'s-ming':'s-astro');
 }
 (function initSystemMode(){
   let mode='eastern';
@@ -1270,6 +1274,8 @@ function toggleUserMode(){
   const oldSwitch=window.switchTab;
   window.switchTab=function(el){
     if(oldSwitch)oldSwitch(el);
+    // WEN 是页面，不是 .sec：工具环形只对工具分区生效。
+    if(!el||!el.dataset||!el.dataset.sec)return;
     if(el&&el.dataset.sec==='s-adv'){
       setTimeout(()=>{
         mount();
