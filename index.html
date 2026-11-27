@@ -78,10 +78,25 @@
         if (registration) return registration.update();
       }).catch(function () { /* Offline visits keep using their existing cache. */ });
     }
-    if ('serviceWorker' in navigator && !navigator.serviceWorker.controller) {
+    // 开发服务器下不注册 Service Worker：它会把改动前的 HTML / 脚本缓存下来，
+    // 让本地预览看起来「点了没反应」。生产构建（dist / 预览）才启用离线缓存。
+    var isDevServer = location.port === '5173' || location.port === '5174';
+    if ('serviceWorker' in navigator && !navigator.serviceWorker.controller && !isDevServer) {
       window.addEventListener('load', function () {
         navigator.serviceWorker.register('./sw.js').catch(function () {});
       }, { once: true });
+    }
+    // 曾经在开发服务器上注册过 SW 的浏览器：顺手注销并清掉旧缓存，
+    // 否则它会一直返回改动前的内容。
+    if (isDevServer && 'serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(function (regs) {
+        regs.forEach(function (reg) { reg.unregister(); });
+      }).catch(function () {});
+      if (window.caches && caches.keys) {
+        caches.keys().then(function (keys) {
+          keys.forEach(function (key) { caches.delete(key); });
+        }).catch(function () {});
+      }
     }
   })();
 </script>

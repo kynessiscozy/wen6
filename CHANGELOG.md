@@ -8,6 +8,8 @@
 
 ### 变更（结果页重构：DOCK 五入口 · 报告 / 命理 / WEN / 星相 / 工具）
 
+- **本地预览修复**：`index.html` 原先无条件注册 `./sw.js`，开发服务器（5173/5174）也会被 Service Worker 接管——它按 network-first 取 HTML、缓存静态资源，旧 SW 会让预览页一直返回改动前的内容，表现为「点了跳不出结果页」。现在 dev 端口既不注册 SW，还会主动注销历史注册并清空 `caches`；生产构建的离线缓存策略不变。
+
 - **入口**：底部 DOCK 从「东方 / 西方」两体系四标签改为五个并列入口——`报告`（`s-report`）、`命理`（`s-ming/s-yun/s-rel`）、`WEN`（`#aiFab[data-view="wen"]`）、`星相`（`s-astro`）、`工具`（`s-adv`）。顶部「东方 / 西方」体系开关移除，`src/styles/50-system-mode.css` 里的 `.sys-eastern/.sys-western` 显隐与 `ig-nav-icon-eastern/western` 图标切换一并清空（该文件保留占位以维持 `@import` 顺序）；`data-system-mode` 属性仍保留，因为 AI 依据与长报告还在读它。
 - **报告页**：新增一级标题行 + 合并主卡 + 六项目录。合并卡不再把星相页的 3D 场景（`#w3d-astro`）搬进画面层——那会让「星相」页丢掉主角；改为在卡内渲染真实的星盘三核数值条（`guide-companion-trio`，太阳 / 月亮 / 上升，带 `data-report-value`），数值优先取 `western.astro`，未渲染过星相页时由 `getWesternProfile(ctx)` 现算。
 - **命理页**：`命盘 / 运势 / 关系` 三个原 `section` 收成同页顶部切换（`#eastModeGroup`），DOCK 里只剩一个「命理」入口。
