@@ -482,3 +482,147 @@ body.wen-page #aiSheet .ai-hero-copy { margin-block: 0 !important; }
 body.wen-page #aiSheet .ai-basis-row { margin: 0 0 4px !important; }
 body.wen-page #aiSheet .ai-context { padding: 5px 8px !important; }
 body.wen-page #aiSheet .ai-conn-bar { margin: 2px 0 0 !important; padding: 4px 0 !important; }
+
+/* ============================================================
+   8. 移动端触控与可读性
+   ------------------------------------------------------------
+   实测（390×844）：结果页有 22–33 个可点元素小于 44px，
+   其中 p2-act / 分段开关 / 出口按钮 都在 36–40px。
+   这里统一抬到 44px 的可点高度，但不动版式本身。
+   用 @media (pointer: coarse) 而不是宽度断点：触屏笔记本同样受益，
+   而窄窗口的桌面浏览器不会被强行放大。
+   ============================================================ */
+@media (pointer: coarse) {
+  /* 顶栏三个圆钮 + 菜单按钮。
+     必须带 !important：claude-refine.css 用
+     `.p2-top .p2-act{width:40px!important}` 把尺寸锁死了。 */
+  #page2 .p2-top .p2-act,
+  #page2 .p2-top .p2-menu-btn {
+    width: 44px !important;
+    height: 44px !important;
+    min-width: 44px !important;
+    min-height: 44px !important;
+    flex: 0 0 auto;
+  }
+  #page2 .p2-top .p2-menu-close { width: 44px !important; height: 44px !important; }
+
+  /* 命理顶部分段：命盘 / 运势 / 关系 */
+  #page2 .mode-top-switch,
+  #eastModeGroup .mode-top-switch {
+    min-height: 44px !important;
+    padding-block: 0;
+  }
+
+  /* 报告页出口与摘要卡 */
+  #page2 .report-exits-btn { min-height: 44px !important; padding-inline: 16px; }
+  #page2 .report-summary-card { min-height: 44px !important; }
+
+  /* 星相页内部分段与 3D 复位 */
+  #page2 .wastro-tab { min-height: 44px !important; }
+  #page2 .w3d-reset { width: 44px !important; height: 44px !important; }
+
+  /* 命理速读卡的跳转 chips */
+  #page2 .qr-act { min-height: 44px !important; padding-block: 0; display: inline-flex; align-items: center; }
+
+  /* 立绘开关 / 提示按钮 */
+  #page2 .result-portrait-toggle,
+  #page2 .result-character-hint-button {
+    min-height: 44px !important;
+    padding-block: 0;
+  }
+  #page2 .guide-route-btn { min-height: 56px !important; }
+
+  /* WEN 整页内部：顶栏图标钮、分析依据开关、收起顶部、发送。
+     chat-master.css 的 `html[data-theme] body #aiSheet .ai-actions button`
+     同时锁了 width / max-width / height，必须用同等特异性覆盖。 */
+  /* chat-master.css 用 `html[data-theme] body #aiSheet .ai-actions button`
+     （1 个 id + 2 个类）锁死 38px，且加载在本文件之后。
+     这里补一个 :is() 把自身特异性抬到同级的更高权重。 */
+  html[data-theme] body #aiSheet .ai-actions button:is(.ai-new, .ai-settings, .ai-close),
+  html[data-theme] body #aiSheet .ai-actions button {
+    width: 44px !important;
+    min-width: 44px !important;
+    max-width: 44px !important;
+    height: 44px !important;
+    min-height: 44px !important;
+    max-height: 44px !important;
+  }
+  html[data-theme] body #aiSheet .ai-compose .ai-send,
+  html[data-theme] body #aiSheet button.ai-send {
+    width: 44px !important;
+    min-width: 44px !important;
+    max-width: 44px !important;
+    height: 44px !important;
+    min-height: 44px !important;
+    max-height: 44px !important;
+  }
+  html[data-theme] body #aiSheet .ai-basis-pill { min-height: 44px !important; }
+  html[data-theme] body #aiSheet .ai-header-toggle { min-height: 44px !important; }
+
+  /* 工具页：分类 chip / 轮播控件 / 视图切换 */
+  #page2 .tool-category-chip,
+  #page2 .tool-ctrl-btn,
+  #page2 .tool-view-toggle-btn { min-height: 44px !important; }
+  /* 手机上的分类 chip 横向滚动，加高后仍要能滑动而不是换行 */
+  #page2 .tool-category-row,
+  #page2 .tool-category-chips {
+    overflow-x: auto !important;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  #page2 .tool-category-row::-webkit-scrollbar,
+  #page2 .tool-category-chips::-webkit-scrollbar { display: none; }
+
+  /* 设置 / 档案面板里的行按钮 */
+  #page2 .pf-io-btn,
+  #page2 .gs-seg-opt,
+  #page2 .p2-menu-close { min-height: 44px !important; }
+
+  /* 回到顶部（claude-refine.css 也锁了 40px，同样要压过去） */
+  html[data-theme] body #page2 .back-to-top {
+    width: 44px !important;
+    height: 44px !important;
+    min-width: 44px !important;
+    min-height: 44px !important;
+    max-width: 44px !important;
+    max-height: 44px !important;
+  }
+
+  /* 命理页内的四个分段与四柱/五行细分切换 */
+  html[data-theme] body #page2 .ming-tab,
+  html[data-theme] body #page2 .structure-tab,
+  html[data-theme] body #page2 .wastro-tab,
+  html[data-theme] body #page2 .sec-tab {
+    min-height: 44px !important;
+  }
+  /* 「和问问聊聊」浮条上的两个按钮 */
+  html[data-theme] body #page2 .character-prompt-action {
+    min-height: 44px !important;
+    display: inline-flex;
+    align-items: center;
+  }
+  html[data-theme] body #page2 .character-prompt-dismiss {
+    min-width: 44px !important;
+    min-height: 44px !important;
+  }
+}
+
+/* 小于 12px 的字在手机上几乎读不了。抬到 12px 起步，
+   但不碰大标题与正文（它们本来就更大）。 */
+@media (max-width: 480px) {
+  #page2 .report-fact span,
+  #page2 .report-fact-grid span { font-size: 11px; }
+  #page2 .report-summary-kicker { font-size: 11px; }
+  #page2 .report-summary-go { font-size: 11.5px; }
+  #page2 .result-character-kicker,
+  #page2 .result-character-mark { font-size: 12px; }
+  #page2 .astro-tab small { font-size: 11px; }
+  /* iOS 输入框小于 16px 会触发「聚焦自动放大」，一填表就被拉近。
+     用 max() 取舍：既不低于 16px，也不违背用户自选的字号倍率。 */
+  #formModal input,
+  #formModal select,
+  #formModal textarea,
+  #askInput {
+    font-size: max(16px, calc(16px * var(--font-scale, 1)));
+  }
+}

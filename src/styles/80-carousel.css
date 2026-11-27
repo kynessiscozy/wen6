@@ -522,17 +522,26 @@
 }
 
 @media (max-width: 560px){
-.tool-row-stage,
+  /* 舞台高度必须落在「顶栏 + DOCK」之间的可视区里，
+     否则卡片底部会被 DOCK 盖住、文字被裁掉。 */
+  .tool-row-stage,
   .tool-ring-stage {
-    height: 528px;
+    height: min(52vh, calc(100dvh - 260px));
+    min-height: 340px;
+    margin: 10px 0 6px;
   }
   .tool-card-portrait {
-    width: 252px !important;
-    min-width: 252px !important;
-    max-width: 252px !important;
-    height: 475px !important;
-    padding: 18px 16px 14px !important;
+    width: min(78vw, 270px) !important;
+    min-width: min(78vw, 270px) !important;
+    max-width: min(78vw, 270px) !important;
+    height: min(calc(100dvh - 300px), 420px) !important;
+    min-height: 300px;
+    padding: 16px 15px 13px !important;
+    border-radius: 20px !important;
   }
+  /* 卡片内文字在窄屏下不需要那么大的行距，收紧后 420px 内能放全 */
+  .tool-card-portrait .tc-p-desc { font-size: 12.5px !important; line-height: 1.55 !important; }
+  .tool-card-portrait .tc-p-pills span { font-size: 10.5px !important; }
   .view-mode-grid .tool-row-track,
   .view-mode-grid .tool-ring-carousel {
     grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
