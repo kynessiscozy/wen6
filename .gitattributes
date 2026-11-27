@@ -1,0 +1,14 @@
+# 统一行尾：检出时按仓库现状保留，避免编辑器把 CRLF 改成 LF
+# 造成整个文件级别的假 diff（曾让 report.js / ask-panel.js 的
+# 真实改动被上千行行尾噪音淹没）。
+* text=auto
+*.js   text eol=crlf
+*.mjs  text eol=crlf
+*.css  text eol=crlf
+*.html text eol=crlf
+*.json text eol=lf
+*.md   text eol=lf
+*.webp binary
+*.png  binary
+*.jpg  binary
+*.woff2 binary
